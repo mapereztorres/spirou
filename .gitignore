@@ -1,0 +1,9 @@
+# Output data
+############
+*.pdf
+*.png
+*.txt
+
+# ipython
+############
+.ipynb_checkpoints/
