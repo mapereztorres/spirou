@@ -1,3 +1,4 @@
+
 # Useful constants
 c   = 2.99792458e10        #  speed of light, in cm/s
 m_e = 9.1093897e-28              # electron mass, in g
