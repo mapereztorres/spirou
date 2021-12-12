@@ -34,7 +34,7 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 n_sw_base = 1e7
 
 # Stellar magnetic field at the surface of the pole, in gauss 
-B_star = 307.
+#B_star = 307.
 
 # Is the stellar plasma assumed to be isothermal?
 isothermal = True 
