@@ -62,3 +62,4 @@ M_star_dot = 0.035*M_sun_dot
 n_w = n_wind(M_star_dot, d=0.145*R_sun, v_sw=18.1)
 #print("Particle density is n_sw = {0:.2e} #/cm^3".format(n_w))
 
+R_planet = 1.0
