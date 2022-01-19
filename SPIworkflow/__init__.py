@@ -9,7 +9,7 @@ import numpy as np
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-rms  = 0.013 
+rms  = 0.020
 
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
@@ -31,7 +31,7 @@ rms  = 0.013
 T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2 
-n_sw_base = 1e7
+n_sw_base = 4.2e6  # As in the Sun, approximately
 
 # Stellar magnetic field at the surface of the pole, in gauss 
 #B_star = 307.
@@ -48,7 +48,7 @@ isothermal = True
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-eps_min = 0.005; eps_max = 0.05 
+eps_min = 0.005; eps_max = 0.05
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
