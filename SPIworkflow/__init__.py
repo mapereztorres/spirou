@@ -31,7 +31,7 @@ rms  = 0.020
 T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2 
-n_sw_base = 4.2e6  # As in the Sun, approximately
+n_sw_base = 1.0e7  # 
 
 # Stellar magnetic field at the surface of the pole, in gauss 
 #B_star = 307.
