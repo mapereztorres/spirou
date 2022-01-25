@@ -48,7 +48,7 @@ isothermal = True
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-eps_min = 0.005; eps_max = 0.05
+eps_min = 0.01; eps_max = 0.1
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
