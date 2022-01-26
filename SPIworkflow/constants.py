@@ -18,6 +18,8 @@ R_earth = 6.378136e+8    # cm
 M_jup = M_jupiter  = 1.8987e+30 # in g
 R_jup = R_jupiter  = 7.1492000e+9  # in cm
 
+bfield_earth = 0.5 # Earth surface magnetic field at the pole, in Gauss
+
 yr = 365.24 #yr, in days
 day = 86400. #day,in seconds
 yr2sec = yr*day #yr, in seconds
