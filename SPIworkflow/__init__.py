@@ -9,7 +9,7 @@ import numpy as np
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-rms  = 0.020
+rms  = 0.022
 
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 

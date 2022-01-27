@@ -134,17 +134,11 @@ M_sun_dot = 2e-14 # Mass-loss rate of Sun, in M_sol/yr
 # Proxima Cen
 M_star_dot = 0.035*M_sun_dot
 n_w = n_wind(M_star_dot, d=0.145*R_sun, v_sw=18.1)
-print("Particle density is n_sw = {0:.2e} #/cm^3".format(n_w))
 
-
-# In[8]:
 
 
 df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
-df.columns
-
-
-# In[9]:
+#df.columns
 
 
 df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
@@ -195,9 +189,9 @@ data[:]
 
 
 #print(df[' Period'][indi])
-print(data.to_latex(index=False, columns=['planet_name', 'ra(hms)', 'dec(dms)', 'd_star(pc)', 
-                                          'p_rot(days)', 'bfield_star(gauss)', 'radius_planet(r_earth)',   
-                                          'p_orb(days)', 'freq_cycl(ghz)']))
+#print(data.to_latex(index=False, columns=['planet_name', 'ra(hms)', 'dec(dms)', 'd_star(pc)', 
+#                                          'p_rot(days)', 'bfield_star(gauss)', 'radius_planet(r_earth)',   
+#                                          'p_orb(days)', 'freq_cycl(ghz)']))
       
 #["planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
@@ -234,10 +228,10 @@ semimajor_a = Kepler_r(M_star, P_orb)/au
 R_star = data['radius_star(r_sun)'][indi]
 orb_distance = data['a(au)'][indi]*au / (R_star*R_sun) # in stellar radii
 P_rot_star = float(data['p_rot(days)'][indi])   # Rotation period  of star, in days
-print(type(P_rot_star), type(M_star))
+#print(type(P_rot_star), type(M_star))
 P_rot_star *= day    # Rotation period  of star, in sec
 
-print(data['planet_name'][indi], data['a(au)'][indi], semimajor_a, orb_distance, P_rot_star)
+#print(data['planet_name'][indi], data['a(au)'][indi], semimajor_a, orb_distance, P_rot_star)
 
 
 # In[15]:
@@ -245,7 +239,7 @@ print(data['planet_name'][indi], data['a(au)'][indi], semimajor_a, orb_distance,
 
 #_orb_2 = (data['a(AU)'][i]*au)/(data['star_radius(R_Sun)'][i]*R_sun)
 #rint(r_orb_2)
-print(data['bfield_star(gauss)'][indi])
+#print(data['bfield_star(gauss)'][indi])
 
 
 # In[16]:
@@ -320,7 +314,7 @@ for indi in star_array:
             Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
             d_orb = np.linspace(2.00, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
-            print(len(d_orb))
+            #print(len(d_orb))
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
@@ -729,44 +723,3 @@ for indi in star_array:
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
                 f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
             
-
-
-# In[18]:
-
-
-# Print out the expected flux received at Earth from the SPI at the position of the planet
-
-# First, find out the position of the planet in the distance array
-d_diff = np.abs((d_orb-r_orb)/R_star)
-location_pl = np.where(d_diff == d_diff.min())
-
-#print('S_poynt: {0} erg/s\n'.format(S_poynt))
-#print('Flux_ST: {0} mJy\n'.format(Flux_r_S_max))    
-#print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
-
-# Print out minimum and maximum values of flux density at the planet location
-print("B_star =", B_star, " G; " "B_planet = ", Bp, " G ")
-print("\nPrint out Poynting Flux at the planet location")
-print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
-print("\nPrint out Poynting Flux at the first cell")
-print("Saur/Turnpenney (erg/s): ", S_poynt[0])
-
-print("\nPrint out minimum and maximum values of flux density at the planet location")
-print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
-#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
-print("\nPrint out minimum and maximum values of flux density at the first cell")
-print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
-#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
