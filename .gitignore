@@ -9,8 +9,7 @@
 .ipynb_checkpoints/
 
 #
-*.pyc
-__pycache__/*.pyc
+SPIworkflow/__pycache__/
 
 #
 *.swp
