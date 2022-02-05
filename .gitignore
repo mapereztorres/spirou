@@ -1,7 +1,6 @@
 # Output data
 ############
 *.pdf
-*.png
 *.txt
 
 # ipython
