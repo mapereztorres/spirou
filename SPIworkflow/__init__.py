@@ -33,8 +33,13 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2 
 n_sw_base = 1.0e7  # 
 
-# Stellar magnetic field at the surface of the pole, in gauss 
+# Stellar magnetic field at the surface of the star pole, in gauss 
+# Now it's read from an external file
 #B_star = 307.
+
+#####################################
+# STELLAR WIND
+#####################################
 
 # Is the stellar plasma assumed to be isothermal?
 isothermal = True 
