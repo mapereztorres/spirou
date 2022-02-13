@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
 
 # # Star-planet Interaction (model)
 # ## Sub-Alfvenic flux for both a Parker spiral magnetic field configuration and a closed dipolar field configuration
@@ -7,24 +5,16 @@
 # In[1]:
 
 
-import numpy as np
-import pandas as pd
 import os
 import shutil
-
-#from IPython import get_ipython
-#get_ipython().run_line_magic('matplotlib', 'inline')
+import numpy as np
+import pandas as pd
 
 import matplotlib
 matplotlib.rc_file_defaults()
-
-
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
-
-
-# In[2]:
 
 
 ### Getting the parameters to predict the SPI radio emission
@@ -35,26 +25,12 @@ plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
 #
 from SPIworkflow.__init__ import *
 
-
-# In[3]:
-
-
 # Import useful constants to be used in the code
 from SPIworkflow.constants import *
 
-
-# In[4]:
-
-
-# FUNCTION DEFINITIONS for plotting purposes
+# FUNCTION DEFINITIONS 
 def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)
-
-
-# In[5]:
-
-
-### FUNCTION DEFINITIONS
 
 def Kepler_r(M_star, P_orb):
     """Computes the orbital radius of a planet (=semimajor axis)
@@ -72,30 +48,35 @@ def beta_keV(E_kin=511):
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
 
-def bfield_Sano(v_orb=1.0, r_orb=1.0, M_planet=M_earth, rho_core=1.0):
+def bfield_Sano(v_orb=1.0, r_orb=1.0, M_planet = M_earth, rho_core=rho_core_earth):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
-        OUTPUT: B_planet 
-        INPUT : v_orb, M_planet, R_planet
+        OUTPUT: B_planet, in Gauss
+        INPUT : v_orb, M_planet, R_planet, rho_core
+                v_orb - orbital speed, in cm/s
+                M_planet - Planet mass, in g
+                rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
+                value of the oute core density of the Earth.
     """
     Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
-    Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)] assuming it is tidally locked
-    rho_core_earth = 1.0 #normalized to value of Earth
-    magnetic_moment_earth = 1.05e23 # in Amperes * m^(-2)
-    # core radius. The numerical value of 3.5e6 is in meters, and taken from Sano 1993
-    r_core_earth = 3.486e6 #Earth outer core radius, in [meters]
-    
+    Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)]. Assumes the planet is tidally locked
     r_core = r_core_earth * (M_planet/M_earth)**0.44 # Scaling law from Curtis & NEss (1986)
-    scaling_law = ( rho_core/rho_core_earth )**(1/2) * ( r_core/r_core_earth )**(7/2) * ( Omega_planet/Omega_earth )
+    scaling_law = (rho_core / rho_core_earth )**(1/2) * (r_core / r_core_earth)**(7/2) * (Omega_planet / Omega_earth)
     magnetic_moment_planet = magnetic_moment_earth * scaling_law
-        
-    #B_planet - The factor of 2 is added to yield the approx. surface magnetic field of Earth at the pole (0.5 Gauss)  
     B_planet  = 2 * magnetic_moment_planet / r_core**3 # in Tesla.  
     B_planet *= 1e-4 # In Gauss
  
     return B_planet
 
 def Rp_eff_func(Rp, theta_M, Bp, B_tot):
-    "Returns effective planet radius, in cm"
+    """ Computes the effective obstacle radius for the planet. 
+        If the planet is magnetized, it is normally larger than the planet radius (Rp).
+        If unmagnetized, then the effective radius is made equal to Rp.
+        OUTPUT: Rp_eff - Effective planet radius, in cm 
+        INPUT : Rp - Planet radius (cm)
+                theta_M - angle  (radians)
+                Bp -  planet magnetic field (G)
+                B_tot - Magnetic field of the stellar wind at planet position (G)
+    """
     if (Bp > 0.0):
         Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
         Rp_eff[Rp_eff<Rp]=Rp # Rp_eff cannot be smaller than Rplanet
@@ -104,13 +85,23 @@ def Rp_eff_func(Rp, theta_M, Bp, B_tot):
     
     return Rp_eff
 
-
-# #  Next two cells to be implemented in the future
+def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
+    """ Returns the radio luminosity of an early-type magnetic star, 
+        using the scaling law of Leto et al. (2021, MNRAS)
+        OUTPUT: Lnu_rad, in erg/s/Hz
+        INPUT:  B_star, in Gauss
+                R_star, in R_sun
+                P_rot , in days
+    """
+    alpha = 13.6; beta = 1.94 # from Leto+2021
+    nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz 
+    Lnu_rad = 10**alpha * (B_star/1e3)**beta * R_star**(2*beta) * P_rot**(-beta) # erg/s/Hz
+    Ltot_rad = Lnu_rad * nu_ecm
+    return Ltot_rad
+    
+# Next function to be implemented in the future
 # ## Instead of using particle density, we'll use M_dot 
-# ### Currently, those two cells are not used for the calculations
-
-# In[6]:
-
+# ### Currently, this function isn't used for the calculations
 
 def n_wind(M_star_dot=3e-14, d=7e10, v_sw=25.6e5):
     """ Computes the particle density of the stellar wind at some distance d from the
@@ -126,20 +117,15 @@ def n_wind(M_star_dot=3e-14, d=7e10, v_sw=25.6e5):
     n_sw = rho / m_av
     return n_sw
 
-
-# In[7]:
-
-
 M_sun_dot = 2e-14 # Mass-loss rate of Sun, in M_sol/yr
 # Proxima Cen
 M_star_dot = 0.035*M_sun_dot
 n_w = n_wind(M_star_dot, d=0.145*R_sun, v_sw=18.1)
+print("Particle density is n_sw = {0:.2e} #/cm^3".format(n_w))
 
 
-
-df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
+df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #df.columns
-
 
 df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
 df2 = df[["star_name", "ra(hms)", "dec(dms)", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", 
@@ -151,62 +137,44 @@ mask_dec    = df2['dec(deg)'] > -30.0
 data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
 data.reset_index(inplace=True)
 len(data[:])
-#data[:]
-
-
-# In[10]:
-
-
-#data = pd.read_csv("./INPUT/SPI-sources.csv")
-#df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
-#df = pd.read_csv("./INPUT/StarTable-Reiners.csv")
-#values = {'RA(h)':0.0, 'DEC(deg)': 0.0}
-#data.fillna(value=values)
-#data.sort_values(by="RA (h:m:s)")
-
-
-df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
-df2 = df[["planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
-          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
-          "star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
-
-df2['freq_cycl(ghz)']=df2['bfield_star(gauss)']*2.8e-3
-
-mask_d      = df2['d_star(pc)'] < 20.0
-mask_Porb   = df2['p_orb(days)'] < 50.0
-#mask_Prot   = df2['p_rot(days)'] > 3.0
-mask_a      = df2['a(au)'] < 10.0
-mask_Bfield = df2['bfield_star(gauss)'] > 390.0
-mask_dec    = df2['dec(deg)'] > -30.0
-#data = df2[mask_d & mask_Prot & mask_Porb & mask_a & mask_Bfield & mask_dec]
-data = df2[mask_d & mask_Porb & mask_a & mask_Bfield & mask_dec]
-data = data.drop_duplicates(subset=['star_name'])
-data.reset_index(inplace=True)
 data[:]
 
 
-# In[11]:
+df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN_sp_type.csv")
+df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 
+df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
+df2 = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
+          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
+          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
+
+df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
+df = pd.read_csv("./INPUT/my-SPI-sources.csv")
+data = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)",
+           "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
+          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)"]]
+#df2['freq_cycl(ghz)'] = df2.loc[:,('bfield_star(gauss)')]*2.8e-3
+# Create new column
+data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
+
+#data = df2[mask_d & mask_Prot & mask_Porb & mask_a & mask_Bfield & mask_dec]
+#data = data.drop_duplicates(subset=['star_name'])
+data.reset_index(inplace=True)
+data[:]
 
 #print(df[' Period'][indi])
 #print(data.to_latex(index=False, columns=['planet_name', 'ra(hms)', 'dec(dms)', 'd_star(pc)', 
 #                                          'p_rot(days)', 'bfield_star(gauss)', 'radius_planet(r_earth)',   
 #                                          'p_orb(days)', 'freq_cycl(ghz)']))
-      
+#      
 #["planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
 #          "star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
 
-# In[12]:
-
-
+# We use an isothermal Parker wind
 # Sound speed, in cm/s- Depends only on the Temperature of the stellar corona
 vsound = np.sqrt(5/3 * k_B * T_corona/m_h) 
-
-
-# In[13]:
-
 
 # If OUTPUT directory does not exist, then create it.
 outdir = 'OUTPUT'
@@ -216,35 +184,36 @@ try:
 except FileExistsError:
     print('Directory', outdir, 'already exists')
 
+#indis = range(len(data))
+indis = [10]
+for indi in indis:
+    planet = data['planet_name'][indi]
+    #print("Planet = {0:12s}\n".format(planet))
+    d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
+    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+    M_star = data['mass_star(m_sun)'][indi] * M_sun
+    P_orb  = data['p_orb(days)'][indi] # Orbital period, in days
+    Exoplanet = data['planet_name'][indi]
+    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius
+    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass
+    r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+    nu_ecm = data['freq_cycl(ghz)'] # in GHz
+    #P_orb  *= 86400 # Orbital period, in cgs
+    #semimajor_a = Kepler_r(M_star, P_orb)/au
+    R_star = data['radius_star(r_sun)'][indi]
+    #orb_distance = data['a(au)'][indi]*au / (R_star*R_sun) # in stellar radii
+    P_rot_star = float(data['p_rot(days)'][indi])   # Rotation period  of star, in days
+    #print(type(P_rot_star), type(M_star))
+    #P_rot_star *= day    # Rotation period  of star, in sec
+    Ltot_rad = Lrad_leto(B_star, R_star, P_rot_star) # in erg/s
+    #Lnu_rad  = Ltot_rad / (nu_ecm*1e9)
+    #Flux_nu_rad = Lnu_rad/(4*np.pi *  d**2)  
+    #print("Ltot_rad = {0:2.1e} erg/s".format(Ltot_rad))
+    #print("Rp = {0:2.1e} R_earth; Mp = {1:2.1e} M_earth".format(Rp/R_earth, Mp/M_earth))
+    #print("Done with planet {0:12s}\n.".format(planet))
 
-# In[14]:
 
-
-indi = 1
-M_star = data['mass_star(m_sun)'][indi] * M_sun
-P_orb  = data['p_orb(days)'][indi] # Orbital period, in days
-P_orb  *= 86400 # Orbital period, in cgs
-semimajor_a = Kepler_r(M_star, P_orb)/au
-R_star = data['radius_star(r_sun)'][indi]
-orb_distance = data['a(au)'][indi]*au / (R_star*R_sun) # in stellar radii
-P_rot_star = float(data['p_rot(days)'][indi])   # Rotation period  of star, in days
-#print(type(P_rot_star), type(M_star))
-P_rot_star *= day    # Rotation period  of star, in sec
-
-#print(data['planet_name'][indi], data['a(au)'][indi], semimajor_a, orb_distance, P_rot_star)
-
-
-# In[15]:
-
-
-#_orb_2 = (data['a(AU)'][i]*au)/(data['star_radius(R_Sun)'][i]*R_sun)
-#rint(r_orb_2)
-#print(data['bfield_star(gauss)'][indi])
-
-
-# In[16]:
-
-
+# Quitar en el futuro?
 def B_shulyak(P_rot):
     """Computes the magnetic field of the star, in Gauss, for an assumed P_rot, in days.
     Based on a fit to the data in Shulyak+2019 (Nature Ast), carried out by LPM.
@@ -253,9 +222,6 @@ def B_shulyak(P_rot):
     m = -0.29649; n =  3.54299
     B = int(10**(m * np.log10(P_rot/day) + n)) 
     return B
-
-
-# In[28]:
 
 
 # Setting the stellar magnetic field geometry and the value of the 
@@ -270,15 +236,15 @@ def B_shulyak(P_rot):
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
 #  Bp0_arr = 1 - magnetized planet, i.e., B_planet = 0 G; 
 
-Bfield_geom_arr = [0,1]
+Bfield_geom_arr = [0]
 Bp0_arr= [0, 1]
 #Bfield_geom_arr = [0,1]
 #Bp0_arr= [0,1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-star_array = range(len(data))
-#star_array = [0]
+#star_array = range(len(data))
+star_array = [0]
 for indi in star_array:
     #indi=63
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
@@ -290,10 +256,10 @@ for indi in star_array:
     # Planet - 
     Exoplanet = data['planet_name'][indi]
     Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius
-    Mp = data['mass_planet(m_earth)'][indi]*M_earth # Planetary mass
+    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass
     r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
     P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
-
+    
     
     for ind in Bfield_geom_arr:
         for ind1 in Bp0_arr:
@@ -313,8 +279,9 @@ for indi in star_array:
             d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
             Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            d_orb = np.linspace(2.00, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
-            #print(len(d_orb))
+            #d_orb = np.linspace(2.00, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
+            d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
+            print(len(d_orb))
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
@@ -392,15 +359,36 @@ for indi in star_array:
                 geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
 
             # Alfven speed and Mach Number
-            v_alf = 2.18e11 * B_tot / np.sqrt(n_dplanet) # Alfven speed at the distance of the planet, in cm/s
-            M_A = v_rel/v_alf # Alfven mach number
+            rho_sw = m_average * n_dplanet #density, in g * cm^(-3)
+            #v_alf = 2.18e11 * B_tot / np.sqrt(n_dplanet) # Alfven speed at the distance of the planet, in cm/s
+            #v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) 
+            # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
+            v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_tot**2/(4.*np.pi * rho_sw * c**2)))
+            M_A   = v_rel/v_alf # Alfven mach number
             
+            #Radial Alfvén speed
+            mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
+            
+            v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw) # in cm/s
+            M_A_radial = np.abs(v_sw / v_alf_r)
+
+
+
+            #print('Relative speed = {0:.1e} km/s \n', format(v_rel/1e5))
+            #print('Alfvén speed   = {0:.1e} km/s \n', format(v_alf/1e5))
+            #print('Alfvén Mach number = {0:.3f} \n', format(M_A))
+            #print('v_alf_rel/v_alf  = {0:.1e} km/s \n', format(v_alf_rel/v_alf))
+
+            #print('Wind speed   = {0:.1e} km/s \n', format(v_sw/1e5))
+            #print('Alfvén radial speed = {0:.1e} km/s \n', format(v_alf_r/1e5))
+            #print('Alfvén radial Mach number = {0:.3f} \n', format(M_A_radial))
 
             # defines whether planet is unmagnetized (Bp0=0), or magnetized (Bp0 = 1)
             Bp0 = Bp0_arr[ind1]
             
             if Bp0:
                 Bp = bfield_Sano(v_orb, d_orb, Mp) # Sano (1993) scaling law
+                #Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
@@ -442,8 +430,9 @@ for indi in star_array:
             # Note that for the geometric factor, we follow Turnpenney's definition, so 
             # the factor is sin^2(theta), not cos^2(theta)
             #
-            # Total Poynting flux (S_mks), in mks units
-            S_poynt_mks = 2*np.pi*(Rp_eff/1e2)**2 * (alpha*M_A)**2 *(v_alf/1e2)                   * (B_tot/1e4)**2/(4*np.pi*1e-7) * geom_f
+            # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
+            mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
+            S_poynt_mks = 2*np.pi*(Rp_eff/1e2)**2 * (alpha*M_A)**2 *(v_alf/1e2)                   * (B_tot/1e4)**2/mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
             
@@ -554,8 +543,7 @@ for indi in star_array:
             # Kepler's third law, with d_orb_mark in units of R_star, 
             # so that period_mark is in days.
             #
-            period_mark = np.array([1, 3, 5, 10, 15, 20, 40, 80, 100])
-            #period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
+            period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
             d_orb_mark = (period_mark/yr)**(2/3) * M_star_msun**(1/3) * (au/R_star)
 
             # Plot only Flux density vs. orbital distance, or also log(M_A) vs. d_orb 
@@ -578,7 +566,7 @@ for indi in star_array:
 
             #
             #ax1.plot(x, np.log10(M_A), lw=lw)
-            ax1.plot(x, np.log10(M_A), lw=lw)
+            ax1.plot(x, np.log10(M_A), color='k', lw=lw)
             #ax2.plot(x, y_min, lw=lw, color='orange', lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(x, y_max, lw=lw, color='orange')
             
@@ -603,7 +591,6 @@ for indi in star_array:
             ax1.set_xticklabels([])
             #ax2.tick_params(labeltop=False, labelright=True)
 
-
             xmin = np.amin(d_orb)/R_star
             xmax = np.amax(d_orb)/R_star
             
@@ -625,14 +612,14 @@ for indi in star_array:
             #ax1.set_ylim([-50,20])
             #ax2.set_ylim([-50,80])
 
-            ax1.axvline(x=r_orb/R_star, ls='--', color='k', lw=3)
-            ax2.axvline(x=r_orb/R_star, ls='--', color='k', lw=3)
+            # Draw vertical line at average position of Gl 514b
+            ax1.axvline(x=r_orb/R_star, ls='--', color='k', lw=2)
+            ax2.axvline(x=r_orb/R_star, ls='--', color='k', lw=2)
             
-            # If second planet 
-            #
-            # P_rot_2 = 23.0 # change it as appropriate
-            # ax1.axvline(x=P_rot_2, ls='--', color='k', lw=3)
-            # ax2.axvline(x=P_rot_2, ls='--', color='k', lw=3)
+            #Draw vertical line at 0.23 au
+            ax1.axvline(x=0.23*au/R_star, ls='--', color='k', lw=2)
+            ax2.axvline(x=0.23*au/R_star, ls='--', color='k', lw=2)
+            
             
             #
             ax11.set_xlabel("Orbital period [days]")
@@ -640,11 +627,24 @@ for indi in star_array:
             ax1.set_ylabel(r"${\rm log} (M_A)$")
             ax2.set_ylabel(r"${\rm log}$ (Flux density [mJy])")
 
+            #Draw also Alfven radial Mach number
+            draw_M_A_radial = 0
+            if draw_M_A_radial:
+                ax12 = ax1.twinx() #instantiate 2nd axes that shares the same x-axis
+                ax12.set_ylim([-3,0])
+                color = 'tab:blue'            
+                ax12.set_ylabel('')
+                ax12.plot(x, np.log10(M_A_radial), color=color, lw=lw)
+                ax12.set_ylabel(r"${\rm log} (M_{A, \rm radial})$", color=color)
+                ax12.tick_params(axis='y', labelcolor=color)
+            
             # draw 3*rms upper limit
-            ax2.axhline(y=np.log10(3*rms), ls='-.', color='grey', lw=2)
-            xpos = d_orb_max/6
-            ypos = np.log10(4*rms)
-            ax2.text(x=xpos,y=ypos,s=r"3$\times$RMS",fontsize='small')
+            draw_rms = 0
+            if draw_rms:
+                ax2.axhline(y=np.log10(3*rms), ls='-.', color='grey', lw=2)
+                xpos = d_orb_max/6
+                ypos = np.log10(4*rms)
+                ax2.text(x=xpos,y=ypos,s=r"3$\times$RMS",fontsize='small')
             
             ax1.plot([xmin, xmax],[22,22],'k--') # This line needs to be modified to take into account different
             ax2.legend(loc=1)
@@ -653,10 +653,9 @@ for indi in star_array:
             paths = ['./pics/earth.png']
             x = [r_orb/R_star]
             y = [np.log10(3*rms)]
-            #y = [-2.6]
             for x0, y0, path in zip(x, y, paths):
                 ab_earth = AnnotationBbox(getImage(path), (x0, y0), frameon=False)
-                ax2.add_artist(ab_earth)
+                ax2.add_artist(ab_earth)            
     
             #Print out relevant input and output parameters, including the expected flux received at Earth 
             # from the SPI at the position of the planet
@@ -665,6 +664,7 @@ for indi in star_array:
             loc_pl = np.where(d_diff == d_diff.min())
 
             B_pl_loc = round(float(Bp[loc_pl]/bfield_earth), 2) # Planetary magnetic field, in units of Bfield_earth
+            #B_pl_loc = int(Bp[loc_pl]) # Planetary magnetic field, in Gauss
             print(f"Done with planet {Exoplanet}")
             
             #ax2.text(x=60,y=1.8,s=r"$B_\ast = \,{\rm G}$")
@@ -674,12 +674,12 @@ for indi in star_array:
             #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(Bp) + " G ", fontsize='small')
             #ax2.text(x=12,y=-2.0,s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             #ax2.text(x=3,y=0.1+np.log10(3*rms),s=r"Requested 3$\sigma$", fontsize='x-small')
-            xpos = d_orb_max/2 + 0.7
+            xpos = d_orb_max / 2 + 0.7
             ypos = 1.5
             d_ypos = 0.5
-            ax2.text(x=xpos,y=ypos,s=r"$B_\star$   = " + str(B_star) + " G ",fontsize='small')
+            ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(B_star) + " G ",fontsize='small')
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(B_pl_loc) + r"$B_{\rm Earth}$", fontsize='small')
-            #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
+            ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
         
             common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
             if open_field:
@@ -691,9 +691,8 @@ for indi in star_array:
 
             plt.tight_layout()
             
-
             # Variable to send output to files (output=1), or show them in the notebook (output = 0) 
-            output = 1
+            output = 0
             
             if output:
                 common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
@@ -723,3 +722,38 @@ for indi in star_array:
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
                 f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
             
+
+
+# In[ ]:
+
+
+# Print out the expected flux received at Earth from the SPI at the position of the planet
+
+# First, find out the position of the planet in the distance array
+d_diff = np.abs((d_orb-r_orb)/R_star)
+location_pl = np.where(d_diff == d_diff.min())
+
+#print('S_poynt: {0} erg/s\n'.format(S_poynt))
+#print('Flux_ST: {0} mJy\n'.format(Flux_r_S_max))    
+#print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
+
+# Print out minimum and maximum values of flux density at the planet location
+#print("B_star =", B_star, " G; " "B_planet = ", Bp, " G ")
+print("\nPrint out Poynting Flux at the planet location")
+print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
+print("\nPrint out Poynting Flux at the first cell")
+print("Saur/Turnpenney (erg/s): ", S_poynt[0])
+
+print("\nPrint out minimum and maximum values of flux density at the planet location")
+print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
+#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
+print("\nPrint out minimum and maximum values of flux density at the first cell")
+print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
+#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
+
+
+# In[ ]:
+
+
+
+
