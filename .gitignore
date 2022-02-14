@@ -9,6 +9,7 @@
 
 #
 SPIworkflow/__pycache__/
+SPIworkflow/__pycache__/*.pyc
 
 #
 *.swp
