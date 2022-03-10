@@ -245,7 +245,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0]
+star_array = [1]
 for indi in star_array:
     #indi=63
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
@@ -694,10 +694,8 @@ for indi in star_array:
 
             plt.tight_layout()
             
-            # Variable to send output to files (output=1), or show them in the notebook (output = 0) 
-            output = 0
-            
-            if output:
+            # Variable to send output to files (plotout=1), or show them in the notebook (plotout = 0) 
+            if plotout:
                 common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
                 if open_field:
                     ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
@@ -753,10 +751,5 @@ print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[locatio
 print("\nPrint out minimum and maximum values of flux density at the first cell")
 print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
 #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
-
-# In[ ]:
-
-
 
 
