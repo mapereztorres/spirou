@@ -73,7 +73,8 @@ def Rp_eff_func(Rp, theta_M, Bp, B_tot):
         If unmagnetized, then the effective radius is made equal to Rp.
         OUTPUT: Rp_eff - Effective planet radius, in cm 
         INPUT : Rp - Planet radius (cm)
-                theta_M - angle  (radians)
+                theta_M - angle  (radians), of the intrinsic planetary magnetic field (Bp) 
+                          wrt the external magnetic field (B_tot).
                 Bp -  planet magnetic field (G)
                 B_tot - Magnetic field of the stellar wind at planet position (G)
     """
@@ -432,7 +433,8 @@ for indi in star_array:
             #
             # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
             mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
-            S_poynt_mks = 2*np.pi*(Rp_eff/1e2)**2 * (alpha*M_A)**2 *(v_alf/1e2)                   * (B_tot/1e4)**2/mu_0 * geom_f
+            # Poynting flux, in mks units
+            S_poynt_mks = 2*np.pi*(Rp_eff/1e2)**2 * (alpha*M_A)**2 *(v_alf/1e2) * (B_tot/1e4)**2/mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
             
