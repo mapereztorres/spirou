@@ -58,3 +58,12 @@ eps_min = 0.01; eps_max = 0.1
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
+
+#####################################
+# PLOTTING AND WRITING SETUP
+#####################################
+
+# plotout = 1 => plot graphs to external files
+# plotout = 0 => plot in terminal
+plotout = 1
+ 
