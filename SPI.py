@@ -244,10 +244,13 @@ Bp0_arr= [0, 1]
 #Bfield_geom_arr = [0,1]
 #Bp0_arr= [0,1]
 
+### Select data in the array to run the code on
+
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [1]
+star_array = [0]
+
 for indi in star_array:
     #indi=63
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
