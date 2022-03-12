@@ -32,8 +32,8 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
-n_sw_base = 1.0e8  # For the Sun
-#n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
+#n_sw_base = 1.0e8  # For a Sun-like star
+n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
 
 # Stellar magnetic field at the surface of the star pole, in gauss 
 # Now it's read from an external file
@@ -67,5 +67,5 @@ theta_M = np.pi/2
 
 # plotout = 1 => plot graphs to external files
 # plotout = 0 => plot in terminal
-plotout = 0
+plotout = 1
  
