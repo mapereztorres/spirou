@@ -2,8 +2,6 @@
 # # Star-planet Interaction (model)
 # ## Sub-Alfvenic flux for both a Parker spiral magnetic field configuration and a closed dipolar field configuration
 
-# In[1]:
-
 
 import os
 import shutil
@@ -239,7 +237,7 @@ def B_shulyak(P_rot):
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
 #  Bp0_arr = 1 - magnetized planet, i.e., B_planet = 0 G; 
 
-Bfield_geom_arr = [0]
+Bfield_geom_arr = [0, 1]
 Bp0_arr= [0, 1]
 #Bfield_geom_arr = [0,1]
 #Bp0_arr= [0,1]
@@ -249,7 +247,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0]
+star_array = [1, 2]
 
 for indi in star_array:
     #indi=63
@@ -265,7 +263,6 @@ for indi in star_array:
     Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass
     r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
     P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
-    
     
     for ind in Bfield_geom_arr:
         for ind1 in Bp0_arr:
@@ -689,6 +686,7 @@ for indi in star_array:
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(B_pl_loc) + r"$B_{\rm Earth}$", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
         
+             
             common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
             if open_field:
                 ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
@@ -696,26 +694,18 @@ for indi in star_array:
             else:
                 ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
                 outfile = Exoplanet + "-Closed-Bstar"+ common_string
-
-            plt.tight_layout()
             
-            # Variable to send output to files (plotout=1), or show them in the notebook (plotout = 0) 
+            # Variable to send output to files (plotout=1), or show them in
+            # the terminal (plotout = 0) 
             if plotout:
-                common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
-                if open_field:
-                    ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
-                    out = Exoplanet + "-Open-Bstar"+ common_string
-                else:
-                    ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
-                    out = Exoplanet + "-Closed-Bstar"+ common_string
-                
+                plt.tight_layout()
                 outfilePDF = os.path.join(outdir, outfile+".pdf")
                 plt.savefig(outfilePDF)
                 plt.close()
             else:
+                plt.tight_layout()
                 plt.show()
-            
-            
+
             
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             with open(outfileTXT, 'w') as f:
