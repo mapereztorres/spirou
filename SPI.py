@@ -141,15 +141,15 @@ len(data[:])
 data[:]
 
 
-df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN_sp_type.csv")
-df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
+#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN_sp_type.csv")
+#df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 
-df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
-df2 = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
-          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
-          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
+#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
+#df2 = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
+#          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
+#          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
-df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
+#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
 df = pd.read_csv("./INPUT/my-SPI-sources.csv")
 data = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)",
            "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
@@ -186,7 +186,7 @@ except FileExistsError:
     print('Directory', outdir, 'already exists')
 
 #indis = range(len(data))
-indis = [10]
+indis = [1]
 for indi in indis:
     planet = data['planet_name'][indi]
     #print("Planet = {0:12s}\n".format(planet))
@@ -247,7 +247,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [1, 2]
+star_array = [1]
 
 for indi in star_array:
     #indi=63
@@ -617,14 +617,9 @@ for indi in star_array:
             #ax1.set_ylim([-50,20])
             #ax2.set_ylim([-50,80])
 
-            # Draw vertical line at average position of Gl 514b
+            # Draw vertical line at average position of planet
             ax1.axvline(x=r_orb/R_star, ls='--', color='k', lw=2)
             ax2.axvline(x=r_orb/R_star, ls='--', color='k', lw=2)
-            
-            #Draw vertical line at 0.23 au
-            ax1.axvline(x=0.23*au/R_star, ls='--', color='k', lw=2)
-            ax2.axvline(x=0.23*au/R_star, ls='--', color='k', lw=2)
-            
             
             #
             ax11.set_xlabel("Orbital period [days]")
@@ -655,12 +650,14 @@ for indi in star_array:
             ax2.legend(loc=1)
 
             # draw a little Earth at the planet position for visualization purposes
-            paths = ['./pics/earth.png']
-            x = [r_orb/R_star]
-            y = [np.log10(3*rms)]
-            for x0, y0, path in zip(x, y, paths):
-                ab_earth = AnnotationBbox(getImage(path), (x0, y0), frameon=False)
-                ax2.add_artist(ab_earth)            
+            draw_earth = 0
+            if draw_earth:
+                paths = ['./pics/earth.png']
+                x = [r_orb/R_star]
+                y = [np.log10(3*rms)]
+                for x0, y0, path in zip(x, y, paths):
+                    ab_earth = AnnotationBbox(getImage(path), (x0, y0), frameon=False)
+                    ax2.add_artist(ab_earth)            
     
             #Print out relevant input and output parameters, including the expected flux received at Earth 
             # from the SPI at the position of the planet
