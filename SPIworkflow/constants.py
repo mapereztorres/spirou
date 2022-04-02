@@ -5,6 +5,7 @@
 
 c   = 2.99792458e10             #  speed of light, in cm/s
 m_e = 9.1093897e-28             # electron mass, in g
+m_p = 1.6726219e-24             # proton mass, in g
 e   = 4.803204712570263e-10     # electron charge (esu)
 k_B = 1.380658e-16              # Boltzmann's constant (erg/K)
 m_h = 1.673534e-24              # Hydrogen mass, in g
@@ -34,6 +35,5 @@ magnetic_moment_earth = 1.05e23 # in Amperes * m^(-2) - Reference needed
 r_core_earth = 3.486e6          #Earth outer core radius, in [meters], from Sano 1993
 rho_core_earth = 1.0e4          # Outer core density of Earth, in kg * m^(-3)
 
-m_aver_sw_sun = 1.92e-24        # average particle mas in the stellar wind of sun, in g/cm^3
-m_average = m_aver_sw_sun       # Use a Sun-like value for the average particle mass 
+m_aver_sw_sun = 1.92e-24        # average particle mass in the stellar wind of sun, in g/cm^3
 
