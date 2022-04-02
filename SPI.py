@@ -1,24 +1,24 @@
-
 # # Star-planet Interaction (model)
 # ## Sub-Alfvenic flux for both a Parker spiral magnetic field configuration and a closed dipolar field configuration
 
 
+# import statements
 import os
 import shutil
 import numpy as np
 import pandas as pd
-
 import matplotlib
-matplotlib.rc_file_defaults()
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+matplotlib.rc_file_defaults()
 plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
 
 
-### Getting the parameters to predict the SPI radio emission
+### Getting parameters to predict SPI radio emission
 #
-# Observing params: Observin frequency, assumed rms noise, Delta_nu
-# Stellar params: T_corona, n_base_corona, B_field, Isothermality of plasma
+# Observing parameters: Observin frequency, assumed rms noise, Delta_nu
+# Stellar parameters: T_corona, n_base_corona, B_field, Isothermality of plasma
 # Geometry of the sub-Alfvénic interaction: alpha, theta_M
 #
 from SPIworkflow.__init__ import *
