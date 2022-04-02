@@ -98,31 +98,11 @@ def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     Ltot_rad = Lnu_rad * nu_ecm
     return Ltot_rad
     
-# Next function to be implemented in the future
+# In the future, use function n_wind (under SPIworkflow)
 # ## Instead of using particle density, we'll use M_dot 
 # ### Currently, this function isn't used for the calculations
-
-def n_wind(M_star_dot=3e-14, r0=7e10, v_r0=25.6e5):
-    """ Computes the particle density of the stellar wind at some distance d from the
-        center of the star.
-        OUTPUT: n_sw - particle density of the stellar wind at distance d, in #/cm^3
-        INPUT:  M_star_dot - stellar mass-loss rate, in M_sun/yr
-                r0         - radial distance from the center of the star, in cm
-                v_r0       - Speed of stellar wind at the reference radial distance r0, in cm/s
-    """
-    M_star_dot *= M_sun/yr2sec  # mass-loss rate, in grams/sec
-    m_av  =  1.92e-24 # average particle mass of the solar wind, in grams
-    rho = M_star_dot/(4*np.pi * r0**2 * v_r0*1e5) # Density of the stellar wind, in gr/cm3
-    n_sw = rho / m_av
-    return n_sw
-
-M_sun_dot = 2e-14 # Mass-loss rate of Sun, in M_sol/yr
-# Proxima Cen
-#M_star_dot = 0.035*M_sun_dot
-M_star_dot = M_sun_dot
-#n_w = n_wind(M_star_dot, d=0.145*R_sun, v_sw=18.1)
-n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
-print("Particle density is n_sw = {0:.2e} #/cm^3".format(n_w))
+#
+# n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
 
 
 df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
@@ -212,17 +192,6 @@ for indi in indis:
     #print("Ltot_rad = {0:2.1e} erg/s".format(Ltot_rad))
     #print("Rp = {0:2.1e} R_earth; Mp = {1:2.1e} M_earth".format(Rp/R_earth, Mp/M_earth))
     #print("Done with planet {0:12s}\n.".format(planet))
-
-
-# Quitar en el futuro?
-def B_shulyak(P_rot):
-    """Computes the magnetic field of the star, in Gauss, for an assumed P_rot, in days.
-    Based on a fit to the data in Shulyak+2019 (Nature Ast), carried out by LPM.
-    The values do not make sense. Ask LPM to check the fitted values
-    """
-    m = -0.29649; n =  3.54299
-    B = int(10**(m * np.log10(P_rot/day) + n)) 
-    return B
 
 
 # Setting the stellar magnetic field geometry and the value of the 
