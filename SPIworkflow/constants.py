@@ -35,5 +35,3 @@ magnetic_moment_earth = 1.05e23 # in Amperes * m^(-2) - Reference needed
 r_core_earth = 3.486e6          #Earth outer core radius, in [meters], from Sano 1993
 rho_core_earth = 1.0e4          # Outer core density of Earth, in kg * m^(-3)
 
-m_aver_sw_sun = 1.92e-24        # average particle mass in the stellar wind of sun, in g/cm^3
-
