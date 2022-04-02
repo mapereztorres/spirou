@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from scipy.special import lambertw
 
 matplotlib.rc_file_defaults()
 plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
@@ -82,8 +83,10 @@ data[:]
 
 
 # We use an isothermal Parker wind
-# Sound speed, in cm/s- Depends only on the Temperature of the stellar corona
-vsound = np.sqrt(5/3 * k_B * T_corona/m_h) 
+# Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
+# Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
+m_av = 0.5 * m_p + 0.5 * m_e # average particle mass
+vsound = np.sqrt(k_B * T_corona / m_av) 
 
 # If OUTPUT directory does not exist, then create it.
 outdir = 'OUTPUT'
@@ -191,7 +194,6 @@ for indi in star_array:
             # using the Lambert W function
             # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
 
-            from scipy.special import lambertw
             D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
             v_sw2 = np.zeros(len(d_orb), dtype=complex)
             v_sw  = np.zeros(len(d_orb))
@@ -221,7 +223,7 @@ for indi in star_array:
             # Alternatively, we fix the density at the distance of the planet from the host star.
             #
             if isothermal:
-                n_dplanet = n_sw_base * (d_orb/R_star)**(-2) / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
+                n_dplanet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
             else:
                 n_dplanet = 1e4  # fixed                 
                 
@@ -259,7 +261,7 @@ for indi in star_array:
                 geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
 
             # Alfven speed and Mach Number
-            rho_sw = m_average * n_dplanet #density, in g * cm^(-3)
+            rho_sw = m_av * n_dplanet #density, in g * cm^(-3)
             #v_alf = 2.18e11 * B_tot / np.sqrt(n_dplanet) # Alfven speed at the distance of the planet, in cm/s
             #v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) 
             # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
