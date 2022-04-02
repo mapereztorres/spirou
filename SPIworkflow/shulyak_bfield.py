@@ -10,4 +10,5 @@ def B_shulyak(P_rot):
       OUTPUT: Magnetic field estimate, in Gauss
     """
     m = -0.29649; n =  3.54299
-    return 10**(m * np.log10(P_rot) + n)
+    B_field = 10**(m * np.log10(P_rot) + n)
+    return B_field
