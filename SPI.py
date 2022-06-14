@@ -147,7 +147,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [1]
+star_array = [4]
 
 for indi in star_array:
     #indi=63
@@ -504,9 +504,9 @@ for indi in star_array:
             ax1.set_xlim([xmin, xmax])
             ax2.set_xlim([xmin, xmax])
 
-            #ax11.set_xlim(5,50)
-            #ax1.set_xlim(5,50)
-            #ax2.set_xlim(5,50)
+            ax11.set_xlim(2.5,25)
+            ax1.set_xlim(2.5,25)
+            ax2.set_xlim(2.5,25)
 
             #ax1.set_xscale('log')
             #ax2.set_xscale('log')
@@ -539,7 +539,7 @@ for indi in star_array:
                 ax12.tick_params(axis='y', labelcolor=color)
             
             # draw 3*rms upper limit
-            draw_rms = 0
+            draw_rms = 1
             if draw_rms:
                 ax2.axhline(y=np.log10(3*rms), ls='-.', color='grey', lw=2)
                 xpos = d_orb_max/6
@@ -550,7 +550,7 @@ for indi in star_array:
             ax2.legend(loc=1)
 
             # draw a little Earth at the planet position for visualization purposes
-            draw_earth = 0
+            draw_earth = 1
             if draw_earth:
                 paths = ['./pics/earth.png']
                 x = [r_orb/R_star]
