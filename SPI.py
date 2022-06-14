@@ -179,11 +179,12 @@ for indi in star_array:
             # in a division by zero. This causes exiting the program. So, for now, we keep those lines inside the loop, which 
             # prevents the zeroth value. Maybe the line v_sw = np.zeros(len(d_orb)) is causing the trouble? Check it
             #Nsteps = 10
-            d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
+            #d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
+            d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
             Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            #d_orb = np.linspace(2.00, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
-            d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
+            d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
+            #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
             #print(len(d_orb))
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
@@ -448,7 +449,8 @@ for indi in star_array:
             # Kepler's third law, with d_orb_mark in units of R_star, 
             # so that period_mark is in days.
             #
-            period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
+            #period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
+            period_mark = np.array([1, 10, 30, 60, 100, 200, 500, 1000, 2000])
             d_orb_mark = (period_mark/yr)**(2/3) * M_star_msun**(1/3) * (au/R_star)
 
             # Plot only Flux density vs. orbital distance, or also log(M_A) vs. d_orb 
@@ -495,13 +497,13 @@ for indi in star_array:
             #ax2.tick_params(labeltop=False, labelright=True)
 
             # Axis limits
-            draw_all_xlim = 1
+            draw_all_xlim = False
             if draw_all_xlim:
                 xmin = np.amin(d_orb)/R_star
                 xmax = np.amax(d_orb)/R_star
             else:
                 xmin = 2.5
-                xmax = 25
+                xmax = 700 
 
             ax11.set_xlim([xmin, xmax])
             ax1.set_xlim([xmin, xmax])
@@ -591,8 +593,8 @@ for indi in star_array:
                 ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
                 outfile = Exoplanet + "-Closed-Bstar"+ common_string
             
-            # Variable to send output to files (plotout=1), or show them in
-            # the terminal (plotout = 0) 
+            # Variable to send output to files (plotout= True), or show them in
+            # the terminal (plotout = False) 
             if plotout:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outdir, outfile+".pdf")
