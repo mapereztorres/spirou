@@ -290,8 +290,9 @@ for indi in star_array:
             Bp0 = Bp0_arr[ind1]
             
             if Bp0:
-                Bp = spi.bfield_Sano(v_orb, d_orb, Mp) # Sano (1993) scaling law
-                #Bp = np.ones(len(d_orb))
+                #Bp = spi.bfield_Sano(v_orb, d_orb, Mp) # Sano (1993) scaling law
+                #Bp = spi.bfield_Sano(M_earth, r_core_earth, rho_core_earth, Omega_earth) # Sano (1993) scaling law
+                Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
