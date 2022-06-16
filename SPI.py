@@ -147,7 +147,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [4]
+star_array = [0]
 
 for indi in star_array:
     #indi=63
@@ -503,7 +503,7 @@ for indi in star_array:
                 xmax = np.amax(d_orb)/R_star
             else:
                 xmin = 2.5
-                xmax = 700 
+                xmax = 25
 
             ax11.set_xlim([xmin, xmax])
             ax1.set_xlim([xmin, xmax])

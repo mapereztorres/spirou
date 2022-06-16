@@ -29,12 +29,13 @@ def beta_keV(E_kin=511):
 
 def bfield_Sano(v_orb=1.0, r_orb=1.0, M_planet = M_earth, rho_core=rho_core_earth):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
+        (From Sano, J. Geomag. Geolectr., 45, 65-77, 1993)
         OUTPUT: B_planet, in Gauss
         INPUT : v_orb, M_planet, R_planet, rho_core
                 v_orb - orbital speed, in cm/s
                 M_planet - Planet mass, in g
                 rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
-                value of the oute core density of the Earth.
+                value of the density of the Earth's outer core. 
     """
     Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
     Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)]. Assumes the planet is tidally locked
