@@ -189,6 +189,9 @@ for indi in star_array:
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
+            Omega_planet = np.ones(len(d_orb)) * Omega_earth # Angular speed of the planet, in  s^(-1)
+            #Omega_planet =  v_orb / d_orb # Angular speed of the planet, in  s^(-1)
+
             #
             # The wind speed is computed as in Turnpenney+18
             #
@@ -290,12 +293,14 @@ for indi in star_array:
             Bp0 = Bp0_arr[ind1]
             
             if Bp0:
+                Bp = spi.bfield_Sano(M_earth, r_core_earth, rho_core_earth, Omega_planet) # Sano (1993) scaling law
                 #Bp = spi.bfield_Sano(v_orb, d_orb, Mp) # Sano (1993) scaling law
-                #Bp = spi.bfield_Sano(M_earth, r_core_earth, rho_core_earth, Omega_earth) # Sano (1993) scaling law
-                Bp = np.ones(len(d_orb))
+                #Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
+            #print('Bp: {0:.2e} Gauss'.format(Bp))
+            print(Bp)
             # Planetary magnetic field (as a function of orbital distance)
             #
             # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
