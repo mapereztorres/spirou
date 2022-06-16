@@ -27,7 +27,7 @@ def beta_keV(E_kin=511):
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
 
-def bfield_Sano(v_orb=1.0, r_orb=1.0, M_planet = M_earth, rho_core=rho_core_earth):
+def bfield_Sano(M_planet = M_earth, r_core = r_core_earth, rho_core=rho_core_earth, Omega_planet = Omega_earth):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
         (From Sano, J. Geomag. Geolectr., 45, 65-77, 1993)
         OUTPUT: B_planet, in Gauss
@@ -37,13 +37,16 @@ def bfield_Sano(v_orb=1.0, r_orb=1.0, M_planet = M_earth, rho_core=rho_core_eart
                 rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
                 value of the density of the Earth's outer core. 
     """
-    Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
-    Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)]. Assumes the planet is tidally locked
+    #Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
+    #Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)]. Assumes the planet is tidally locked
+    mu_SI = 4.0 * np.pi * 1e-7  # vacuum permeability, in SI units (Newton/Ampere^2)
     r_core = r_core_earth * (M_planet/M_earth)**0.44 # Scaling law from Curtis & NEss (1986)
-    scaling_law = (rho_core / rho_core_earth )**(1/2) * (r_core / r_core_earth)**(7/2) * (Omega_planet / Omega_earth)
-    magnetic_moment_planet = magnetic_moment_earth * scaling_law
-    B_planet  = 2 * magnetic_moment_planet / r_core**3 # in Tesla.  
-    B_planet *= 1e-4 # In Gauss
+    alpha_earth = bfield_earth**2 / (2 * mu_SI * rho_core_earth * r_core_earth * Omega_earth)
+    B_moment_earth = bfield_earth * r_core_earth**3 # Magnetic moment of Earth in Amperes * m^(-2)    
+    scaling_law = (rho_core / rho_core_earth )**(1/2) * (Omega_planet / Omega_earth) * (r_core / r_core_earth)**(7/2) 
+    B_moment_planet = B_moment_earth * scaling_law # Magnetic moment of planet
+    B_planet  = B_moment_planet / r_core**3 # in Tesla (SI units)
+    B_planet *= 1e4 # In Gauss (cgs units)
  
     return B_planet
 
