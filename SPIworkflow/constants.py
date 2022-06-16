@@ -1,3 +1,4 @@
+import numpy as np
 
 ###########################
 # Useful, general constants
@@ -26,12 +27,14 @@ yr = 365.24                     # yr, in days
 day = 86400.                    # day,in seconds
 yr2sec = yr*day                 #yr, in seconds
 
+Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
+
 ###############################
 # Specific constants for SPI.py
 ###############################
 
-bfield_earth = 0.5              # Earth surface magnetic field at the pole, in Gauss
-magnetic_moment_earth = 1.05e23 # in Amperes * m^(-2) - Reference needed
-r_core_earth = 3.486e6          #Earth outer core radius, in [meters], from Sano 1993
-rho_core_earth = 1.0e4          # Outer core density of Earth, in kg * m^(-3)
+bfield_earth = 3e-4              # Earth surface magnetic field at the pole, in Teslas
+#magnetic_moment_earth = 1.05e23 # in Amperes * m^(-2) - Reference needed
+r_core_earth = 3.486e6           # Earth outer core radius, in [meters], from Sano 1993
+rho_core_earth = 1.0e4           # Outer core density of Earth, in kg * m^(-3)
 
