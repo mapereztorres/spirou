@@ -501,7 +501,7 @@ for indi in star_array:
             #ax2.tick_params(labeltop=False, labelright=True)
 
             # Axis limits
-            draw_all_xlim = False
+            draw_all_xlim = True
             if draw_all_xlim:
                 xmin = np.amin(d_orb)/R_star
                 xmax = np.amax(d_orb)/R_star
@@ -570,7 +570,7 @@ for indi in star_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
-            B_pl_loc = round(float(Bp[loc_pl]/bfield_earth), 2) # Planetary magnetic field, in units of Bfield_earth
+            B_pl_loc = round(float(Bp[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
             #B_pl_loc = int(Bp[loc_pl]) # Planetary magnetic field, in Gauss
             print(f"Done with planet {Exoplanet}")
             
