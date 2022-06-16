@@ -147,7 +147,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0]
+star_array = [1]
 
 for indi in star_array:
     #indi=63
@@ -189,8 +189,8 @@ for indi in star_array:
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
-            Omega_planet = np.ones(len(d_orb)) * Omega_earth # Angular speed of the planet, in  s^(-1)
-            #Omega_planet =  v_orb / d_orb # Angular speed of the planet, in  s^(-1)
+            #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
+            Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
 
             #
             # The wind speed is computed as in Turnpenney+18
@@ -293,14 +293,12 @@ for indi in star_array:
             Bp0 = Bp0_arr[ind1]
             
             if Bp0:
-                Bp = spi.bfield_Sano(M_earth, r_core_earth, rho_core_earth, Omega_planet) # Sano (1993) scaling law
-                #Bp = spi.bfield_Sano(v_orb, d_orb, Mp) # Sano (1993) scaling law
+                Bp = spi.bfield_Sano(Mp, Omega_planet, rho_core = rho_core_earth) # Sano (1993) scaling law
                 #Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
             #print('Bp: {0:.2e} Gauss'.format(Bp))
-            print(Bp)
             # Planetary magnetic field (as a function of orbital distance)
             #
             # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
@@ -603,8 +601,10 @@ for indi in star_array:
             # the terminal (plotout = False) 
             if plotout:
                 plt.tight_layout()
-                outfilePDF = os.path.join(outdir, outfile+".pdf")
-                plt.savefig(outfilePDF)
+                #outfilePDF = os.path.join(outdir, outfile+".pdf")
+                #plt.savefig(outfilePDF)
+                outfilePNG = os.path.join(outdir, outfile+".png")
+                plt.savefig(outfilePNG)
                 plt.close()
             else:
                 plt.tight_layout()
