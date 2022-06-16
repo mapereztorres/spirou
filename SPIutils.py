@@ -47,7 +47,7 @@ def bfield_Sano(M_planet = M_earth, r_core = r_core_earth, rho_core=rho_core_ear
     B_moment_planet = B_moment_earth * scaling_law # Magnetic moment of planet
     B_planet  = B_moment_planet / r_core**3 # in Tesla (SI units)
     B_planet *= 1e4 # In Gauss (cgs units)
- 
+     
     return B_planet
 
 def Rp_eff_func(Rp, theta_M, Bp, B_tot):
