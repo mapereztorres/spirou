@@ -41,9 +41,9 @@ df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
 df2 = df[["star_name", "ra(hms)", "dec(dms)", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", 
           "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)","ra(deg)", "dec(deg)"]]
 mask_d = df2['d_star(pc)'] < 20.0
-mask_Prot = df2['p_rot(days)'] > 0.0
-mask_Bfield = df2['bfield_star(gauss)'] > 1000.0
-mask_dec    = df2['dec(deg)'] > -30.0
+mask_Prot = df2['p_rot(days)'] < 20.0
+mask_Bfield = df2['bfield_star(gauss)'] > 100.0
+mask_dec    = df2['dec(deg)'] > -54.0
 data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
 data.reset_index(inplace=True)
 len(data[:])
