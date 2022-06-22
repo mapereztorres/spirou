@@ -37,17 +37,7 @@ from SPIworkflow.constants import *
 df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #df.columns
 
-df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
-df2 = df[["star_name", "ra(hms)", "dec(dms)", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", 
-          "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)","ra(deg)", "dec(deg)"]]
-mask_d = df2['d_star(pc)'] < 20.0
-mask_Prot = df2['p_rot(days)'] < 20.0
-mask_Bfield = df2['bfield_star(gauss)'] > 100.0
-mask_dec    = df2['dec(deg)'] > -54.0
-data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
-data.reset_index(inplace=True)
-len(data[:])
-data[:]
+#df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
 
 
 #df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN_sp_type.csv")
@@ -58,11 +48,18 @@ data[:]
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
 #          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
-#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
-df = pd.read_csv("./INPUT/my-SPI-sources.csv")
-data = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)",
-           "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
-          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)"]]
+df2 = df[["star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)", 
+          "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
+mask_Rpl = df2['radius_planet(r_earth)'] > 1.5
+mask_d = df2['d_star(pc)'] < 10.0
+mask_porb = df2['p_orb(days)'] < 10.0
+#mask_Prot = df2['p_rot(days)'] < 20.0
+mask_Bfield = df2['bfield_star(gauss)'] > 50.0
+mask_dec    = df2['dec(deg)'] > -54.0
+#data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
+data = df2[mask_Rpl & mask_d & mask_porb & mask_Bfield & mask_dec]
+data.reset_index(inplace=True)
+
 #df2['freq_cycl(ghz)'] = df2.loc[:,('bfield_star(gauss)')]*2.8e-3
 # Create new column
 data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
@@ -70,7 +67,7 @@ data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
 #data = df2[mask_d & mask_Prot & mask_Porb & mask_a & mask_Bfield & mask_dec]
 #data = data.drop_duplicates(subset=['star_name'])
 data.reset_index(inplace=True)
-data[:]
+#data[:]
 
 #print(df[' Period'][indi])
 #print(data.to_latex(index=False, columns=['planet_name', 'ra(hms)', 'dec(dms)', 'd_star(pc)', 
@@ -146,8 +143,8 @@ Bp0_arr= [0, 1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-#star_array = range(len(data))
-star_array = [1]
+star_array = range(len(data))
+#star_array = [1]
 
 for indi in star_array:
     #indi=63
