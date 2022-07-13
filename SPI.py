@@ -146,7 +146,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0]
+star_array = [2]
 
 for indi in star_array:
     #indi=63
@@ -292,12 +292,12 @@ for indi in star_array:
             Bp0 = Bp0_arr[ind1]
             
             if Bp0:
-                # Magnetic field, using Sano's (1993) scaling law, in units of  B_earth 
+                # Magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                 Bp = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
                         Rp/R_earth, Omega_rot_planet =
                         Omega_planet/Omega_earth) 
-                Bp *= 0.5 # in Gauss
                 #Bp = np.ones(len(d_orb))
+                Bp *= bfield_earth * Tesla2Gauss # in Gauss 
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
