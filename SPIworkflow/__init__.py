@@ -9,7 +9,7 @@ import numpy as np
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-rms  = 0.022
+rms  = 0.030
 
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
@@ -55,7 +55,8 @@ isothermal = True
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-eps_min = 0.01; eps_max = 0.1
+#eps_min = 0.01; eps_max = 0.1
+eps_min = 0.002; eps_max = 0.02
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
