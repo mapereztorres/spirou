@@ -27,26 +27,23 @@ def beta_keV(E_kin=511):
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
 
-def bfield_Sano(M_planet = M_earth, Omega_planet = Omega_earth, rho_core = rho_core_earth):
+def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
-        (From Sano, J. Geomag. Geolectr., 45, 65-77, 1993)
-        OUTPUT: B_planet, in Gauss
-        INPUT : M_planet, rho_core, Omega_planet
-                M_planet - Planet mass, in g
-                rho_core - Planet outer core density, in kg/m^3. For now, fixed to the
-                value of the density of the Earth's outer core, rho_core_earth. 
+        (From Sano, J. Geomag. Geolectr., 45, 65-77, 1993), 
+        OUTPUT: B_planet: Surface magnetic field of the planet, in units of B_Earth 
+        INPUT : M_planet: Planet radius, in units of the Earth mass
+                R_planet: in units of the Earth radius
+                Omega_rot_planet: Rotational speed of the planet. It is assumed that the 
+                        planets are tidally locked, hence P_rot_planet = P_orb_planet. 
+                        In units of the rotational speed of Earth (radians/sec) 
+                rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
+                value of the density of the Earth's outer core. 
     """
-    #Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
-    #Omega_planet = v_orb / r_orb  # Angular speed of planet, in [s^(-1)]. Assumes the planet is tidally locked
-    mu_SI = 4.0 * np.pi * 1e-7  # vacuum permeability, in SI units (Newton/Ampere^2)
-    r_core = r_core_earth * (M_planet/M_earth)**0.44 # Scaling law from Curtis & NEss (1986)
-    alpha_earth = bfield_earth**2 / (2 * mu_SI * rho_core_earth * r_core_earth * Omega_earth)
-    B_moment_earth = bfield_earth * r_core_earth**3 # Magnetic moment of Earth in Amperes * m^(-2)    
-    scaling_law = (rho_core / rho_core_earth )**(1/2) * (Omega_planet / Omega_earth) * (r_core / r_core_earth)**(7/2) 
-    B_moment_planet = B_moment_earth * scaling_law # Magnetic moment of planet
-    B_planet  = B_moment_planet / r_core**3 # in Tesla (SI units)
-    B_planet *= 1e4 # In Gauss (cgs units)
-     
+    # Scaling law for the planet's core radius, from Curtis & Ness (1986)
+    r_core = M_planet**0.44 # in units of r_core_Earth
+    Magn_moment_planet = Omega_rot_planet * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
+    B_planet  = Magn_moment_planet / R_planet**3 # in units of B_earth
+ 
     return B_planet
 
 def Rp_eff_func(Rp, theta_M, Bp, B_tot):
