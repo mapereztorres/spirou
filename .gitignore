@@ -11,7 +11,7 @@
 #
 SPIworkflow/__pycache__/
 SPIworkflow/__pycache__/*.pyc
-__pycache__/*.pyc
+__pycache__/SPIutils.cpython-38.pyc
 
 #
 *.swp
