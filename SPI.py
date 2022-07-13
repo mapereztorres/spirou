@@ -135,7 +135,8 @@ for indi in indis:
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
 #  Bp0_arr = 1 - magnetized planet, i.e., B_planet > 0 G; 
 
-Bfield_geom_arr = [0, 1]
+#Bfield_geom_arr = [0, 1]
+Bfield_geom_arr = [0]
 Bp0_arr= [0, 1]
 #Bfield_geom_arr = [0,1]
 #Bp0_arr= [0,1]
