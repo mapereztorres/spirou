@@ -48,17 +48,18 @@ df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
 #          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
-df2 = df[["star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)", 
+df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
           "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
-mask_Rpl = df2['radius_planet(r_earth)'] > 1.5
-mask_d = df2['d_star(pc)'] < 10.0
+#mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
+mask_d = df2['d_star(pc)'] < 15.0
 mask_porb = df2['p_orb(days)'] < 10.0
 #mask_Prot = df2['p_rot(days)'] < 20.0
-mask_Bfield = df2['bfield_star(gauss)'] > 50.0
+mask_Bfield = df2['bfield_star(gauss)'] > 180.
 mask_dec    = df2['dec(deg)'] > -54.0
 #data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
-data = df2[mask_Rpl & mask_d & mask_porb & mask_Bfield & mask_dec]
-data.reset_index(inplace=True)
+#data = df2[mask_Rpl & mask_d & mask_porb & mask_Bfield & mask_dec]
+data = df2[mask_d & mask_porb & mask_Bfield & mask_dec]
+
 
 #df2['freq_cycl(ghz)'] = df2.loc[:,('bfield_star(gauss)')]*2.8e-3
 # Create new column
@@ -132,7 +133,7 @@ for indi in indis:
 
 # Magnetic field of the planet
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
-#  Bp0_arr = 1 - magnetized planet, i.e., B_planet = 0 G; 
+#  Bp0_arr = 1 - magnetized planet, i.e., B_planet > 0 G; 
 
 Bfield_geom_arr = [0, 1]
 Bp0_arr= [0, 1]
@@ -143,8 +144,8 @@ Bp0_arr= [0, 1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-star_array = range(len(data))
-#star_array = [1]
+#star_array = range(len(data))
+star_array = [0]
 
 for indi in star_array:
     #indi=63
@@ -638,14 +639,14 @@ location_pl = np.where(d_diff == d_diff.min())
 #print("B_star =", B_star, " G; " "B_planet = ", Bp, " G ")
 print("\nPrint out Poynting Flux at the planet location")
 print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
-print("\nPrint out Poynting Flux at the first cell")
-print("Saur/Turnpenney (erg/s): ", S_poynt[0])
+#print("\nPrint out Poynting Flux at the first cell")
+#print("Saur/Turnpenney (erg/s): ", S_poynt[0])
 
 print("\nPrint out minimum and maximum values of flux density at the planet location")
 print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
-#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
-print("\nPrint out minimum and maximum values of flux density at the first cell")
-print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
+print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
+#print("\nPrint out minimum and maximum values of flux density at the first cell")
+#print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
 #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
 
 
