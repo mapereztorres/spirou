@@ -36,7 +36,7 @@ Gauss2Tesla = 1e-4 # 1 Gauss, in Teslas
 # Specific constants for SPI.py
 ###############################
 
-bfield_earth = 3e-4              # Earth surface magnetic field at the pole, in Teslas
+bfield_earth = 50e-6             # Earth surface magnetic field at the pole, in Teslas
 r_core_earth = 3.486e6           # Earth outer core radius, in [meters], from Sano 1993
 rho_core_earth = 1.0e4           # Outer core density of Earth, in kg * m^(-3)
 
