@@ -147,7 +147,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0]
+star_array = [0, 1]
 
 for indi in star_array:
     #indi=63
@@ -620,7 +620,7 @@ for indi in star_array:
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             with open(outfileTXT, 'w') as f:
                 f.write('# INPUT PARAMETERS:  ########\n') 
-                #f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
+                f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
                 f.write('T_corona = {0:.0e} K\n'.format(T_corona))
                 f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n\n'.format(n_sw_base))
                 f.write('# OUTPUT PARAMETERS: ########\n')
@@ -630,31 +630,27 @@ for indi in star_array:
             
 
 
-# In[ ]:
+            # Print out the expected flux received at Earth from the SPI at the position of the planet
 
+            # First, find out the position of the planet in the distance array
+            d_diff = np.abs((d_orb-r_orb)/R_star)
+            location_pl = np.where(d_diff == d_diff.min())
 
-# Print out the expected flux received at Earth from the SPI at the position of the planet
+            #print('S_poynt: {0} erg/s\n'.format(S_poynt))
+            #print('Flux_ST: {0} mJy\n'.format(Flux_r_S_max))    
+            #print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
 
-# First, find out the position of the planet in the distance array
-d_diff = np.abs((d_orb-r_orb)/R_star)
-location_pl = np.where(d_diff == d_diff.min())
+            # Print out minimum and maximum values of flux density at the planet location
+            #print("B_star =", B_star, " G; " "B_planet = ", Bp, " G ")
+            #print("\nPrint out Poynting Flux at the planet location")
+            #print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
+            #print("\nPrint out Poynting Flux at the first cell")
+            #print("Saur/Turnpenney (erg/s): ", S_poynt[0])
 
-#print('S_poynt: {0} erg/s\n'.format(S_poynt))
-#print('Flux_ST: {0} mJy\n'.format(Flux_r_S_max))    
-#print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
-
-# Print out minimum and maximum values of flux density at the planet location
-#print("B_star =", B_star, " G; " "B_planet = ", Bp, " G ")
-print("\nPrint out Poynting Flux at the planet location")
-print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
-#print("\nPrint out Poynting Flux at the first cell")
-#print("Saur/Turnpenney (erg/s): ", S_poynt[0])
-
-print("\nPrint out minimum and maximum values of flux density at the planet location")
-print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
-print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
-#print("\nPrint out minimum and maximum values of flux density at the first cell")
-#print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
-#print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
-
+            print("\nPrint out minimum and maximum values of flux density at the planet location")
+            print('\nB_planet = {1:.0f} G'.format(Bp[loc_pl]))
+            print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
+            print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
+            #print("\nPrint out minimum and maximum values of flux density at the first cell")
+            #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
+            #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
