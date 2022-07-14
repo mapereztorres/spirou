@@ -146,8 +146,8 @@ Bp0_arr= [0, 1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-#star_array = range(len(data))
-star_array = [0, 1]
+star_array = range(len(data))
+#star_array = [0, 1]
 
 for indi in star_array:
     #indi=63
@@ -159,8 +159,8 @@ for indi in star_array:
   
     # Planet - 
     Exoplanet = data['planet_name'][indi]
-    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius
-    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass
+    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
+    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
     r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
     P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
     
@@ -239,7 +239,7 @@ for indi in star_array:
                 # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
                 B_r = B_star * (d_orb/R_star)**(-2) # Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
                 B_phi = B_r * v_corot/v_sw # Azimuthal field (Eqn 21 Turnpenney 2018)
-                B_tot = np.sqrt(B_r**2 + B_phi**2) # Total B-field at planet orbital distance
+                B_tot = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
 
                 # Eq. 23 of Turnpenney 2018 -  First term of RHS
                 B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
@@ -329,7 +329,8 @@ for indi in star_array:
             #    Rp_eff[Rp_eff<Rp]=Rp # Rp_eff cannot be smaller than Rplanet
             #else:
             #    Rp_eff = Rp  
-            Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
+
+            Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.) # in cm
             Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rplanet    
             #print("Planetary Magnetic field = {0:.1f} G".format(Bp))
             #print("The effective radius is {0:.1e}".format(Rp_eff))
@@ -422,12 +423,12 @@ for indi in star_array:
             #beam solid angle of the ECMI emission, in sterradians. There is no need to fix this value, as this is
             #given by the population of electrons. If we don't fix it, we can constrain other parameters, e.g., 
             # eps, the efficienty factor in converting energy into Poynting flux.
-            Omega = 1.6 
+            bsa_Omega = 1.6 
 
             # For simplicity, take Omega_min = Omega_max = Omega
             #Omega_min = Omega_max = Omega
-            Omega_min = Omega/10.
-            Omega_max = Omega
+            Omega_min = bsa_Omega/10.
+            Omega_max = bsa_Omega
             
             dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
             dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
@@ -578,7 +579,6 @@ for indi in star_array:
 
             B_pl_loc = round(float(Bp[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
             #B_pl_loc = int(Bp[loc_pl]) # Planetary magnetic field, in Gauss
-            print(f"Done with planet {Exoplanet}")
             
             #ax2.text(x=60,y=1.8,s=r"$B_\ast = \,{\rm G}$")
             #ax2.text(x=60,y=1.4,s=r"$B_{\rm pl} = 1 \,{\rm G}$")
@@ -620,7 +620,7 @@ for indi in star_array:
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             with open(outfileTXT, 'w') as f:
                 f.write('# INPUT PARAMETERS:  ########\n') 
-                f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
+                #f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
                 f.write('T_corona = {0:.0e} K\n'.format(T_corona))
                 f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n\n'.format(n_sw_base))
                 f.write('# OUTPUT PARAMETERS: ########\n')
@@ -648,9 +648,10 @@ for indi in star_array:
             #print("Saur/Turnpenney (erg/s): ", S_poynt[0])
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
-            print('\nB_planet = {1:.0f} G'.format(Bp[loc_pl]))
+            print('B_planet = {0:.3f} G'.format(B_pl_loc * bfield_earth*Tesla2Gauss))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
+            print(f"Done with planet {Exoplanet}")
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
