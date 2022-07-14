@@ -34,7 +34,8 @@ from SPIworkflow.constants import *
 #
 # n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
 
-df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
+#df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
+df = pd.read_csv("./INPUT/SPI-table.csv")
 #df.columns
 
 #df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
@@ -54,7 +55,7 @@ df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star
 mask_d = df2['d_star(pc)'] < 15.0
 mask_porb = df2['p_orb(days)'] < 10.0
 #mask_Prot = df2['p_rot(days)'] < 20.0
-mask_Bfield = df2['bfield_star(gauss)'] > 180.
+mask_Bfield = df2['bfield_star(gauss)'] >= 100.
 mask_dec    = df2['dec(deg)'] > -54.0
 #data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
 #data = df2[mask_Rpl & mask_d & mask_porb & mask_Bfield & mask_dec]
@@ -145,8 +146,8 @@ Bp0_arr= [0, 1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-star_array = range(len(data))
-#star_array = [2]
+#star_array = range(len(data))
+star_array = [0]
 
 for indi in star_array:
     #indi=63
@@ -424,7 +425,9 @@ for indi in star_array:
             Omega = 1.6 
 
             # For simplicity, take Omega_min = Omega_max = Omega
-            Omega_min = Omega_max = Omega
+            #Omega_min = Omega_max = Omega
+            Omega_min = Omega/10.
+            Omega_max = Omega
             
             dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
             dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
