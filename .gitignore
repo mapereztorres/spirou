@@ -1,9 +1,14 @@
 # Output data
 ############
 *.pdf
+
 *.txt
+
 *.png 
+
 *.csv
+
+*.log
 
 # ipython
 ############
