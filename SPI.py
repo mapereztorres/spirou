@@ -13,7 +13,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 
 matplotlib.rc_file_defaults()
-plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
+#plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
 
 import SPIutils as spi
 
@@ -35,7 +35,30 @@ from SPIworkflow.constants import *
 # n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
 
 #df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
-df = pd.read_csv("./INPUT/SPI-table.csv")
+#df = pd.read_csv("./INPUT/SPI-table.csv")
+# WOrks OK for ./INPUT/SPI-table.csv
+df = pd.read_csv("./INPUT/SPI-sources_planets_rellenada_a_mano_2.csv")
+#print(df.columns)
+
+df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
+                  , "P_orb(days)": "p_orb(days)", "star_mass(M_Sun)": "mass_star(m_sun)"
+                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
+                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
+                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
+                   , "<B>": "bfield_star(gauss)"
+                   , "distance(pc)": "d_star(pc)"
+                  })
+df_planets=df.copy()
+df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
+
+df_no_planets = df.copy()
+df_no_planets = df_no_planets[df_no_planets['planet_name'].isnull()]
+
+
+df_planets.to_csv('StarTable-CARMENES_only_planets.csv')
+df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
+
+#df = pd.read_csv("StarTable-CARMENES_only_planets.csv")
 #df.columns
 
 #df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
@@ -49,7 +72,7 @@ df = pd.read_csv("./INPUT/SPI-table.csv")
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
 #          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
-df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
+df2 = df[["star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
           "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
 #mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
 mask_d = df2['d_star(pc)'] < 15.0
@@ -291,14 +314,15 @@ for indi in star_array:
 
             # defines whether planet is unmagnetized (Bp0=0), or magnetized (Bp0 = 1)
             Bp0 = Bp0_arr[ind1]
-            
+            print(Bp0)
             if Bp0:
                 # Magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                 Bp = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
                         Rp/R_earth, Omega_rot_planet =
                         Omega_planet/Omega_earth) 
-                #Bp = np.ones(len(d_orb))
+                
                 Bp *= bfield_earth * Tesla2Gauss # in Gauss 
+                Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
