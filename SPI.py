@@ -48,6 +48,7 @@ df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius
                    , "<B>": "bfield_star(gauss)"
                    , "distance(pc)": "d_star(pc)"
                   })
+
 df_planets=df.copy()
 df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
 
