@@ -13,7 +13,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 
 matplotlib.rc_file_defaults()
-plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
+#plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
 
 import SPIutils as spi
 
@@ -35,7 +35,44 @@ from SPIworkflow.constants import *
 # n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
 
 #df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
-df = pd.read_csv("./INPUT/SPI-table.csv")
+#df = pd.read_csv("./INPUT/SPI-table.csv")
+# WOrks OK for ./INPUT/SPI-table.csv
+df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
+#print(df.columns)
+
+df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
+                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
+                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
+                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
+                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
+                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
+                   , "distance(pc)": "d_star(pc)"
+                  })
+                  
+
+df_planets=df.copy()
+df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
+
+df_no_planets = df.copy()
+df_no_planets = df_no_planets[df_no_planets['planet_name'].isnull()]
+
+# If OUTPUT directory does not exist, then create it.
+outdir = 'OUTPUT'
+try:
+    os.mkdir(outdir)
+    print('Directory', outdir, 'created')
+except FileExistsError:
+    print('Directory', outdir, 'already exists')
+
+
+outfile_planets = os.path.join(outdir, 'StarTable-CARMENES_only_planets.csv')
+outfile_no_planets = os.path.join(outdir, 'StarTable-CARMENES_no_planets.csv')
+#df_planets.to_csv('StarTable-CARMENES_only_planets.csv')
+#df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
+df_planets.to_csv(outfile_planets)
+df_no_planets.to_csv(outfile_no_planets)
+
+#df = pd.read_csv("StarTable-CARMENES_only_planets.csv")
 #df.columns
 
 #df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
@@ -86,14 +123,6 @@ data.reset_index(inplace=True)
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
 m_av = 0.5 * m_p + 0.5 * m_e # average particle mass
 vsound = np.sqrt(k_B * T_corona / m_av) 
-
-# If OUTPUT directory does not exist, then create it.
-outdir = 'OUTPUT'
-try:
-    os.mkdir(outdir)
-    print('Directory', outdir, 'created')
-except FileExistsError:
-    print('Directory', outdir, 'already exists')
 
 #indis = range(len(data))
 indis = [1]
@@ -291,14 +320,15 @@ for indi in star_array:
 
             # defines whether planet is unmagnetized (Bp0=0), or magnetized (Bp0 = 1)
             Bp0 = Bp0_arr[ind1]
-            
+            print(Bp0)
             if Bp0:
                 # Magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                 Bp = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
                         Rp/R_earth, Omega_rot_planet =
                         Omega_planet/Omega_earth) 
-                #Bp = np.ones(len(d_orb))
+                
                 Bp *= bfield_earth * Tesla2Gauss # in Gauss 
+                Bp = np.ones(len(d_orb))
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             

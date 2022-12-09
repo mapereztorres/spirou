@@ -1,8 +1,14 @@
 # Output data
 ############
 *.pdf
+
 *.txt
+
 *.png 
+*.log
+
+*.csv
+
 *.log
 
 # ipython
@@ -10,9 +16,11 @@
 .ipynb_checkpoints/
 
 #
-SPIworkflow/__pycache__/
-SPIworkflow/__pycache__/*.pyc
-__pycache__/SPIutils.cpython-38.pyc
+*.pyc
+SPIworkflow/**__pycache__/
+#SPIworkflow/__pycache__/*.pyc
+#SPIworkflow/__pycache__/SPIutils.cpython-38.pyc
+#SPIworkflow/__pycache__/__init__.cpython-38.pyc
 
 #
 *.swp
