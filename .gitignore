@@ -16,11 +16,10 @@
 
 #
 *.pyc
-__pycache__
-SPIworkflow/__pycache__/
-SPIworkflow/__pycache__/*.pyc
-SPIworkflow/__pycache__/SPIutils.cpython-38.pyc
-SPIworkflow/__pycache__/__init__.cpython-38.pyc
+SPIworkflow/**__pycache__/
+#SPIworkflow/__pycache__/*.pyc
+#SPIworkflow/__pycache__/SPIutils.cpython-38.pyc
+#SPIworkflow/__pycache__/__init__.cpython-38.pyc
 
 #
 *.swp
