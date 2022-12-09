@@ -49,15 +49,28 @@ df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius
                    , "distance(pc)": "d_star(pc)"
                   })
                   
+
 df_planets=df.copy()
 df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
 
 df_no_planets = df.copy()
 df_no_planets = df_no_planets[df_no_planets['planet_name'].isnull()]
 
+# If OUTPUT directory does not exist, then create it.
+outdir = 'OUTPUT'
+try:
+    os.mkdir(outdir)
+    print('Directory', outdir, 'created')
+except FileExistsError:
+    print('Directory', outdir, 'already exists')
 
-df_planets.to_csv('StarTable-CARMENES_only_planets.csv')
-df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
+
+outfile_planets = os.path.join(outdir, 'StarTable-CARMENES_only_planets.csv')
+outfile_no_planets = os.path.join(outdir, 'StarTable-CARMENES_no_planets.csv')
+#df_planets.to_csv('StarTable-CARMENES_only_planets.csv')
+#df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
+df_planets.to_csv(outfile_planets)
+df_no_planets.to_csv(outfile_no_planets)
 
 #df = pd.read_csv("StarTable-CARMENES_only_planets.csv")
 #df.columns
@@ -110,14 +123,6 @@ data.reset_index(inplace=True)
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
 m_av = 0.5 * m_p + 0.5 * m_e # average particle mass
 vsound = np.sqrt(k_B * T_corona / m_av) 
-
-# If OUTPUT directory does not exist, then create it.
-outdir = 'OUTPUT'
-try:
-    os.mkdir(outdir)
-    print('Directory', outdir, 'created')
-except FileExistsError:
-    print('Directory', outdir, 'already exists')
 
 #indis = range(len(data))
 indis = [1]
