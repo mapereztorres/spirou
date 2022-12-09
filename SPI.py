@@ -146,8 +146,8 @@ Bp0_arr= [0, 1]
 
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
-star_array = range(len(data))
-#star_array = [0, 1]
+#star_array = range(len(data))
+star_array = [0, 1]
 
 for indi in star_array:
     #indi=63
