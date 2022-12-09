@@ -3,6 +3,7 @@
 *.pdf
 *.txt
 *.png 
+*.log
 
 # ipython
 ############
