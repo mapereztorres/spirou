@@ -37,18 +37,18 @@ from SPIworkflow.constants import *
 #df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #df = pd.read_csv("./INPUT/SPI-table.csv")
 # WOrks OK for ./INPUT/SPI-table.csv
-df = pd.read_csv("./INPUT/SPI-sources_planets_rellenada_a_mano_2.csv")
+df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #print(df.columns)
 
 df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
-                  , "P_orb(days)": "p_orb(days)", "star_mass(M_Sun)": "mass_star(m_sun)"
+                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
                    , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
                    , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
                    , "starname": "star_name", "P_rot(days)": "p_rot(days)"
-                   , "<B>": "bfield_star(gauss)"
+                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
                    , "distance(pc)": "d_star(pc)"
                   })
-
+                  
 df_planets=df.copy()
 df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
 
@@ -73,7 +73,7 @@ df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
 #          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
 #          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
-df2 = df[["star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
+df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
           "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
 #mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
 mask_d = df2['d_star(pc)'] < 15.0
