@@ -49,45 +49,48 @@ df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius
                    , "distance(pc)": "d_star(pc)"
                   })
                   
-
+# Copy dataframe df to generate a new dataframe that contains targets with
+# confirmed planets
 df_planets=df.copy()
 df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
 
+# Copy dataframe df to generate a new dataframe that contains targets with
+# no planets
 df_no_planets = df.copy()
 df_no_planets = df_no_planets[df_no_planets['planet_name'].isnull()]
 
-# If OUTPUT directory does not exist, then create it.
+# Create OUTPUT directory for keeping output from code.
 outdir = 'OUTPUT'
 try:
     os.mkdir(outdir)
-    print('Directory', outdir, 'created')
+    print('Directory', outdir, 'created.\n')
 except FileExistsError:
-    print('Directory', outdir, 'already exists')
+    print('Directory', outdir, 'already exists.\n')
 
-
+# Create CARMENES tables for targets with planets only, and with no planets,
+# unless they already exist
+# 
 outfile_planets = os.path.join(outdir, 'StarTable-CARMENES_only_planets.csv')
 outfile_no_planets = os.path.join(outdir, 'StarTable-CARMENES_no_planets.csv')
-#df_planets.to_csv('StarTable-CARMENES_only_planets.csv')
-#df_no_planets.to_csv('StarTable-CARMENES_no_planets.csv')
-df_planets.to_csv(outfile_planets)
-df_no_planets.to_csv(outfile_no_planets)
 
-#df = pd.read_csv("StarTable-CARMENES_only_planets.csv")
-#df.columns
+if os.path.exists(outfile_planets): 
+    print(f'File {outfile_planets} already exists.\n')
+else:
+    print(f'Creating table file: {outfile_planets}.\n')
+    df_planets.to_csv(outfile_planets)
 
-#df = pd.read_csv("./INPUT/SPI-sources_NO_planets_with_Prot.csv")
+if os.path.exists(outfile_no_planets): 
+    print(f'File {outfile_no_planets} already exists.\n')
+else:
+    print(f'Creating table file: {outfile_no_planets}.\n')
+    df_no_planets.to_csv(outfile_no_planets)
 
-
-#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN_sp_type.csv")
-#df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
-
-#df = pd.read_csv("./INPUT/SPI-sources_planets_completed_no_NaN.csv")
-#df2 = df[["star_name", "planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
-#          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
-#          "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
-
+# Create new dataframe out of the existing working dataframe for clarity
 df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
           "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
+
+# Apply masks to select candidates and write output to a new data frame
+# 
 #mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
 mask_d = df2['d_star(pc)'] < 15.0
 mask_porb = df2['p_orb(days)'] < 10.0
@@ -106,16 +109,6 @@ data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
 #data = df2[mask_d & mask_Prot & mask_Porb & mask_a & mask_Bfield & mask_dec]
 #data = data.drop_duplicates(subset=['star_name'])
 data.reset_index(inplace=True)
-#data[:]
-
-#print(df[' Period'][indi])
-#print(data.to_latex(index=False, columns=['planet_name', 'ra(hms)', 'dec(dms)', 'd_star(pc)', 
-#                                          'p_rot(days)', 'bfield_star(gauss)', 'radius_planet(r_earth)',   
-#                                          'p_orb(days)', 'freq_cycl(ghz)']))
-#      
-#["planet_name", "p_orb(days)", "p_rot(days)", "bfield_star(gauss)", "bfield_err(gauss)",
-#          "ra(hms)", "dec(dms)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)",
-#          "star_name", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "ra(deg)", "dec(deg)"]]
 
 
 # We use an isothermal Parker wind
