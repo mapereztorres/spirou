@@ -114,7 +114,9 @@ data.reset_index(inplace=True)
 # We use an isothermal Parker wind
 # Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
-m_av = 0.5 * m_p + 0.5 * m_e # average particle mass
+
+mu = (0.5*m_p + 0.5*m_e)/(m_p + m_e) # mean "molecular weight"
+m_av = mu * m_p
 vsound = np.sqrt(k_B * T_corona / m_av) 
 
 #indis = range(len(data))
