@@ -15,8 +15,6 @@ from scipy.special import lambertw
 matplotlib.rc_file_defaults()
 #plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
 
-import SPIutils as spi
-
 ### Getting parameters to predict SPI radio emission
 #
 # Observing parameters: Observin frequency, assumed rms noise, Delta_nu
@@ -27,6 +25,9 @@ from SPIworkflow.__init__ import *
 
 # Import useful constants to be used in the code
 from SPIworkflow.constants import *
+
+# Import useful functions for the code
+import SPIworkflow.SPIutils as spi
 
 # In the future, use function n_wind (under SPIworkflow)
 # ## Instead of using particle density, we'll use M_dot 
