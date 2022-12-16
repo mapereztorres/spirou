@@ -10,7 +10,6 @@ that grew too much, hence it is now split into several pieces of python code.
 ├── SPI.ipynb - Jupyter notebook for the code - outdated
 ├── SPI.py    - Current version, in continuous development
 ├── SPI.py.orig - original version of SPI.py.orig - to be removed eventually
-├── SPIutils.py - Utility functions for SPI.py, so SPI.py is not too large 
 ```
 
 ## Directories
@@ -24,18 +23,16 @@ that grew too much, hence it is now split into several pieces of python code.
 ├── pics     - pictures to use
 ├── README.md - This file
 ├── specific  - Jupyter nb and code specific for some sources 
-├── SPIworkflow -  Folder containing __init__.py and constants.py 
+├── SPIworkflow -  Python packge (folder) containing 
+    ──  __init__.py  - necessary for the folder to become a Python package
+    ── constants.py  - useful constants for the code
+    ── SPIutils.py   - useful functions for SPI.py
 └── testdir  - Folder with code to test functions, subroutines, etc.
 ```
 
 The main piece of code is SPI.py.
-SPIutils.py contains functions used by SPI.py, to keep the main program not
-too large. 
 
-Definitions and constants used in the code are under ``SPIworkflow``, in files
-``__init__.py`` and ``constants.py``. 
-
-NOTE: SPIworkflow is actually a Python package in itself. It requires at least
+As mentioned, SPIworkflow is actually a Python package in itself. It requires at least
 the existence of the file ``__init__.py``. Eveything in that file becomes
 available once the package is imported. 
 
