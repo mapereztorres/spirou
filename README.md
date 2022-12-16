@@ -31,8 +31,13 @@ that grew too much, hence it is now split into several pieces of python code.
 The main piece of code is SPI.py.
 SPIutils.py contains functions used by SPI.py, to keep the main program not
 too large. 
-Definitions and constants used in the code are under SPIworkflow, in files
+
+Definitions and constants used in the code are under ``SPIworkflow``, in files
 ``__init__.py`` and ``constants.py``. 
+
+NOTE: SPIworkflow is actually a Python package in itself. It requires at least
+the existence of the file ``__init__.py``. Eveything in that file becomes
+available once the package is imported. 
 
 
 
