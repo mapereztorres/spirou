@@ -21,5 +21,8 @@
 # Ignore all archives under 
 ./SPIworkflow/__pycache__/**/*.pyc
 
+#Ignore all latex files in ./OUTPUT/ 
+./OUTPUT/**/*.tex
+
 #
 *.swp
