@@ -23,10 +23,8 @@ matplotlib.rc_file_defaults()
 #
 from SPIworkflow.__init__ import *
 
-# Import useful constants to be used in the code
+# Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
-
-# Import useful functions for the code
 import SPIworkflow.SPIutils as spi
 
 # In the future, use function n_wind (under SPIworkflow)
@@ -41,14 +39,14 @@ import SPIworkflow.SPIutils as spi
 df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
 #print(df.columns)
 
-df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
-                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
-                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
-                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
-                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
-                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
-                   , "distance(pc)": "d_star(pc)"
-                  })
+#df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
+#                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
+#                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
+#                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
+#                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
+#                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
+#                   , "distance(pc)": "d_star(pc)"
+#                  })
                   
 # Copy dataframe df to generate a new dataframe that contains targets with
 # confirmed planets
