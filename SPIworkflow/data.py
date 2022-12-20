@@ -6,7 +6,7 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
         out_latex=True, outfile='latex_table.tex', 
         distance_min = 0.1, distance_max=15.0, 
         p_orb_min=0.1, p_orb_max=10.0, 
-        bfield_min=10., bfield_max=180., 
+        bfield_min=10., bfield_max=10000., 
         dec_min = -90.0, dec_max=90.): 
     """
     Read in the input data to estimate radio emission from SPI
@@ -42,6 +42,14 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
     dec_min, dec_max : float (optional)
         Declination cuts, in degrees
     """
+    #df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
+    #                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
+    #                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
+    #                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
+    #                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
+    #                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
+    #                   , "distance(pc)": "d_star(pc)"
+    #                  })
 
     # Read in data file
     df = pd.read_csv(infile_data)
@@ -53,8 +61,8 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
         "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)",
         "mass_planet(m_earth)","ra(hms)","dec(dms)", "ra(deg)", "dec(deg)"]]
 
-    # Apply masks and generate new pd Dataframe
-
+    # Define masks
+    #
     #mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
     #p_rot_mask = df2['p_rot(days)'] < 200.0
     distance_mask_min =  df2['d_star(pc)'] > distance_min
@@ -65,14 +73,20 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
     bfield_mask_max = df2['bfield_star(gauss)'] < bfield_max
     declination_mask_min = df2['dec(deg)'] > dec_min
     declination_mask_max = df2['dec(deg)'] < dec_max
-    df3 = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
+
+    # Apply masks
+    data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
             p_orb_mask_max & bfield_mask_min & bfield_mask_max &
             declination_mask_min & declination_mask_max]
-    df3.reset_index(inplace=True)
 
-    # Create pandas Dataframe to be returned, with subset of useful rows
-    data = df3[["star_name", "ra(hms)", "dec(dms)", "SP_TYPE", "d_star(pc)", "p_rot(days)", "bfield_star(gauss)",
-          "planet_name", "p_orb(days)", "radius_planet(r_earth)", "mass_planet(m_earth)"]]
+    # Create column with cyclotron freq, in GHz
+    # It gives a SetWarningCopy message, but it's seems to work fine.
+    #
+    #data['freq_cycl(ghz)'] = data.loc[:,('bfield_star(gauss)')]*2.8e-3
+    data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
+
+    data.reset_index(inplace=True)
+
 
     # Generate also latex_table? out_latex==True => Return. It will truncate 
     if out_latex==True:
@@ -82,8 +96,39 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
 
     return data
 
-def create_data_tables(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
-        outdir='OUTPUT'):
+def create_data_tables(infile_data='./INPUT/SPI-sources_planets_MASTER.csv'):
+    """
+    Read in an input table with stars and, optional, planets, and
+    creates two tables: one including targets hosting planets, and another
+    one with targets that do not host planets.
+
+    Returns
+    -------
+    df_planets : pandas.Dataframe
+         It contains the targets with planets 
+
+    df_no_planets : pandas.Dataframe
+         It contains the targets without planets 
+
+    outfile_planets: File, for the moment, it's fixed:  'StarTable-CARMENES_only_planets.csv')
+
+    outfile_no_planets: File, for the moment, it's fixed:  'StarTable-CARMENES_no_planets.csv')
+
+    Parameters
+    ----------
+    infile_data : string (optional)
+        location to read in the data
+
+    """
+
+    # Create OUTPUT directory for keeping output from code.
+    outdir = 'OUTPUT'
+    try:
+        os.mkdir(outdir)
+        print('Directory', outdir, 'created.\n')
+    except FileExistsError:
+        print('Directory', outdir, 'already exists.\n')
+
     df = pd.read_csv(infile_data)
     # Copy Dataframes to generate two tables: one for sources with planets,
     # and a second one for sources not hosting planets
@@ -111,4 +156,4 @@ def create_data_tables(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
         print(f'Creating table file: {outfile_no_planets}.\n')
         df_no_planets.to_csv(outfile_no_planets)
 
-    return df_planets, df_no_planets 
+    return outdir, df_planets, df_no_planets 
