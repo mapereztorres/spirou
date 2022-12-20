@@ -11,6 +11,10 @@
 
 *.log
 
+*.tex
+
+*.swp
+
 # ipython
 ############
 .ipynb_checkpoints/
@@ -21,8 +25,6 @@
 # Ignore all archives under 
 ./SPIworkflow/__pycache__/**/*.pyc
 
-# 
-*.tex
+#Ignore all latex files in ./OUTPUT/ 
+./OUTPUT/**/*.tex
 
-#
-*.swp
