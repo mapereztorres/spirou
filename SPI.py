@@ -26,6 +26,7 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
+from SPIworkflow.data import get_spi_data, create_data_tables
 
 # In the future, use function n_wind (under SPIworkflow)
 # ## Instead of using particle density, we'll use M_dot 
@@ -33,81 +34,17 @@ import SPIworkflow.SPIutils as spi
 #
 # n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
 
-#df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
-#df = pd.read_csv("./INPUT/SPI-table.csv")
-# WOrks OK for ./INPUT/SPI-table.csv
-df = pd.read_csv("./INPUT/SPI-sources_planets_MASTER.csv")
-#print(df.columns)
 
-#df=df.rename(columns={"star_radius(R_Sun)": "radius_star(r_sun)", "Planet_radius(R_Earth)": "radius_planet(r_earth)"
-#                  , "P_orb(days)": "p_orb(days)", "M_star": "mass_star(m_sun)"
-#                   , "semi_major_axis(AU)": "a(au)", "RA(deg)": "ra(deg)"
-#                   , "DEC(deg)": "dec(deg)", "Planet_mass(M_Earth)": "mass_planet(m_earth)"
-#                   , "starname": "star_name", "P_rot(days)": "p_rot(days)"
-#                   , "<B>": "bfield_star(gauss)", "sptype": "SP_TYPE"
-#                   , "distance(pc)": "d_star(pc)"
-#                  })
-                  
-# Copy dataframe df to generate a new dataframe that contains targets with
-# confirmed planets
-df_planets=df.copy()
-df_planets=df_planets.dropna(subset=['planet_name'], inplace=False)
-
-# Copy dataframe df to generate a new dataframe that contains targets with
-# no planets
-df_no_planets = df.copy()
-df_no_planets = df_no_planets[df_no_planets['planet_name'].isnull()]
-
-# Create OUTPUT directory for keeping output from code.
-outdir = 'OUTPUT'
-try:
-    os.mkdir(outdir)
-    print('Directory', outdir, 'created.\n')
-except FileExistsError:
-    print('Directory', outdir, 'already exists.\n')
-
-# Create CARMENES tables for targets with planets only, and with no planets,
-# unless they already exist
+# Create output directory for the results 
+# Return df_planets and df_no_planets
+# Create CARMENES tables for targets 
+# with planets only, and with no planets, unless those already exist
 # 
-outfile_planets = os.path.join(outdir, 'StarTable-CARMENES_only_planets.csv')
-outfile_no_planets = os.path.join(outdir, 'StarTable-CARMENES_no_planets.csv')
+outdir, df_planets, df_no_noplanets = create_data_tables()
 
-if os.path.exists(outfile_planets): 
-    print(f'File {outfile_planets} already exists.\n')
-else:
-    print(f'Creating table file: {outfile_planets}.\n')
-    df_planets.to_csv(outfile_planets)
-
-if os.path.exists(outfile_no_planets): 
-    print(f'File {outfile_no_planets} already exists.\n')
-else:
-    print(f'Creating table file: {outfile_no_planets}.\n')
-    df_no_planets.to_csv(outfile_no_planets)
-
-# Create new dataframe out of the existing working dataframe for clarity
-df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)", "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
-          "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)", "mass_planet(m_earth)","ra(deg)", "dec(deg)"]]
-
-# Apply masks to select candidates and write output to a new data frame
-# 
-#mask_Rpl = df2['radius_planet(r_earth)'] < 1.5
-mask_d = df2['d_star(pc)'] < 15.0
-mask_porb = df2['p_orb(days)'] < 10.0
-#mask_Prot = df2['p_rot(days)'] < 20.0
-mask_Bfield = df2['bfield_star(gauss)'] >= 100.
-mask_dec    = df2['dec(deg)'] > -54.0
-#data = df2[mask_d & mask_Prot & mask_Bfield & mask_dec]
-#data = df2[mask_Rpl & mask_d & mask_porb & mask_Bfield & mask_dec]
-data = df2[mask_d & mask_porb & mask_Bfield & mask_dec]
-
-
-#df2['freq_cycl(ghz)'] = df2.loc[:,('bfield_star(gauss)')]*2.8e-3
-# Create new column
-data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
-
-#data = df2[mask_d & mask_Prot & mask_Porb & mask_a & mask_Bfield & mask_dec]
-#data = data.drop_duplicates(subset=['star_name'])
-data.reset_index(inplace=True)
+# Read in the input data to estimate radio emission from SPI
+data = get_spi_data(distance_max=15, p_orb_max = 10, bfield_min=100,
+        bfield_max=1000.0, dec_min=-54)
 
 
 # We use an isothermal Parker wind
