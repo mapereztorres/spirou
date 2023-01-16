@@ -43,7 +43,7 @@ from SPIworkflow.data import get_spi_data, create_data_tables
 outdir, df_planets, df_no_noplanets = create_data_tables()
 
 # Read in the input data to estimate radio emission from SPI
-data = get_spi_data(infile_data='./INPUT/my-SPI-sources.csv',
+data = get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
         distance_max=15, p_orb_max = 10, bfield_min=100,
         bfield_max=1000.0, dec_min=-90)
 
@@ -108,7 +108,7 @@ Bp0_arr= [0, 1]
 #for indi in range(len(data)):
 #star_array = [92, 93, 94, 95]
 #star_array = range(len(data))
-star_array = [0, 1]
+star_array = [0, 1, 2]
 
 for indi in star_array:
     #indi=63
