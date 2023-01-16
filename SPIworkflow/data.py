@@ -4,7 +4,7 @@ import pandas as pd
 
 def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
         out_latex=True, outfile='latex_table.tex', 
-        distance_min = 0.1, distance_max=15.0, 
+        distance_min = 0.1, distance_max=1000.0, 
         p_orb_min=0.1, p_orb_max=10.0, 
         bfield_min=10., bfield_max=10000., 
         dec_min = -90.0, dec_max=90.): 
@@ -51,7 +51,7 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
     #                   , "distance(pc)": "d_star(pc)"
     #                  })
 
-    # Read in data file
+    # Read in data file using pandas
     df = pd.read_csv(infile_data)
 
     # Create new pandas.Dataframe with a subset of rows (easy to display in,
