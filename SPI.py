@@ -43,7 +43,8 @@ from SPIworkflow.data import get_spi_data, create_data_tables
 outdir, df_planets, df_no_noplanets = create_data_tables()
 
 # Read in the input data to estimate radio emission from SPI
-data = get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
+#data = get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
+data = get_spi_data(infile_data='./INPUT/my-SPI-sources.csv',
         distance_max=15, p_orb_max = 10, bfield_min=100,
         bfield_max=1000.0, dec_min=-90)
 
@@ -57,7 +58,7 @@ m_av = mu * m_p
 vsound = np.sqrt(k_B * T_corona / m_av) 
 
 #indis = range(len(data))
-indis = [1]
+indis = [0]
 for indi in indis:
     planet = data['planet_name'][indi]
     #print("Planet = {0:12s}\n".format(planet))
@@ -104,14 +105,12 @@ Bfield_geom_arr = [0]
 Bp0_arr= [0, 1]
 
 ### Select data in the array to run the code on
-
-#for indi in range(len(data)):
-#star_array = [92, 93, 94, 95]
+#
 #star_array = range(len(data))
-star_array = [0, 1, 2]
+#star_array = [0, 1, 2]
+star_array = [0]
 
 for indi in star_array:
-    #indi=63
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
     R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
