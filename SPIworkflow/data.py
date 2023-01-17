@@ -56,10 +56,18 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
 
     # Create new pandas.Dataframe with a subset of rows (easy to display in,
     # e.g., jupyter notebook
-    df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)",
-        "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
-        "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)",
-        "mass_planet(m_earth)","ra(hms)","dec(dms)", "ra(deg)", "dec(deg)"]]
+
+    #df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)",
+    #    "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
+    #    "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)",
+    #    "mass_planet(m_earth)","ra(hms)","dec(dms)", "ra(deg)", "dec(deg)"]]
+
+    df2 = df[["planet_name", "star_name", 
+        "ra(hms)","dec(dms)", "ra(deg)", "dec(deg)", 
+        "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
+        "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
+    #
+    #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
 
     # Define masks
     #
@@ -71,13 +79,24 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
     p_orb_mask_max = df2['p_orb(days)'] < p_orb_max
     bfield_mask_min = df2['bfield_star(gauss)'] > bfield_min
     bfield_mask_max = df2['bfield_star(gauss)'] < bfield_max
-    declination_mask_min = df2['dec(deg)'] > dec_min
-    declination_mask_max = df2['dec(deg)'] < dec_max
+    #
+    #MPT@20230116 -  The masks in declination give a TypeError when reading
+    # './INPUT/SPI-sources.csv' 
+    # (but not when reading the file './INPUT/SPI-sources_planets_MASTER.csv'    
+    # TypeError: '>' not supported between instances of 'str' and 'float'
+    # Needs to be understood and fixed.
+    # It may have to do with "NaN" values, which may conflict
+    #
+    #declination_mask_min = df2['dec(deg)'] > dec_min
+    #declination_mask_max = df2['dec(deg)'] < dec_max
 
     # Apply masks
+    #data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
+    #        p_orb_mask_max & bfield_mask_min & bfield_mask_max &
+    #        declination_mask_min & declination_mask_max]
     data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
-            p_orb_mask_max & bfield_mask_min & bfield_mask_max &
-            declination_mask_min & declination_mask_max]
+            p_orb_mask_max & bfield_mask_min & bfield_mask_max]
+
 
     # Create column with cyclotron freq, in GHz
     # It gives a SetWarningCopy message, but it's seems to work fine.
