@@ -55,17 +55,23 @@ def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
     df = pd.read_csv(infile_data)
 
     # Create new pandas.Dataframe with a subset of rows (easy to display in,
-    # e.g., jupyter notebook
+    # e.g., jupyter notebook.
+    if infile_data =='./INPUT/SPI-sources_planets_MASTER.csv':
+        df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)",
+            "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
+            "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)",
+            "mass_planet(m_earth)","ra(hms)","dec(dms)", "ra(deg)", "dec(deg)"]]
 
-    #df2 = df[["star_name", "SP_TYPE", "d_star(pc)", "mass_star(m_sun)",
-    #    "radius_star(r_sun)", "p_rot(days)", "bfield_star(gauss)",
-    #    "planet_name", "p_orb(days)", "a(au)", "radius_planet(r_earth)",
-    #    "mass_planet(m_earth)","ra(hms)","dec(dms)", "ra(deg)", "dec(deg)"]]
+    elif infile_data =='./INPUT/my-SPI-sources.csv':
+        df2 = df[["planet_name", "star_name", 
+            "ra(hms)","dec(dms)", "ra(deg)", "dec(deg)", 
+            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
+            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
+    else: 
+        df2 = df[["planet_name", "star_name",  
+            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
+            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
 
-    df2 = df[["planet_name", "star_name", 
-        "ra(hms)","dec(dms)", "ra(deg)", "dec(deg)", 
-        "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
-        "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
 
