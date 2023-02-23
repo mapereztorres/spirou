@@ -32,7 +32,7 @@ that grew too much, hence it is now split into several pieces of python code.
 
 The main piece of code is SPI.py.
 
-As mentioned, SPIworkflow is actually a Python package in itself. It requires at least
+SPIworkflow is actually a Python package in itself. It requires at least
 the existence of the file ``__init__.py``. Eveything in that file becomes
 available once the package is imported. 
 
