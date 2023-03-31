@@ -49,13 +49,14 @@ data = get_spi_data(infile_data=source_data,
         bfield_max=1000.0, dec_min=-90)
 
 
-# We use an isothermal Parker wind
-# Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
-
 mu = (0.5*m_p + 0.5*m_e)/(m_p + m_e) # mean "molecular weight"
-m_av = mu * m_p
+m_av = mu * m_p  # average mass density
+
+# Isothermal Parker wind (assumed)
+# Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
 vsound = np.sqrt(k_B * T_corona / m_av) 
+
 
 #indis = range(len(data))
 indis = [0]
@@ -89,19 +90,17 @@ for indi in indis:
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
 # 
-
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#  Bfield_geom_arr = 0 - closed dipolar geometry
+#                        Bfield_geom_arr = 0 - closed dipolar geometry
+#Bfield_geom_arr = [0, 1]
+Bfield_geom_arr = [0]
 
 # Magnetic field of the planet
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
 #  Bp0_arr = 1 - magnetized planet, i.e., B_planet > 0 G; 
 
-#Bfield_geom_arr = [0, 1]
-Bfield_geom_arr = [0]
-#Bp0_arr= [0, 1]
-
+# Magnetic field of the planet
 Bp0_arr= [0, 1]
 
 ### Select data in the array to run the code on
