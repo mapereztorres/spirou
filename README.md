@@ -20,13 +20,14 @@ that grew too much, hence it is now split into several pieces of python code.
 ├── OUTPUT    - Contains output files 
 ├── OUTPUT.old
 ├── OUTPUT.veryold
-├── pics     - pictures to use
+├── pics     - Folder containing pictures 
 ├── README.md - This file
-├── specific  - Jupyter nb and code specific for some sources 
-├── SPIworkflow -  Python packge (folder) containing 
+├── specific  - Folder containing Jupyter nb and code specific for some sources 
+├── SPIworkflow - Folder containing the python package 
     ──  __init__.py  - necessary for the folder to become a Python package
     ── constants.py  - useful constants for the code
     ── SPIutils.py   - useful functions for SPI.py
+    ── <Other_files> - currently not used by the code
 └── testdir  - Folder with code to test functions, subroutines, etc.
 ```
 
