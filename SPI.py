@@ -156,7 +156,6 @@ for indi in star_array:
             #
             # using the Lambert W function
             # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
-
             D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
             v_sw2 = np.zeros(len(d_orb), dtype=complex)
             v_sw  = np.zeros(len(d_orb))
@@ -224,7 +223,7 @@ for indi in star_array:
                 geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
 
             # Alfven speed and Mach Number
-            rho_sw = m_av * n_dplanet #density, in g * cm^(-3)
+            rho_sw = m_av * n_dplanet #wind density, in g * cm^(-3)
             #v_alf = 2.18e11 * B_tot / np.sqrt(n_dplanet) # Alfven speed at the distance of the planet, in cm/s
             #v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) 
             # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
@@ -233,11 +232,8 @@ for indi in star_array:
             
             #Radial Alfvén speed
             mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
-            
             v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw) # in cm/s
             M_A_radial = np.abs(v_sw / v_alf_r)
-
-
 
             #print('Relative speed = {0:.1e} km/s \n', format(v_rel/1e5))
             #print('Alfvén speed   = {0:.1e} km/s \n', format(v_alf/1e5))
@@ -267,7 +263,6 @@ for indi in star_array:
             #
             # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
             # core_radius equal to the Earth radius, and core density equal to that of the Earth.
-            # 
             #
             # Bp0 is the magnetic field at the assumed orbital distance
             #    
