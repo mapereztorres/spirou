@@ -50,3 +50,12 @@ effects on the wind are neglected.
 Obtain the stellar wind number density at the base of the corona,
 ``n_sw_base``, from an assumed/measured/estimated mass loss rate for the star.
 Currently, ``n_sw_base`` is read from __init__.py.
+
+Generate plots of Flux density as a function of the planetary magnetic field, for a given
+orbital distance (and the rest of the parameters being fixed).
+
+Generate plots of Flux density as a function of the density at the corona of
+the star, for a given orbital distance (and the rest of the parameters being
+fixed).
+
+
