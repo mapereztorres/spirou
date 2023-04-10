@@ -1,4 +1,4 @@
-# JupyterSPI
+# SPI
 
 Code to estimate radio emission from star-planet (Sub-Alfvénic) interaction
 via the electron-cyclotron mechanism.  Initially, it was a Jupyter notebook
