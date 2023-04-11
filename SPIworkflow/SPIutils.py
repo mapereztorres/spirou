@@ -12,10 +12,10 @@ def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)
 
 def Kepler_r(M_star, P_orb):
-    """Computes the orbital radius of a planet (=semimajor axis)
+    """Computes the orbital radius of a planet (=semimajor axis, in units of au)
        orbiting a star of mass M_star (in solar masses) and orbital period, P_orb (in days)
     """
-    r_orb = (G * M_star)**(1/3) * (P_orb/2/np.pi)**(2/3)
+    r_orb = (G * M_star*M_sun)**(1/3) * (P_orb*day/2/np.pi)**(2/3)/au
     return r_orb
 
 def beta_keV(E_kin=511):
