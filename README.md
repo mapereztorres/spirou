@@ -26,6 +26,7 @@ that grew too much, hence it is now split into several pieces of python code.
 ├── SPIworkflow - Folder containing the python package 
     ──  __init__.py  - necessary for the folder to become a Python package
     ── constants.py  - useful constants for the code
+    ── data.py       - Auxiliary function to read in data to feed modelling
     ── SPIutils.py   - useful functions for SPI.py
     ── <Other_files> - currently not used by the code
 └── testdir  - Folder with code to test functions, subroutines, etc.
