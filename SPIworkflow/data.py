@@ -2,10 +2,10 @@ import os
 import pandas as pd
 
 
-def get_spi_data(infile_data='./INPUT/SPI-sources_planets_MASTER.csv',
+def get_spi_data(infile_data='./INPUT/SPI-sources-sample5.csv',
         out_latex=True, outfile='latex_table.tex', 
         distance_min = 0.1, distance_max=1000.0, 
-        p_orb_min=0.1, p_orb_max=10.0, 
+        p_orb_min=0.1, p_orb_max=1000.0, 
         bfield_min=10., bfield_max=10000., 
         dec_min = -90.0, dec_max=90.): 
     """
