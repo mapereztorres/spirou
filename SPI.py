@@ -43,10 +43,13 @@ from SPIworkflow.data import get_spi_data, create_data_tables
 outdir, df_planets, df_no_noplanets = create_data_tables()
 
 # Read in the input data to estimate radio emission from SPI
-source_data = './INPUT/SPI-sources_planets_MASTER.csv'
-data = get_spi_data(infile_data=source_data, 
-        distance_max=15, p_orb_max = 10, bfield_min=100,
-        bfield_max=1000.0, dec_min=-90)
+#source_data = './INPUT/SPI-sources_planets_MASTER.csv'
+source_data = './INPUT/SPI-sources-sample5.csv'
+data = get_spi_data(infile_data=source_data
+#, 
+#        distance_max=15, p_orb_max = 10, bfield_min=100,
+#        bfield_max=1000.0, dec_min=-90
+)
 
 
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
@@ -58,8 +61,8 @@ m_av = mu * m_p  # average mass density
 vsound = np.sqrt(k_B * T_corona / m_av) 
 
 
-#indis = range(len(data))
-indis = [0]
+indis = range(len(data))
+#indis = [0]
 for indi in indis:
     planet = data['planet_name'][indi]
     #print("Planet = {0:12s}\n".format(planet))
@@ -105,9 +108,9 @@ Bp0_arr= [0, 1]
 
 ### Select data in the array to run the code on
 #
-#star_array = range(len(data))
+star_array = range(len(data))
 #star_array = [0, 1, 2]
-star_array = [0]
+#star_array = [0]
 
 for indi in star_array:
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
