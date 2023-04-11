@@ -7,7 +7,7 @@
 *.png 
 *.log
 
-*.csv
+#*.csv
 
 *.log
 
