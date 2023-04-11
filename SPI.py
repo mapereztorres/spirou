@@ -385,7 +385,7 @@ for indi in star_array:
 
             # For simplicity, take Omega_min = Omega_max = Omega
             #Omega_min = Omega_max = Omega
-            Omega_min = bsa_Omega/10.
+            Omega_min = bsa_Omega
             Omega_max = bsa_Omega
             
             dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
