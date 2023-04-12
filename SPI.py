@@ -545,8 +545,8 @@ for indi in star_array:
             #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(Bp) + " G ", fontsize='small')
             #ax2.text(x=12,y=-2.0,s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             #ax2.text(x=3,y=0.1+np.log10(3*rms),s=r"Requested 3$\sigma$", fontsize='x-small')
-            xpos = d_orb_max / 2 + 0.7
-            ypos = 1.5
+            xpos = d_orb_max / 2 + 0.7+7.5
+            ypos = 1.5+0.7
             d_ypos = 0.5
             ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(B_star) + " G ",fontsize='small')
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(B_pl_loc) + r"$B_{\rm Earth}$", fontsize='small')
@@ -565,8 +565,8 @@ for indi in star_array:
             # the terminal (plotout = False) 
             if plotout:
                 plt.tight_layout()
-                #outfilePDF = os.path.join(outdir, outfile+".pdf")
-                #plt.savefig(outfilePDF)
+                outfilePDF = os.path.join(outdir, outfile+".pdf")
+                plt.savefig(outfilePDF)
                 outfilePNG = os.path.join(outdir, outfile+".png")
                 plt.savefig(outfilePNG)
                 plt.close()
