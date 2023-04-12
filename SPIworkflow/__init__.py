@@ -1,5 +1,11 @@
 import numpy as np
 
+### INPUT TABLE
+
+source_data = './INPUT/SPI-sources-sample5.csv'
+selection_criteria = False
+
+
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
 
 ###################################

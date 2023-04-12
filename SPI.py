@@ -43,13 +43,14 @@ from SPIworkflow.data import get_spi_data, create_data_tables
 outdir, df_planets, df_no_noplanets = create_data_tables()
 
 # Read in the input data to estimate radio emission from SPI
+#from SPIworkflow.import_table import *
 #source_data = './INPUT/SPI-sources_planets_MASTER.csv'
-source_data = './INPUT/SPI-sources-sample5.csv'
-data = get_spi_data(infile_data=source_data
-#, 
-#        distance_max=15, p_orb_max = 10, bfield_min=100,
-#        bfield_max=1000.0, dec_min=-90
-)
+#source_data = './INPUT/SPI-sources-sample5.csv'
+#
+if selection_criteria == False:
+     data = get_spi_data(infile_data=source_data)
+else:
+     data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
 
 
 # Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
