@@ -4,13 +4,33 @@ Code to estimate radio emission from star-planet (Sub-Alfvénic) interaction
 via the electron-cyclotron mechanism.  Initially, it was a Jupyter notebook
 that grew too much, hence it is now split into several pieces of python code.
 
+
 ## Files
 
 ```
-├── SPI.ipynb - Jupyter notebook for the code - outdated
-├── SPI.py    - Current version, in continuous development
+├── spi.yml     - yml file to create a python environment to run the code
+├── SPI.ipynb   - Jupyter notebook for the code - outdated
+├── SPI.py      - Current version, in continuous development
 ├── SPI.py.orig - original version of SPI.py.orig - to be removed eventually
 ```
+
+
+'''
+First, create the conda spi environment:
+
+`conda env create -f spi.yml' 
+
+This will create the conda environment `spi'. 
+
+To activate this environment, use `$ conda activate spi'
+
+To deactivate an active environment, use `$ conda deactivate' 
+
+In case you need to update the evnironment, run 
+
+`conda activate spi
+conda env update --name spi --file spi.yml --prune'
+'''
 
 ## Directories
 
