@@ -98,7 +98,7 @@ for indi in indis:
 # The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
 #                        Bfield_geom_arr = 0 - closed dipolar geometry
 #Bfield_geom_arr = [0, 1]
-Bfield_geom_arr = [0]
+Bfield_geom_arr = [0, 1]
 
 # Magnetic field of the planet
 #  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
@@ -111,7 +111,7 @@ Bp0_arr= [0, 1]
 #
 star_array = range(len(data))
 #star_array = [0, 1, 2]
-#star_array = [0]
+star_array = [8]
 
 for indi in star_array:
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
@@ -308,13 +308,16 @@ for indi in star_array:
                             * (v_alf/1e2) * (B_tot/1e4)**2/mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
-            
             # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
             # They have a value which is different by a factor 2 * M_A * alpha^2
             # In addition, they include a geometric factor of order 1/2.
             #
             ZL_factor = 0.5
             S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
+
+            # Zarka notes that it should be equation 8 to be used instead. 
+            # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
+            S_poynt_ZL = 1./np.sqrt(1 + 1/M_A**2) / (2 * M_A * alpha**2 * geom_f) * ZL_factor * S_poynt 
             
             # Beam solid angle covered by the ECM emission
             # It depends on the kinetic energy of electrons (as beta is determined from them), in keV
@@ -479,7 +482,7 @@ for indi in star_array:
             ax1.set_xlim([xmin, xmax])
             ax2.set_xlim([xmin, xmax])
 
-            #ax1.set_xscale('log')
+            #ax1.set_xscale('log')
             #ax2.set_xscale('log')
             #VALORES ORIGINALES
             ymin_ax1=-3
