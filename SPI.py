@@ -208,7 +208,8 @@ for indi in star_array:
                 B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
 
                 # Angle between the stellar wind magnetic field and the impinging plasma velocity
-                theta = np.absolute(B_ang - v_rel_angle) # Eqn 23 in Turnpenney 2018
+                # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
+                theta = np.absolute(B_ang - v_rel_angle) 
 
                 # theta is the angle between the B_sw (the insterstellar magnetic field), and the
                 # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
@@ -319,7 +320,7 @@ for indi in star_array:
             # Zarka notes that it should be equation 8 to be used instead. 
             # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
             S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A**2 \
-                                   * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0 \
+                                   * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0  * geom_f\
                                    * 1./np.sqrt(1 + 1/M_A**2) 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
