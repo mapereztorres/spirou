@@ -26,6 +26,7 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
+            
 from SPIworkflow.data import get_spi_data, create_data_tables
 
 # In the future, use function n_wind (under SPIworkflow)
@@ -305,7 +306,7 @@ for indi in star_array:
             mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
             # Poynting flux, in mks units
             S_poynt_mks = 2 * np.pi * (Rp_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_tot/1e4)**2/mu_0 * geom_f
+                            * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
             # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
@@ -317,7 +318,10 @@ for indi in star_array:
 
             # Zarka notes that it should be equation 8 to be used instead. 
             # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
-            S_poynt_ZL = 1./np.sqrt(1 + 1/M_A**2) / (2 * M_A * alpha**2 * geom_f) * ZL_factor * S_poynt 
+            S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A**2 \
+                                   * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0 \
+                                   * 1./np.sqrt(1 + 1/M_A**2) 
+            S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
             # It depends on the kinetic energy of electrons (as beta is determined from them), in keV
@@ -588,11 +592,19 @@ for indi in star_array:
                 f.write('# INPUT PARAMETERS:  ########\n') 
                 #f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
                 f.write('T_corona = {0:.0e} K\n'.format(T_corona))
-                f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n\n'.format(n_sw_base))
+                f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n'.format(n_sw_base))
+                f.write('mu_0 [mks units] = {0:.0e}\n \n'.format(mu_0))
                 f.write('# OUTPUT PARAMETERS: ########\n')
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
                 f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
+                f.write('v_rel at r_orb: {0} \n'.format(v_rel[loc_pl]))
+                f.write('v_alf at r_orb: {0} \n'.format(v_alf[loc_pl]))
+                f.write('M_A at r_orb: {0} \n'.format(M_A[loc_pl]))
+                #f.write('v_rel/v_alf at r_orb: {0} \n'.format(v_rel[loc_pl]/v_alf[loc_pl]))
+                f.write('B_tot at r_orb: {0} \n'.format(B_tot[loc_pl]))
+                f.write('Rp_eff at r_orb: {0} \n'.format(Rp_eff[loc_pl]))
+
             
 
 
