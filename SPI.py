@@ -318,8 +318,8 @@ for indi in star_array:
 
             # Zarka notes that it should be equation 8 to be used instead. 
             # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
-            S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A**2 \
-                                   * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0 \
+            S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A \
+                                   * (v_alf/1e2) * (B_tot/1e4)**2 * geom_f / mu_0 \
                                    * 1./np.sqrt(1 + 1/M_A**2) 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
