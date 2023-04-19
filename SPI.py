@@ -317,11 +317,13 @@ for indi in star_array:
             ZL_factor = 0.5
             S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
 
-            # Zarka notes that it should be equation 8 to be used instead. 
-            # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
-            S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A**2 \
-                                   * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0  * geom_f\
-                                   * 1./np.sqrt(1 + 1/M_A**2) 
+            # Zarka notes that it should be equation 8 in Zarka (2007) to be used instead. 
+            # Note that Eq. 8 in Zarka2007 is for the Power "per hemisphere",
+            # hence instead of 2*np.pi we have np.pi in front of Rp_eff**2
+            #
+            #S_poynt_ZL_mks = 1./np.sqrt(1 + 1/M_A**2) *  M_A*(v_alf/1e2) \
+            S_poynt_ZL_mks = 2 * 1./np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+                            * (B_tot/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
