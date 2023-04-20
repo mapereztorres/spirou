@@ -208,7 +208,8 @@ for indi in star_array:
                 B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
 
                 # Angle between the stellar wind magnetic field and the impinging plasma velocity
-                theta = np.absolute(B_ang - v_rel_angle) # Eqn 23 in Turnpenney 2018
+                # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
+                theta = np.absolute(B_ang - v_rel_angle) 
 
                 # theta is the angle between the B_sw (the insterstellar magnetic field), and the
                 # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
@@ -313,14 +314,19 @@ for indi in star_array:
             # They have a value which is different by a factor 2 * M_A * alpha^2
             # In addition, they include a geometric factor of order 1/2.
             #
-            ZL_factor = 0.5
-            S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
+            #ZL_factor = 0.5
+            #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
 
-            # Zarka notes that it should be equation 8 to be used instead. 
-            # so we need to add an additional correction factor of 1./np.sqrt(1 + 1/M_A**2)
-            S_poynt_ZL_mks = np.pi * (Rp_eff/1e2)**2 * M_A \
-                                   * (v_alf/1e2) * (B_tot/1e4)**2 * geom_f / mu_0 \
-                                   * 1./np.sqrt(1 + 1/M_A**2) 
+            # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
+            # Alfvén conductance as defined in Neubaur.
+            # Note that Eq. 8 in Zarka2007 is for the power "per hemisphere",
+            # so to have the total Poynting flux, as above for S_poynt_mks, 
+            # we multiply by a factor of 2.0. The resulting expression is
+            # identical to the one above, if taken into account that 
+            # v_rel = v_alf * M_A. 
+            #
+            S_poynt_ZL_mks = 2 / np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+                            * (B_tot/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
