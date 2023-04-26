@@ -63,35 +63,6 @@ m_av = mu * m_p  # average mass density
 vsound = np.sqrt(k_B * T_corona / m_av) 
 
 
-indis = range(len(data))
-#indis = [0]
-for indi in indis:
-    planet = data['planet_name'][indi]
-    #print("Planet = {0:12s}\n".format(planet))
-    d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
-    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-    M_star = data['mass_star(m_sun)'][indi] * M_sun
-    P_orb  = data['p_orb(days)'][indi] # Orbital period, in days
-    Exoplanet = data['planet_name'][indi]
-    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius
-    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass
-    r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-    nu_ecm = data['freq_cycl(ghz)'] # in GHz
-    #P_orb  *= 86400 # Orbital period, in cgs
-    #semimajor_a = Kepler_r(M_star, P_orb)/au
-    R_star = data['radius_star(r_sun)'][indi]
-    #orb_distance = data['a(au)'][indi]*au / (R_star*R_sun) # in stellar radii
-    P_rot_star = float(data['p_rot(days)'][indi])   # Rotation period  of star, in days
-    #print(type(P_rot_star), type(M_star))
-    #P_rot_star *= day    # Rotation period  of star, in sec
-    Ltot_rad = spi.Lrad_leto(B_star, R_star, P_rot_star) # in erg/s
-    #Lnu_rad  = Ltot_rad / (nu_ecm*1e9)
-    #Flux_nu_rad = Lnu_rad/(4*np.pi *  d**2)  
-    #print("Ltot_rad = {0:2.1e} erg/s".format(Ltot_rad))
-    #print("Rp = {0:2.1e} R_earth; Mp = {1:2.1e} M_earth".format(Rp/R_earth, Mp/M_earth))
-    #print("Done with planet {0:12s}\n.".format(planet))
-
-
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
 # 
