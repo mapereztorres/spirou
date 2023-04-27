@@ -39,7 +39,10 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
 #n_sw_base = 1.0e8  # For a Sun-like star
-n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
+# n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
+
+# Mass-loss rate of the wind, in units of the Sun mass-loss-rate (2e-14 M_sol/year)
+M_star_dot = 1.0
 
 # Stellar magnetic field at the surface of the star pole, in gauss 
 # Now it's read from an external file

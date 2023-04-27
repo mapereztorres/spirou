@@ -118,7 +118,7 @@ for indi in star_array:
             d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
             Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star
+            d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
             #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
             #print(len(d_orb))
             v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
@@ -154,16 +154,18 @@ for indi in star_array:
             v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
             v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
             
-            # n_dplanet - Number density at orbital distance to the planet. 
+            # n_sw_planet - Number density of the wind at orbital distance to the planet. 
+            # 
             # If the stellar plasma is assumed to be isothermal, then 
             # the density falls down as ~ R^(-2) * v_sw^(-1).
             #
             # Alternatively, we fix the density at the distance of the planet from the host star.
             #
             if isothermal:
-                n_dplanet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
+                #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
+                n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, mu) # Plasma number density at distance (R/R_star)
             else:
-                n_dplanet = 1e4  # fixed                 
+                n_sw_planet = 1e4  # fixed                 
                 
             # Magnetic field geometry
             # open_field - defines the geometry of the magnetic field
@@ -200,8 +202,8 @@ for indi in star_array:
                 geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
 
             # Alfven speed and Mach Number
-            rho_sw = m_av * n_dplanet #wind density, in g * cm^(-3)
-            #v_alf = 2.18e11 * B_tot / np.sqrt(n_dplanet) # Alfven speed at the distance of the planet, in cm/s
+            rho_sw = m_av * n_sw_planet #wind density, in g * cm^(-3)
+            #v_alf = 2.18e11 * B_tot / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
             #v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) 
             # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
             v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_tot**2/(4.*np.pi * rho_sw * c**2)))
@@ -539,7 +541,8 @@ for indi in star_array:
             d_ypos = (ymax-ymin)/12
             ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(B_star) + " G ",fontsize='small')
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(B_pl_loc) + r"$B_{\rm Earth}$", fontsize='small')
-            ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
+            #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
+            ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(M_star_dot) + "$M_\odot$", fontsize='small')
         
              
             common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
@@ -569,7 +572,8 @@ for indi in star_array:
                 f.write('# INPUT PARAMETERS:  ########\n') 
                 #f.write('B_star = {0:.0f} G; B_planet = {1:.0f} G\n'.format(B_star, Bp[loc_pl]))
                 f.write('T_corona = {0:.0e} K\n'.format(T_corona))
-                f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n'.format(n_sw_base))
+                #f.write('Stellar wind particle density at the base = {0:.0e} cm-3\n'.format(n_sw_base))
+                f.write('Stellar wind mass loss rate = {0:.2e} $M_\odot$\n'.format(M_star_dot))
                 f.write('mu_0 [mks units] = {0:.0e}\n \n'.format(mu_0))
                 f.write('# OUTPUT PARAMETERS: ########\n')
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
