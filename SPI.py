@@ -579,6 +579,7 @@ for indi in star_array:
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
                 f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
+                f.write('n_sw_planet at r_orb: {0} \n'.format(n_sw_planet[loc_pl]))
                 f.write('v_rel at r_orb: {0} \n'.format(v_rel[loc_pl]))
                 f.write('v_alf at r_orb: {0} \n'.format(v_alf[loc_pl]))
                 f.write('M_A at r_orb: {0} \n'.format(M_A[loc_pl]))
