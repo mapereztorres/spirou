@@ -146,6 +146,13 @@ for indi in star_array:
 
             v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
             
+            # Plasma number density at base of the corona
+            n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
+
+            # Maximum plasma frequency at the base of the corona. If the ECM
+            # freq is less than the plasma frequency, the emission is
+            # completely absorbed 
+            nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
 
             #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
             
@@ -600,6 +607,8 @@ for indi in star_array:
                 f.write('#                                 ########\n') 
                 f.write('# OUTPUT PARAMETERS:              ########\n')
                 f.write('#                                 ########\n') 
+                f.write('n_base_corona = {0:.3e} cm^-3\n'.format(n_base_corona))
+                f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona/1e6))
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
                 #f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
@@ -618,12 +627,6 @@ for indi in star_array:
 
             
 
-            # Plasma number density at base of the corona
-            n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
-            # Maximum plasma frequency is at the base of the corona
-            nu_plasma = spi.plasma_freq(n_base_corona) / 1e6 # in MHz
-            print('n_base_corona = {0:.3e} cm^-3'. format(n_base_corona))
-            print('nu_plasma = {0:.2e} MHz'. format(nu_plasma))
             
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
