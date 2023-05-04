@@ -99,6 +99,7 @@ def plasma_freq(n_e = 1.0):
     """ Returns the plasma frequency.
         Any wave emitting at a frequency less than the plasma frequency will
         not propate in this medium.
+
         OUTPUT: nu_plasma (plasma frequency), in Hz
         INPUT : n_e - electron density, in cm^(-3)
     """
