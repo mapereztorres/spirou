@@ -146,6 +146,7 @@ for indi in star_array:
 
             v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
             
+
             #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
             
             # Eq. 23 of Turnpenney+18 - Second term of RHS 
@@ -617,7 +618,13 @@ for indi in star_array:
 
             
 
-
+            # Plasma number density at base of the corona
+            n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
+            # Maximum plasma frequency is at the base of the corona
+            nu_plasma = spi.plasma_freq(n_base_corona) / 1e6 # in MHz
+            print('n_base_corona = {0:.3e} cm^-3'. format(n_base_corona))
+            print('nu_plasma = {0:.2e} MHz'. format(nu_plasma))
+            
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             # First, find out the position of the planet in the distance array
@@ -643,3 +650,5 @@ for indi in star_array:
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
+
+
