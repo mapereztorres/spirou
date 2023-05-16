@@ -88,7 +88,7 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, mu=0.5):
                 v_sw       - Speed of stellar wind at distance d, in cm/s
                 mu         - mean molecular weight in the wind
     """
-    M_sun_dot = 2e-14 # Sun mass-loss rate, equal to 2e-14 gr/cm^3
+    M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
     M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
     m_av  =  mu * m_p # average particle mass of the solar wind, in grams
     rho = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
