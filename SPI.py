@@ -611,11 +611,17 @@ for indi in star_array:
                 f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona/1e6))
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
+<<<<<<< HEAD
                 #f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
                 f.write('rho_sw at r_orb: {0} \n'.format(rho_sw[loc_pl]))
                 f.write('n_sw_planet at r_orb: {0} \n'.format(n_sw_planet[loc_pl]))
                 f.write('n_sw_planet at base: {0} \n'.format(n_sw_planet[0]))
                 f.write('v_sw at base of the wind: {0} \n'.format(v_sw_base))
+=======
+                f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
+                f.write('n_dplanet at r_orb: {0} \n'.format(n_dplanet[loc_pl]))
+                f.write('v_sw at the base of the wind: {0} \n'.format(v_sw_base))
+>>>>>>> test
                 f.write('v_sw at r_orb: {0} \n'.format(v_sw[loc_pl]))
                 f.write('v_sw(r_orb)/v_sw_base: {0} \n'.format(v_sw[loc_pl]/v_sw_base))
                 f.write('v_rel at r_orb: {0} \n'.format(v_rel[loc_pl]))
