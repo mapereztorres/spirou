@@ -283,6 +283,7 @@ for indi in star_array:
             # Applies if  M_A is small (<< 1)
             # Note that for the geometric factor, we follow Turnpenney's definition, so 
             # the factor is sin^2(theta), not cos^2(theta)
+            # Saur says that the power is "per hemisphere", as Zarka below
             #
             # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
             mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
@@ -300,13 +301,12 @@ for indi in star_array:
 
             # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
             # Alfvén conductance as defined in Neubaur.
-            # Note that Eq. 8 in Zarka2007 is for the power "per hemisphere",
-            # so to have the total Poynting flux, as above for S_poynt_mks, 
-            # we multiply by a factor of 2.0. The resulting expression is
-            # identical to the one above, if taken into account that 
-            # v_rel = v_alf * M_A. 
+            # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
+            # In this sense, this is the same as in the expresion by Saur, 
+            # so there seems to be a factor of two discrepancy, 
+            # if taken into account that v_rel = v_alf * M_A. 
             #
-            S_poynt_ZL_mks = 2 / np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+            S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
                             * (B_tot/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
@@ -611,17 +611,13 @@ for indi in star_array:
                 f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona/1e6))
                 f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
                 f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
-<<<<<<< HEAD
                 #f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
                 f.write('rho_sw at r_orb: {0} \n'.format(rho_sw[loc_pl]))
                 f.write('n_sw_planet at r_orb: {0} \n'.format(n_sw_planet[loc_pl]))
                 f.write('n_sw_planet at base: {0} \n'.format(n_sw_planet[0]))
                 f.write('v_sw at base of the wind: {0} \n'.format(v_sw_base))
-=======
                 f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))
-                f.write('n_dplanet at r_orb: {0} \n'.format(n_dplanet[loc_pl]))
                 f.write('v_sw at the base of the wind: {0} \n'.format(v_sw_base))
->>>>>>> test
                 f.write('v_sw at r_orb: {0} \n'.format(v_sw[loc_pl]))
                 f.write('v_sw(r_orb)/v_sw_base: {0} \n'.format(v_sw[loc_pl]/v_sw_base))
                 f.write('v_rel at r_orb: {0} \n'.format(v_rel[loc_pl]))
