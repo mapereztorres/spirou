@@ -105,3 +105,29 @@ def plasma_freq(n_e = 1.0):
     """
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
+
+def R_magnetopause(R_p=1.0, Bp = 1.0, P_dyn_sw = 1.0, P_th_sw = 1.0, B_sw = 1.0):
+    """Returns the radius of the planetary magnetopause, in cm
+
+    It's calculated as the radius that balances the pressure between the
+    stellar wind (ram, thermal, and magnetic) and the planet (magnetic)
+    pressure. Note that, in the equation below, the ram and thermal components
+    of the planetary pressure are neglected.
+
+    OUTPUT: R_mp - Radius of the planetary magnetopause, in cm
+
+    INPUT : Bp   - planetary magnetic field (dipole) at the poles, in Gauss
+            P_dyn_sw - dynamic pressure of the stellar wind at the orbital distance 
+                       of the planet, in erg/cm3
+            P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
+                       of the planet, in erg/cm3
+            B_sw - 
+    """
+
+    P_Bp_equator = (Bp/2)**2 / (8*np.pi)
+    P_B_sw = B_sw**2 / (8 * np.pi)
+    P_sw = P_dyn_sw + P_th_sw + P_B_sw
+    R_mp = 2**(1./3.) * (P_Bp_equator/P_sw)**(1./6) * R_p
+
+    return R_mp
+
