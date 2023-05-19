@@ -183,7 +183,7 @@ for indi in star_array:
                 # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
                 B_r = B_star * (d_orb/R_star)**(-2) # Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
                 B_phi = B_r * v_corot/v_sw # Azimuthal field (Eqn 21 Turnpenney 2018)
-                B_tot = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
+                B_sw = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
 
                 # Eq. 23 of Turnpenney 2018 -  First term of RHS
                 B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
@@ -205,16 +205,16 @@ for indi in star_array:
 
                 B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(phi) # Radial component of the dipole magnetic field of the stellar wind as f(distance to star)
                 B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(phi) # Azimuthal component of the dipole magnetic field 
-                B_tot = np.sqrt(B_r**2 + B_phi**2) # Total dipole magnetic field 
+                B_sw = np.sqrt(B_r**2 + B_phi**2) # Total dipole magnetic field 
 
                 geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
 
             # Alfven speed and Mach Number
             rho_sw = m_av * n_sw_planet #wind density, in g * cm^(-3)
-            #v_alf = 2.18e11 * B_tot / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
-            #v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) 
+            #v_alf = 2.18e11 * B_sw / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
+            #v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) 
             # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
-            v_alf = B_tot / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_tot**2/(4.*np.pi * rho_sw * c**2)))
+            v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_sw**2/(4.*np.pi * rho_sw * c**2)))
             M_A   = v_rel/v_alf # Alfven mach number
             
             #Radial Alfvén speed
@@ -263,16 +263,16 @@ for indi in star_array:
             #
             # Effective radius of the Alfvén wing, in units of R_p (R_obst in Eq. 57 of Saur+2013, A&A)
             # It depends on the orientation, theta_M, of the intrinsic planetary magnetic field (Bp) 
-            # wrt the external magnetic field (B_tot).
+            # wrt the external magnetic field (B_sw).
             #
             
             #if (Bp > 0.0):
-            #    Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
+            #    Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.)
             #    Rp_eff[Rp_eff<Rp]=Rp # Rp_eff cannot be smaller than Rplanet
             #else:
             #    Rp_eff = Rp  
 
-            Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.) # in cm
+            Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.) # in cm
             Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rplanet    
             #print("Planetary Magnetic field = {0:.1f} G".format(Bp))
             #print("The effective radius is {0:.1e}".format(Rp_eff))
@@ -288,7 +288,7 @@ for indi in star_array:
             mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
             # Poynting flux, in mks units
             S_poynt_mks = 2 * np.pi * (Rp_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_tot/1e4)**2 / mu_0 * geom_f
+                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
             # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
@@ -307,7 +307,7 @@ for indi in star_array:
             # v_rel = v_alf * M_A. 
             #
             S_poynt_ZL_mks = 2 / np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_tot/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
+                            * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
@@ -622,7 +622,7 @@ for indi in star_array:
                 f.write('v_alf at r_orb: {0} \n'.format(v_alf[loc_pl]))
                 f.write('M_A at r_orb: {0} \n'.format(M_A[loc_pl]))
                 #f.write('v_rel/v_alf at r_orb: {0} \n'.format(v_rel[loc_pl]/v_alf[loc_pl]))
-                f.write('B_tot at r_orb: {0} \n'.format(B_tot[loc_pl]))
+                f.write('B_sw at r_orb: {0} \n'.format(B_sw[loc_pl]))
                 f.write('Rp_eff at r_orb: {0} \n'.format(Rp_eff[loc_pl]))
 
             
