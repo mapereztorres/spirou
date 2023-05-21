@@ -100,18 +100,75 @@ def plasma_freq(n_e = 1.0):
         Any wave emitting at a frequency less than the plasma frequency will
         not propate in this medium.
 
-        OUTPUT: nu_plasma (plasma frequency), in Hz
+        OUTPUT: 
+              nu_plasma - plasma frequency, in Hz
+
         INPUT : n_e - electron density, in cm^(-3)
     """
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
 
-def P_thermal_sw(n_sw=1e7, T_corona=2e6):
-    """Returns the thermal pressure of the stellar wind at the orbital distance 
-               of the planet, in erg/cm3
+def P_thermal_sw(n_sw=1e7, T_e=2e6):
+    """Computes the thermal pressure of the stellar wind at the orbital distance 
+                of the planet, P_th_sw, in erg/cm3
+
+       OUTPUT: P_th_sw, in erg/cm3
+
+       INPUT : n_sw - number density of the stellar wind at the planet's
+                      orbital position, in  # cm^(-3)
+               k_B  - Boltzmann's constant
+               T_e  - Temperature of the stellar wind ath the planet's
+                      position. 
     """
-    P_th_sw = n_sw * k_B * T_corona
+    P_th_sw = n_sw * k_B * T_e
+
     return P_th_sw
+
+def P_dynamical_sw(n_sw=1e7, mu=0.5, v_rel=1e7):
+    """Computes the dynamical pressure of the stellar wind at the orbital distance 
+               of the planet, P_dyn_sw, in erg/cm3
+
+       OUTPUT: P_dyn_sw, in erg/cm3
+
+       INPUT : n_sw  - number density of the stellar wind at the planet's
+                       orbital position, in  # cm^(-3)
+               mu    - mean molecular weight 
+               v_rel - Relative velocity between the stellar wind to the
+                       orbital velocity of the planet, in cm/s
+    """
+    rho_sw  = mu * m_p * n_sw
+    P_dyn_sw = rho_sw * v_rel**2
+
+    return P_dyn_sw
+
+def P_Bfield_sw(B_sw=1.0):
+    """Computes the  pressure of the stellar wind at the orbital distance 
+               of the planet, P_dyn_sw, in erg/cm3
+
+       OUTPUT: 
+              P_B_sw, in erg/cm3
+
+       INPUT : 
+              B_sw  - Stellar wind magnetic field, in Gauss
+    """
+
+    P_B_sw = B_sw**2 / (8 * np.pi)
+
+    return P_B_sw
+
+def P_Bplanet(Bp=1.0):
+    """Computes the magnetic pressure of planet at the equator, P_Bp, in erg/cm3
+
+       OUTPUT: 
+              P_Bp - magnetic pressure of planet at the equator, in erg/cm3
+
+       INPUT: 
+              Bp - planetary magnetic field (dipole) at the poles, in Gauss
+
+    """
+    P_Bp = (Bp/2)**2 / (8*np.pi)
+
+    return P_Bp
 
 def R_magnetopause(R_p=1.0, Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
     """Returns the radius of the planetary magnetopause, in cm
@@ -128,7 +185,7 @@ def R_magnetopause(R_p=1.0, Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
                        of the planet, in erg/cm3
             P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
                        of the planet, in erg/cm3
-            B_sw     - Stellar wind magnetic field 
+            B_sw     - Stellar wind magnetic field, in Gauss
     """
     # Pressure of the planetary magnetic field at the equator 
     P_Bp_equator = (Bp/2)**2 / (8*np.pi)
