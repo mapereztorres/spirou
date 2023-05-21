@@ -121,7 +121,7 @@ for indi in star_array:
             d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
             #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
             #print(len(d_orb))
-            v_orb = (G * M_star/d_orb)**0.5 # Orbital speed of planet as f(distance to star), in cm/s
+            v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
             v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
             #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
@@ -306,13 +306,8 @@ for indi in star_array:
             # so there seems to be a factor of two discrepancy, 
             # if taken into account that v_rel = v_alf * M_A. 
             #
-<<<<<<< HEAD
             S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_tot/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
-=======
-            S_poynt_ZL_mks = 2 / np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
                             * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
->>>>>>> R_mp
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
