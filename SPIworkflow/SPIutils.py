@@ -100,14 +100,78 @@ def plasma_freq(n_e = 1.0):
         Any wave emitting at a frequency less than the plasma frequency will
         not propate in this medium.
 
-        OUTPUT: nu_plasma (plasma frequency), in Hz
+        OUTPUT: 
+              nu_plasma - plasma frequency, in Hz
+
         INPUT : n_e - electron density, in cm^(-3)
     """
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
 
-def R_magnetopause(R_p=1.0, Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
-    """Returns the radius of the planetary magnetopause, in cm
+def get_P_dyn_sw(n_sw=1e7, mu=0.5, v_rel=1e7):
+    """Computes the dynamical pressure of the stellar wind at the orbital distance 
+               of the planet, P_dyn_sw, in erg/cm3
+
+       OUTPUT: P_dyn_sw, in erg/cm3
+
+       INPUT : n_sw  - number density of the stellar wind at the planet's
+                       orbital position, in  # cm^(-3)
+               mu    - mean molecular weight 
+               v_rel - Relative velocity between the stellar wind to the
+                       orbital velocity of the planet, in cm/s
+    """
+    rho_sw  = mu * m_p * n_sw
+    P_dyn_sw = rho_sw * v_rel**2
+
+    return P_dyn_sw
+
+def get_P_th_sw(n_sw=1e7, T_e=2e6):
+    """Computes the thermal pressure of the stellar wind at the orbital distance 
+                of the planet, P_th_sw, in erg/cm3
+
+       OUTPUT: P_th_sw, in erg/cm3
+
+       INPUT : n_sw - number density of the stellar wind at the planet's
+                      orbital position, in  # cm^(-3)
+               k_B  - Boltzmann's constant
+               T_e  - Temperature of the stellar wind ath the planet's
+                      position. 
+    """
+    P_th_sw = n_sw * k_B * T_e
+
+    return P_th_sw
+
+def get_P_B_sw(B_sw=1.0):
+    """Computes the  pressure of the stellar wind at the orbital distance 
+               of the planet, P_dyn_sw, in erg/cm3
+
+       OUTPUT: 
+              P_B_sw, in erg/cm3
+
+       INPUT : 
+              B_sw  - Stellar wind magnetic field, in Gauss
+    """
+
+    P_B_sw = B_sw**2 / (8 * np.pi)
+
+    return P_B_sw
+
+def get_P_Bp(Bp=1.0):
+    """Computes the magnetic pressure of planet at the equator, P_Bp, in erg/cm3
+
+       OUTPUT: 
+              P_Bp - magnetic pressure of planet at the equator, in erg/cm3
+
+       INPUT: 
+              Bp - planetary magnetic field (dipole) at the poles, in Gauss
+
+    """
+    P_Bp = (Bp/2)**2 / (8*np.pi)
+
+    return P_Bp
+
+def R_magnetopause(Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
+    """Returns the radius of the planetary magnetopause, in units of Rp
 
     It's calculated as the radius that balances the pressure between the
     stellar wind (ram, thermal, and magnetic) and the planet (magnetic)
@@ -121,7 +185,7 @@ def R_magnetopause(R_p=1.0, Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
                        of the planet, in erg/cm3
             P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
                        of the planet, in erg/cm3
-            B_sw     - Stellar wind magnetic field 
+            B_sw     - Stellar wind magnetic field, in Gauss
     """
     # Pressure of the planetary magnetic field at the equator 
     P_Bp_equator = (Bp/2)**2 / (8*np.pi)
@@ -131,8 +195,41 @@ def R_magnetopause(R_p=1.0, Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
    
     # Total pressure of the stellar wind 
     P_sw = P_dyn_sw + P_th_sw + P_B_sw
+    
+    # Expression in Donati & Vidotto (2017).
+    #
+    # Similar to others in, e.g., Zarka (2007), Turnpenney+2018, etc., but in
+    # units of Rp
+    Rmp = 2**(1./3.) * (P_Bp_equator/P_sw)**(1./6) 
 
-    R_mp = 2**(1./3.) * (P_Bp_equator/P_sw)**(1./6) * R_p
+    return Rmp
 
-    return R_mp
+def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
+    """Computes the radius of the planetary magnetopause, in units of planet radii
+
+    It's calculated as the radius that balances the pressure between the
+    stellar wind (ram, thermal, and magnetic) and the planet (magnetic)
+    pressure. Note that, in the equation below, the ram and thermal components
+    of the planetary pressure are neglected.
+
+    OUTPUT: Rmp - Radius of the planetary magnetopause, in units of Rp
+
+    INPUT : P_Bp     - pressure of the planetary magnetic field (dipole) at the equator
+            P_dyn_sw - dynamic pressure of the stellar wind at the orbital distance 
+                       of the planet, in erg/cm3
+            P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
+                       of the planet, in erg/cm3
+            B_sw     - Stellar wind magnetic field, in Gauss
+    """
+    # Total pressure of the planet (only magnetic pressure is considered)
+    P_planet = P_Bp
+
+    # Total pressure of the stellar wind 
+    P_sw = P_dyn_sw + P_th_sw + P_B_sw
+    
+    # Expression in Donati & Vidotto (2017).
+    # Similar to others in, e.g., Zarka (2007), Turnpenney+2018, etc.
+    Rmp = 2**(1./3.) * (P_planet / P_sw)**(1./6) 
+
+    return Rmp
 
