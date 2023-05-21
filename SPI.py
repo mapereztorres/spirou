@@ -235,50 +235,53 @@ for indi in star_array:
             Bp0 = Bp0_arr[ind1]
             print(Bp0)
             if Bp0:
-                # Magnetic field, using Sano's (1993) scaling law, in units of B_earth 
+                # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
+                # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
+                # core_radius equal to the Earth radius, and core density equal to that of the Earth.
                 Bp = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
                         Rp/R_earth, Omega_rot_planet =
                         Omega_planet/Omega_earth) 
                 
                 Bp *= bfield_earth * Tesla2Gauss # in Gauss 
-                Bp = np.ones(len(d_orb))
+                Bp = np.ones(len(d_orb))  # For now, force Bp=1.0 Gauss
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
             #print('Bp: {0:.2e} Gauss'.format(Bp))
-            # Planetary magnetic field (as a function of orbital distance)
+
             #
-            # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
-            # core_radius equal to the Earth radius, and core density equal to that of the Earth.
-            #
-            # Bp0 is the magnetic field at the assumed orbital distance
-            #    
-            #Bplanet_dep = 0
-            #if Bplanet_dep:
-            #    Bp = Bp0 * M_star_msun**(1/2)/(d_orb/au)**(3/2) * (P_orb/yr)
-            #else:    
-            #    Bp = Bp0  #If we don't use any dependence, then Bp = Bp0
-            
-            #print('Bp = ', Bp)
+            # Effective radius of the obstacle
+
+            # Case 1. À la Saur+2013. 
             #
             # Effective radius of the Alfvén wing, in units of R_p (R_obst in Eq. 57 of Saur+2013, A&A)
             # It depends on the orientation, theta_M, of the intrinsic planetary magnetic field (Bp) 
             # wrt the external magnetic field (B_sw).
             #
-            
-            #if (Bp > 0.0):
-            #    Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.)
-            #    Rp_eff[Rp_eff<Rp]=Rp # Rp_eff cannot be smaller than Rplanet
-            #else:
-            #    Rp_eff = Rp  
-
             Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.) # in cm
             Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rplanet    
-            #print("Planetary Magnetic field = {0:.1f} G".format(Bp))
-            #print("The effective radius is {0:.1e}".format(Rp_eff))
-            #print(f"Rp_eff = \n {Rp_eff}")
-            #print(f"Rp_eff/Rp = \n {Rp_eff/Rp}")
-            # 
+
+            # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
+            #
+            # Compute radius of magnetopause, Rmp as balance of wind and planet's
+            # pressures
+            
+            # Planet pressure - only the magnetic component is considered
+            P_Bp     = spi.get_P_Bp(Bp) 
+
+            # Stellar wind pressure
+            P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
+            P_th_sw  = spi.get_P_th_sw(n_sw_planet, T_corona)
+            P_B_sw   = spi.get_P_B_sw(B_sw)
+
+            # Radius of magnetopause, in cm
+            Rmp = spi.get_Rmp(P_Bp, P_dyn_sw, P_th_sw, P_B_sw) * Rp
+
+            # The effective radius is the radius of the magnetopause
+            Rp_eff = Rmp
+            Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rp
+
+
             # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
             # Applies if  M_A is small (<< 1)
             # Note that for the geometric factor, we follow Turnpenney's definition, so 
@@ -625,7 +628,8 @@ for indi in star_array:
                 f.write('M_A at r_orb: {0} \n'.format(M_A[loc_pl]))
                 #f.write('v_rel/v_alf at r_orb: {0} \n'.format(v_rel[loc_pl]/v_alf[loc_pl]))
                 f.write('B_sw at r_orb: {0} \n'.format(B_sw[loc_pl]))
-                f.write('Rp_eff at r_orb: {0} \n'.format(Rp_eff[loc_pl]))
+                f.write('Rmp at r_orb: {0} \n'.format(Rmp[loc_pl]/Rp))
+                f.write('Rp_eff at r_orb: {0} \n'.format(Rp_eff[loc_pl]/Rp))
 
             
 
@@ -649,6 +653,7 @@ for indi in star_array:
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
             print('B_planet = {0:.3f} G'.format(B_pl_loc * bfield_earth*Tesla2Gauss))
+            #print('Rmp / Rp = {0:.3f} '.format(Rmp[loc_pl]/Rp))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
             print(f"Done with planet {Exoplanet}")
