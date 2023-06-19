@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 
-matplotlib.rc_file_defaults()
-#plt.style.use(['bmh','/home/torres/Dropbox/python/styles/paper.mplstyle'])
+#matplotlib.rc_file_defaults()
+plt.style.use(['bmh','spi.mplstyle'])
 
 ### Getting parameters to predict SPI radio emission
 #
