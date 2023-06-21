@@ -85,7 +85,7 @@ Bp0_arr= [0, 1]
 #
 star_array = range(len(data))
 #star_array = [0, 1, 2]
-star_array = [8]
+star_array = [43]
 
 for indi in star_array:
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
