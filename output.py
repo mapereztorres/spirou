@@ -1,5 +1,6 @@
 from SPIworkflow.constants import *
 
+# class to handle output to file
 class OutputWriter:
     def __init__(self, outfileTXT):
         self.outfileTXT = outfileTXT
@@ -9,6 +10,7 @@ class OutputWriter:
         loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
         Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
         Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, Rp_eff):
+
         with open(self.outfileTXT, 'w') as f:
              f.write('# INPUT PARAMETERS:               ########\n') 
              f.write('#                                 ########\n') 
