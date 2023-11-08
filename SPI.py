@@ -555,15 +555,21 @@ for indi in star_array:
             #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(M_star_dot) + "$M_\odot$", fontsize='small')
         
-             
-            common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
+            # save all plots in a specific folder for each planet  
+            print('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
+            try:
+                os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
+            except:
+                pass 
+            common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if open_field:
-                ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
-                outfile = Exoplanet + "-Open-Bstar"+ common_string
+                # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
+                #outfile = Exoplanet + "-Open-Bstar"+ common_string
+                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
-                ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
-                outfile = Exoplanet + "-Closed-Bstar"+ common_string
-            
+                # ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
+                #outfile = Exoplanet + "-Closed-Bstar"+ common_string
+                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (plotout= True), or show them in
             # the terminal (plotout = False) 
             if plotout:
