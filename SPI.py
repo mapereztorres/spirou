@@ -74,12 +74,9 @@ vsound = np.sqrt(k_B * T_corona / m_av)
 #Bfield_geom_arr = [0, 1]
 Bfield_geom_arr = [0, 1]
 
-# Magnetic field of the planet
-#  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
-#  Bp0_arr = 1 - magnetized planet, i.e., B_planet > 0 G; 
-
-# Magnetic field of the planet
+# Bp0_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
 Bp0_arr= [0, 1]
+Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
 #
@@ -236,6 +233,7 @@ for indi in star_array:
             # defines whether planet is unmagnetized (Bp0=0), or magnetized (Bp0 = 1)
             Bp0 = Bp0_arr[ind1]
             print(Bp0)
+
             if Bp0:
                 # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                 # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
@@ -245,7 +243,7 @@ for indi in star_array:
                         Omega_planet/Omega_earth) 
                 
                 Bp *= bfield_earth * Tesla2Gauss # in Gauss 
-                Bp = np.ones(len(d_orb))  # For now, force Bp=1.0 Gauss
+                Bp = np.ones(len(d_orb)) * Bfield_pl # For now, force Bp=1.0 Gauss
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
