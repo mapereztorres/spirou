@@ -13,7 +13,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 
 #matplotlib.rc_file_defaults()
-plt.style.use(['bmh','spi.mplstyle'])
+plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
 from output import OutputWriter
 
