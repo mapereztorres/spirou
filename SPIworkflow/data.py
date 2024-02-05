@@ -121,7 +121,7 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
 
     return data
 
-def create_data_tables(infile_data='./INPUT/SPI-sources_planets_MASTER.csv'):
+def create_data_tables(infile_data='./INPUT/SPI-targets.csv'):
     """
     Read in an input table with stars and, optional, planets, and
     creates two tables: one including targets hosting planets, and another

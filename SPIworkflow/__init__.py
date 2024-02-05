@@ -3,7 +3,7 @@ import numpy as np
 ### INPUT TABLE
 
 #source_data = './INPUT/SPI-sources-sample5.csv'
-source_data = './INPUT/SPI-sources_planets_MASTER.csv'
+source_data = './INPUT/SPI-targets.csv'
 selection_criteria = False
 
 

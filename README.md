@@ -12,6 +12,8 @@ that grew too much, hence it is now split into several pieces of python code.
 ├── SPI.ipynb   - Jupyter notebook for the code - outdated
 ├── SPI.py      - Current version, in continuous development
 ├── SPI.py.orig - original version of SPI.py.orig - to be removed eventually
+├── SPI_mdot.py      - Current version, in continuous development. Calculates emission as a function of the stellar Ṁ.
+├── SPI_Bp.py      - Current version, in continuous development. Calculates emission as a function of the magnetic field of the planet.
 ```
 
 

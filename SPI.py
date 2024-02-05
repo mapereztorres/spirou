@@ -79,10 +79,11 @@ Bp0_arr= [0, 1]
 Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
-#
-star_array = range(len(data))
+print(source_data)
+print(data)
+#star_array = range(len(data))
 #star_array = [0, 1, 2]
-star_array = [43]
+star_array = [0]
 
 for indi in star_array:
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
@@ -90,6 +91,7 @@ for indi in star_array:
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
     P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+    print('B_star :',B_star)
   
     # Planet - 
     Exoplanet = data['planet_name'][indi]
@@ -583,7 +585,8 @@ for indi in star_array:
                 plt.tight_layout()
                 plt.show()
 
-            
+            # Send output to external file/s
+
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
@@ -591,6 +594,9 @@ for indi in star_array:
                 Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
                 Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, Rp_eff)
 
+            
+
+            
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             # First, find out the position of the planet in the distance array
