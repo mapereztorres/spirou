@@ -247,7 +247,7 @@ def B_starmass(star_mass,Prot):
   return B_mass
 
 def B_color(starname,star_mass,Prot):
-  #in development
+  #in
   from astroquery.simbad import Simbad
   Simbad.add_votable_fields('flux(V)')
   Simbad.add_votable_fields('flux(K)')
@@ -270,3 +270,29 @@ def B_color(starname,star_mass,Prot):
 
   return B_color
 
+
+def Mdot_star(R_star, M_star, Prot_star):
+    """
+    OUTPUT: Stellar mass-loss rate, in Msolar/yr
+    INPUT: Radius of star (in units of Rsun)
+           M_star    (in units of Msun)
+           Prot_star (days)
+           
+           It uses Eq. 7 in Johnstone and Güdel (2015, A&A, 577, A27) = J+2015
+           to estimate the mass-loss rate of a low-mass main sequence star
+           the exponents a and b below are best fits obtained by J+2015. 
+           Mdot_sun and Omega_sun are taken as defined in J+2015. 
+           Note that Mdot_sun is taken to be 1.4e-14 Msolar/yr in J+2015, 
+           instead of the usual value of 2E-14 Msolar/yr.
+
+    """
+    #R_sun = 7e10 #Sun radius, in cm 
+    #M_sun = 2e33 #Sun mass, in g
+    R_sun = 1; M_sun = 1
+    a = 4./3
+    b = -10./3 
+    Mdot_sun = 1.4e-14 #Sun mass-loss rate, in g/s
+    Omega_sun = 2.67e-6 # Sun angular speed, in rad/s - equals to Prot_sun = 27.2367 days
+    Omega_star = 2*np.pi / (Prot_star*86400)
+    Mdot = Mdot_sun * (R_star/R_sun)**2 * (Omega_star/Omega_sun)**a * (M_star/M_sun)**b
+    return Mdot
