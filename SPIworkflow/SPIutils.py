@@ -232,4 +232,41 @@ def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
     Rmp = 2**(1./3.) * (P_planet / P_sw)**(1./6) 
 
     return Rmp
+    
+def B_starmass(star_mass,Prot):
+  #https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf (table )
+  #https://academic.oup.com/mnras/article/479/2/2351/5045253  (eq 6)
+  C=2.33
+  D=-1.50
+  E=0.31
+  alpha=-1.26
+  tau_mass=10**(C+D*star_mass+E*star_mass**2)
+  Ro_mass=Prot/tau_mass
+  B_mass= 199*Ro_mass**alpha
+
+  return B_mass
+
+def B_color(starname,star_mass,Prot):
+  #in development
+  from astroquery.simbad import Simbad
+  Simbad.add_votable_fields('flux(V)')
+  Simbad.add_votable_fields('flux(K)')
+  #https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf (table )
+  #https://academic.oup.com/mnras/article/479/2/2351/5045253  (eq 5)
+  A=0.64
+  B=0.25
+  alpha=-1.26
+  #eachstar=data['star_name'][indi]
+  result_table = Simbad.query_object(starname)
+  print(result_table['MAIN_ID'][0],result_table['FLUX_V'][0],result_table['FLUX_K'][0])
+  #pdn['B_color'][ind]=result_table['FLUX_B'][0]
+  V_color=result_table['FLUX_V'][0]
+  K_color=result_table['FLUX_K'][0]  
+  VK=V_color-K_color
+  logtau_color=A+B*VK
+  tau_color=10**(A+B*VK)
+  Ro_color=Prot/tau_color
+  B_color= 199*Ro_color**alpha
+
+  return B_color
 
