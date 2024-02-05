@@ -1,0 +1,60 @@
+# Figure
+figure.figsize   : 7, 5
+figure.subplot.left  : 0.17
+figure.subplot.right : 0.97
+figure.subplot.bottom: 0.15
+figure.subplot.top   : 0.97
+
+
+# Axes
+axes.linewidth : 3
+axes.titlesize : 25 
+axes.labelsize : 25
+
+axes.spines.left       : True
+axes.spines.bottom     : True
+axes.spines.top        : True
+axes.spines.right      : True
+
+axes.edgecolor : k
+
+axes.grid      : False
+grid.linewidth : 0.5
+
+axes.prop_cycle : cycler('color', ['0072b2', '009e73', 'd55e00', 'cc79a7', 'f0e442', '56b4e9'])
+
+# Plotted lines
+lines.linewidth  : 4
+lines.markersize : 10
+
+# Ticks
+xtick.major.size    : 10 
+xtick.minor.size    : 4
+xtick.major.width   : 2
+xtick.minor.width   : 1.5
+xtick.color         : k
+xtick.minor.visible : True
+xtick.labelsize     : 18
+
+ytick.major.size    : 10 
+ytick.minor.size    : 4
+ytick.major.width   : 2
+ytick.minor.width   : 1.5
+ytick.color         : k
+ytick.minor.visible : True
+ytick.labelsize     : 18
+
+# Legend
+legend.frameon      : True
+legend.handlelength : 1
+legend.fontsize     : 18 
+
+# Text
+text.color      : k
+font.size       : 25 
+font.sans-serif : Arial
+font.serif      : Times New Roman
+font.family     : serif
+
+mathtext.fontset : cm
+mathtext.rm      : serif
