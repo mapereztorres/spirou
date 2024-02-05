@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def get_spi_data(infile_data='./INPUT/SPI-sources-sample5.csv',
+def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
         out_latex=True, outfile='latex_table.tex', 
         distance_min = 0.1, distance_max=1000.0, 
         p_orb_min=0.1, p_orb_max=1000.0, 
