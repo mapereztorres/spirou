@@ -13,7 +13,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 
 #matplotlib.rc_file_defaults()
-plt.style.use(['bmh','spi.mplstyle'])
+plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
 from output import OutputWriter
 
@@ -74,12 +74,9 @@ vsound = np.sqrt(k_B * T_corona / m_av)
 #Bfield_geom_arr = [0, 1]
 Bfield_geom_arr = [0, 1]
 
-# Magnetic field of the planet
-#  Bp0_arr = 0 - unmagnetized planet, i.e., B_planet = 0 G; 
-#  Bp0_arr = 1 - magnetized planet, i.e., B_planet > 0 G; 
-
-# Magnetic field of the planet
+# Bp0_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
 Bp0_arr= [0, 1]
+Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
 #
@@ -236,6 +233,7 @@ for indi in star_array:
             # defines whether planet is unmagnetized (Bp0=0), or magnetized (Bp0 = 1)
             Bp0 = Bp0_arr[ind1]
             print(Bp0)
+
             if Bp0:
                 # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                 # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
@@ -245,7 +243,7 @@ for indi in star_array:
                         Omega_planet/Omega_earth) 
                 
                 Bp *= bfield_earth * Tesla2Gauss # in Gauss 
-                Bp = np.ones(len(d_orb))  # For now, force Bp=1.0 Gauss
+                Bp = np.ones(len(d_orb)) * Bfield_pl # For now, force Bp=1.0 Gauss
             else:
                 Bp = np.zeros(len(d_orb)) # unmagnetized planet
             
@@ -557,17 +555,21 @@ for indi in star_array:
             #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(M_star_dot) + "$M_\odot$", fontsize='small')
         
-             
-            #common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"
+            # save all plots in a specific folder for each planet  
+            print('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
+            try:
+                os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
+            except:
+                pass 
             common_string = str(B_star)+"G"+"-Bplanet"+str(Bp[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if open_field:
-                #ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
+                # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
                 #outfile = Exoplanet + "-Open-Bstar"+ common_string
-                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string+'dist'+'T_corona'+"{:.2e}".format(T_corona)
+                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
-                #ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
+                # ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
                 #outfile = Exoplanet + "-Closed-Bstar"+ common_string
-                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string+'dist'+'T_corona'+"{:.2e}".format(T_corona)          
+                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (plotout= True), or show them in
             # the terminal (plotout = False) 
             if plotout:
