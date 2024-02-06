@@ -91,7 +91,8 @@ for indi in star_array:
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
     P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-    print('B_star :',B_star)
+    M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+    print('M_star_dot :',M_star_dot)
   
     # Planet - 
     Exoplanet = data['planet_name'][indi]
