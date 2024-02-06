@@ -240,10 +240,15 @@ def B_starmass(star_mass,Prot):
   D=-1.50
   E=0.31
   alpha=-1.26
+  alpha_fast=-0.11
   tau_mass=10**(C+D*star_mass+E*star_mass**2)
   Ro_mass=Prot/tau_mass
-  B_mass= 199*Ro_mass**alpha
-
+  if Ro_mass>0.13:
+    print('Slow rotator')
+    B_mass= 199*Ro_mass**alpha
+  elif Ro_mass<0.13:
+    print('Fast rotator')
+    B_mass= 2050*Ro_mass**alpha_fast
   return B_mass
 
 def B_color(starname,star_mass,Prot):
