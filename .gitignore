@@ -27,4 +27,6 @@
 
 #Ignore all latex files in ./OUTPUT/ 
 ./OUTPUT/**/*.tex
+./OUTPUT/**/*.png
+./OUTPUT/**/*.pdf
 
