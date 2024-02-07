@@ -46,20 +46,22 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
  
     return B_planet
 
-def R_planet_eff_func(Rp, theta_M, Bp, B_tot):
+def R_planet_eff_func(Rp, theta_M, B_planet, B_tot):
     """ Computes the effective obstacle radius for the planet. 
-        If the planet is magnetized, it is normally larger than the planet radius (Rp).
+        If the planet is magnetized, it is normally larger than the planet radius
+        (R_planet).
         If unmagnetized, then the effective radius is made equal to Rp.
         OUTPUT: R_planet_eff - Effective planet radius, in cm 
         INPUT : Rp - Planet radius (cm)
-                theta_M - angle  (radians), of the intrinsic planetary magnetic field (Bp) 
+                theta_M - angle  (radians), of the intrinsic planetary magnetic field
+                (B_planet) 
                           wrt the external magnetic field (B_tot).
-                Bp -  planet magnetic field (G)
-                B_tot - Magnetic field of the stellar wind at planet position (G)
+                B_planet -  planet magnetic field (G)
+                B_tot    - Magnetic field of the stellar wind at planet position (G)
     """
-    if (Bp > 0.0):
+    if (B_planet > 0.0):
         R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
-        R_planet_eff[R_planet_eff<Rp]=Rp # R_planet_eff cannot be smaller than Rplanet
+        R_planet_eff[R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than R_planet
     else:
         R_planet_eff = Rp
     
@@ -156,21 +158,21 @@ def get_P_B_sw(B_sw=1.0):
 
     return P_B_sw
 
-def get_P_Bp(Bp=1.0):
+def get_P_B_planet(B_planet = 1.0):
     """Computes the magnetic pressure of planet at the equator, P_Bp, in erg/cm3
 
        OUTPUT: 
-              P_Bp - magnetic pressure of planet at the equator, in erg/cm3
+              P_B_planet - magnetic pressure of planet at the equator, in erg/cm3
 
        INPUT: 
-              Bp - planetary magnetic field (dipole) at the poles, in Gauss
+              B_planet - planetary magnetic field (dipole) at the poles, in Gauss
 
     """
-    P_Bp = (Bp/2)**2 / (8*np.pi)
+    P_B_planet = (B_planet / 2)**2 / (8*np.pi)
 
-    return P_Bp
+    return P_B_planet
 
-def R_magnetopause(Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
+def R_magnetopause(B_planet = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
     """Returns the radius of the planetary magnetopause, in units of Rp
 
     It's calculated as the radius that balances the pressure between the
@@ -180,7 +182,7 @@ def R_magnetopause(Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
 
     OUTPUT: R_mp - Radius of the planetary magnetopause, in cm
 
-    INPUT : Bp   - planetary magnetic field (dipole) at the poles, in Gauss
+    INPUT : B_planet - planetary magnetic field (dipole) at the poles, in Gauss
             P_dyn_sw - dynamic pressure of the stellar wind at the orbital distance 
                        of the planet, in erg/cm3
             P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
@@ -188,7 +190,7 @@ def R_magnetopause(Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
             B_sw     - Stellar wind magnetic field, in Gauss
     """
     # Pressure of the planetary magnetic field at the equator 
-    P_Bp_equator = (Bp/2)**2 / (8*np.pi)
+    P_B_planet_equator = (B_planet/2)**2 / (8*np.pi)
 
     # Pressure of the stellar wind magnetic field (at the equator)
     P_B_sw = B_sw**2 / (8 * np.pi)
@@ -200,7 +202,7 @@ def R_magnetopause(Bp = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
     #
     # Similar to others in, e.g., Zarka (2007), Turnpenney+2018, etc., but in
     # units of Rp
-    Rmp = 2**(1./3.) * (P_Bp_equator/P_sw)**(1./6) 
+    Rmp = 2**(1./3.) * (P_B_planet_equator / P_sw)**(1./6) 
 
     return Rmp
 
