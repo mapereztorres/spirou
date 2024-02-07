@@ -234,6 +234,22 @@ def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
     return Rmp
     
 def B_starmass(star_mass,Prot):
+  """Calculation of the Stellar magnetic field at the surface as a function of the stellar mass and its rotation period
+  The value of the magnetic field depends on the Rossby number (Ro), as defined in https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf.
+  There are two relations, depending no whether the star rotates fast (Ro<0.13) or slow (Ro>0.13)
+  
+  The Rossby number in turn is calculated using the stellar mass, as defined in equation 6 of https://academic.oup.com/mnras/article/479/2/2351/5045253.
+  
+  
+  OUTPUT: B_mass     -  Stellar magnetic field at the surface (in G)
+  
+  
+  INPUT : star_mass  -  Mass of the star (solar units)
+          Prot       -  Rotation period of the star (in days)
+  
+  
+  
+  """
   #https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf (table )
   #https://academic.oup.com/mnras/article/479/2/2351/5045253  (eq 6)
   C=2.33
@@ -252,7 +268,7 @@ def B_starmass(star_mass,Prot):
   return B_mass
 
 def B_color(starname,star_mass,Prot):
-  #in
+  #in development
   from astroquery.simbad import Simbad
   Simbad.add_votable_fields('flux(V)')
   Simbad.add_votable_fields('flux(K)')
