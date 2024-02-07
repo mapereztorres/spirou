@@ -46,11 +46,11 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
  
     return B_planet
 
-def Rp_eff_func(Rp, theta_M, Bp, B_tot):
+def R_planet_eff_func(Rp, theta_M, Bp, B_tot):
     """ Computes the effective obstacle radius for the planet. 
         If the planet is magnetized, it is normally larger than the planet radius (Rp).
         If unmagnetized, then the effective radius is made equal to Rp.
-        OUTPUT: Rp_eff - Effective planet radius, in cm 
+        OUTPUT: R_planet_eff - Effective planet radius, in cm 
         INPUT : Rp - Planet radius (cm)
                 theta_M - angle  (radians), of the intrinsic planetary magnetic field (Bp) 
                           wrt the external magnetic field (B_tot).
@@ -58,12 +58,12 @@ def Rp_eff_func(Rp, theta_M, Bp, B_tot):
                 B_tot - Magnetic field of the stellar wind at planet position (G)
     """
     if (Bp > 0.0):
-        Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
-        Rp_eff[Rp_eff<Rp]=Rp # Rp_eff cannot be smaller than Rplanet
+        R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
+        R_planet_eff[R_planet_eff<Rp]=Rp # R_planet_eff cannot be smaller than Rplanet
     else:
-        Rp_eff = Rp
+        R_planet_eff = Rp
     
-    return Rp_eff
+    return R_planet_eff
 
 def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     """ Returns the radio luminosity of an early-type magnetic star, 

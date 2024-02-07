@@ -130,8 +130,7 @@ for indi in star_array:
             Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
 
             #
-            # The wind speed is computed as in Turnpenney+18
-            #
+            # The stellar wind speed is computed as in Turnpenney+18
             # using the Lambert W function
             # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
             D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
@@ -261,8 +260,8 @@ for indi in star_array:
             # It depends on the orientation, theta_M, of the intrinsic planetary magnetic field (Bp) 
             # wrt the external magnetic field (B_sw).
             #
-            Rp_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.) # in cm
-            Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rplanet    
+            R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_sw)**(1./3.) # in cm
+            R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
             #
@@ -281,8 +280,8 @@ for indi in star_array:
             Rmp = spi.get_Rmp(P_Bp, P_dyn_sw, P_th_sw, P_B_sw) * Rp
 
             # The effective radius is the radius of the magnetopause
-            Rp_eff = Rmp
-            Rp_eff[ Rp_eff < Rp] = Rp # Rp_eff cannot be smaller than Rp
+            R_planet_eff = Rmp
+            R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
 
             # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
@@ -294,7 +293,7 @@ for indi in star_array:
             # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
             mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
             # Poynting flux, in mks units
-            S_poynt_mks = 2 * np.pi * (Rp_eff/1e2)**2 * (alpha*M_A)**2  \
+            S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
                             * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0 * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
@@ -313,7 +312,7 @@ for indi in star_array:
             # if taken into account that v_rel = v_alf * M_A. 
             #
             S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(Rp_eff/1e2)**2 
+                            * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(R_planet_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
@@ -593,7 +592,7 @@ for indi in star_array:
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
                 Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, Rp_eff)
+                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
 
             
 
