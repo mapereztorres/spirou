@@ -266,7 +266,9 @@ def B_starmass(star_mass,Prot):
     B_mass= 199*Ro_mass**alpha
   elif Ro_mass<0.13:
     print('Fast rotator')
-    B_mass= 2050*Ro_mass**alpha_fast
+    B_mass= 2050*Ro_mass**alpha_fast    
+  else:
+    print('Uncertain regime: Ro=',Ro_mass)
   return B_mass
 
 def B_color(starname,star_mass,Prot):
