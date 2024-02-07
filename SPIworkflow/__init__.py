@@ -2,8 +2,8 @@ import numpy as np
 
 ### INPUT TABLE
 
-#source_data = './INPUT/SPI-sources-sample5.csv'
-source_data = './INPUT/SPI-sources_planets_MASTER.csv'
+raw_data = './INPUT/SPI-targets-raw.csv'
+source_data = './INPUT/SPI-targets.csv'
 selection_criteria = False
 
 
@@ -43,7 +43,7 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 # n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
 
 # Mass-loss rate of the wind, in units of the Sun mass-loss-rate (2e-14 M_sol/year)
-M_star_dot = 0.23 # For GJ 436 (R_star=0.464 R_sun), this results in n_sw_base ~ 1e7 cm^-3 
+#M_star_dot = 0.23 # For GJ 436 (R_star=0.464 R_sun), this results in n_sw_base ~ 1e7 cm^-3 
 
 # Stellar magnetic field at the surface of the star pole, in gauss 
 # Now it's read from an external file

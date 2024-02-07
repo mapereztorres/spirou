@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def get_spi_data(infile_data='./INPUT/SPI-sources-sample5.csv',
+def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
         out_latex=True, outfile='latex_table.tex', 
         distance_min = 0.1, distance_max=1000.0, 
         p_orb_min=0.1, p_orb_max=1000.0, 
@@ -70,7 +70,8 @@ def get_spi_data(infile_data='./INPUT/SPI-sources-sample5.csv',
     else: 
         df2 = df[["planet_name", "star_name",  
             "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
-            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
+            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)",
+            "M_star_dot(M_sun_dot)"]]
 
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
@@ -121,7 +122,7 @@ def get_spi_data(infile_data='./INPUT/SPI-sources-sample5.csv',
 
     return data
 
-def create_data_tables(infile_data='./INPUT/SPI-sources_planets_MASTER.csv'):
+def create_data_tables(infile_data='./INPUT/SPI-targets.csv'):
     """
     Read in an input table with stars and, optional, planets, and
     creates two tables: one including targets hosting planets, and another

@@ -232,4 +232,90 @@ def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
     Rmp = 2**(1./3.) * (P_planet / P_sw)**(1./6) 
 
     return Rmp
+    
+def B_starmass(star_mass,Prot):
+  """Calculation of the Stellar magnetic field at the surface as a function of the stellar mass and its rotation period
+  The value of the magnetic field depends on the Rossby number (Ro), as defined in https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf.
+  There are two relations, depending no whether the star rotates fast (Ro<0.13) or slow (Ro>0.13)
+  
+  The Rossby number in turn is calculated using the stellar mass, as defined in equation 6 of https://academic.oup.com/mnras/article/479/2/2351/5045253.
+  
+  
+  OUTPUT: B_mass     -  Stellar magnetic field at the surface (in G)
+  
+  
+  INPUT : star_mass  -  Mass of the star (solar units)
+          Prot       -  Rotation period of the star (in days)
+  
+  
+  
+  """
+  #https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf (table )
+  #https://academic.oup.com/mnras/article/479/2/2351/5045253  (eq 6)
+  C=2.33
+  D=-1.50
+  E=0.31
+  alpha=-1.26
+  alpha_fast=-0.11
+  tau_mass=10**(C+D*star_mass+E*star_mass**2)
+  Ro_mass=Prot/tau_mass
+  if Ro_mass>0.13:
+    print('Slow rotator')
+    B_mass= 199*Ro_mass**alpha
+  elif Ro_mass<0.13:
+    print('Fast rotator')
+    B_mass= 2050*Ro_mass**alpha_fast
+  return B_mass
 
+def B_color(starname,star_mass,Prot):
+  #in development
+  from astroquery.simbad import Simbad
+  Simbad.add_votable_fields('flux(V)')
+  Simbad.add_votable_fields('flux(K)')
+  #https://www.aanda.org/articles/aa/pdf/2022/06/aa43251-22.pdf (table )
+  #https://academic.oup.com/mnras/article/479/2/2351/5045253  (eq 5)
+  A=0.64
+  B=0.25
+  alpha=-1.26
+  #eachstar=data['star_name'][indi]
+  result_table = Simbad.query_object(starname)
+  print(result_table['MAIN_ID'][0],result_table['FLUX_V'][0],result_table['FLUX_K'][0])
+  #pdn['B_color'][ind]=result_table['FLUX_B'][0]
+  V_color=result_table['FLUX_V'][0]
+  K_color=result_table['FLUX_K'][0]  
+  VK=V_color-K_color
+  logtau_color=A+B*VK
+  tau_color=10**(A+B*VK)
+  Ro_color=Prot/tau_color
+  B_color= 199*Ro_color**alpha
+
+  return B_color
+
+
+def Mdot_star(R_star, M_star, Prot_star):
+    """
+    OUTPUT: Stellar mass-loss rate, in Msolar/yr
+    INPUT: Radius of star (in units of Rsun)
+           M_star    (in units of Msun)
+           Prot_star (days)
+           
+           It uses Eq. 7 in Johnstone and Güdel (2015, A&A, 577, A27) = J+2015
+           to estimate the mass-loss rate of a low-mass main sequence star. 
+           M_dot_sun_fit and Omega_sun_fit are taken as defined in J+2015. 
+           The exponents a and b below are best fits obtained by J+2015, using the 
+           fixed values of M_dot_sun_fit (1.4e-14 Msolar/yr) and Omega_sun_fit (2.67e-6
+           rad/sec). 
+           NOTE that M_dot_sun_fit is taken to be 1.4e-14 Msolar/yr in J+2015, 
+           instead of the usual value of 2E-14 Msolar/yr.
+
+    """
+    #R_sun = 7e10 #Sun radius, in cm 
+    #M_sun = 2e33 #Sun mass, in g
+    R_sun = 1; M_sun = 1
+    a = 4./3
+    b = -10./3 
+    M_dot_sun_fit = 1.4e-14 #Sun mass-loss rate, in g/s
+    Omega_sun_fit = 2.67e-6 # Sun angular speed, in rad/s - equals to Prot_sun = 27.2367 days
+    Omega_star = 2*np.pi / (Prot_star*86400)
+    Mdot = M_dot_sun_fit * (R_star/R_sun)**2 * (Omega_star/Omega_sun_fit)**a * (M_star/M_sun)**b
+    return Mdot
