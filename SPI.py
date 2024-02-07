@@ -556,7 +556,7 @@ for indi in star_array:
             ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(B_star) + " G ",fontsize='small')
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(B_pl_loc) + r"$B_{\rm Earth}$", fontsize='small')
             #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
-            ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(M_star_dot) + "$M_\odot$", fontsize='small')
+            ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(M_star_dot) + "$\dot{M_\odot}$", fontsize='small')
         
             # save all plots in a specific folder for each planet  
             print('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
