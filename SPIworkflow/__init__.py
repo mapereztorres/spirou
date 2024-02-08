@@ -9,7 +9,7 @@ EXOPLANETS = True
 if EXOPLANETS == True:
     source_data = './INPUT/SPI-targets.csv'
 else:
-    source_data = './INPUT/SPI-NO-targets.csv'
+    source_data = './INPUT/SPI-NO-planets.csv'
 
 selection_criteria = False
 
