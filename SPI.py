@@ -85,21 +85,44 @@ print(data)
 #star_array = [0, 1, 2]
 star_array = [0]
 
+### Table initialization
+# 
+# Create column for M_star_dot to fill it with values
+data['M_star_dot(M_sun_dot)']=''
+# If bfield_star(gauss) is missing, set it to np.nan
+data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+# If p_rot is missing, set it to np.nan
+#data['p_rot(days)'].replace('', np.nan, inplace=True)
+# Remove targets without p_rot
+data.dropna(subset=['p_rot(days)'], inplace=True)
+data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
+data.reset_index(inplace=True) # to prevent funny jumps in the indices
+
 for indi in star_array:
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
     R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
     P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+    data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
+        M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
   
     # Planet - 
     Exoplanet = data['planet_name'][indi]
-    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
     Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
+    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
+    # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
     r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
     P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+
+    # Fill B_star column if empty. Uses original units from table
+    if pd.isna(B_star):
+        data['bfield_star(gauss)'][indi] = spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
+        # Eventually include uncertainties in B _star
+        data['e_bfield_star'][indi]='TBD'
+
     
     for ind in Bfield_geom_arr:
         for ind1 in B_planet_arr:
