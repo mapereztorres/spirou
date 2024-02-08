@@ -69,9 +69,8 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
             "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
     else: 
         df2 = df[["planet_name", "star_name",  
-            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
-            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)",
-            "M_star_dot(M_sun_dot)"]]
+            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
+            "e_bfield_star", "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
 
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
