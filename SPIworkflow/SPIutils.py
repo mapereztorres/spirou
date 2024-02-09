@@ -174,7 +174,7 @@ def v_stellar_wind(d_orb, M_star, T_corona):
 
     return v_sw
     
-def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av):
+def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = m_av):
     """ Computes the particle density of the stellar wind at some distance d from the
         center of the star.
         OUTPUT: n_sw - particle density of the stellar wind at distance d, in #/cm^3
@@ -188,9 +188,29 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av):
     """
     m_av  =  mu * m_p # average particle mass of the solar wind, in grams
     """
-    rho = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
     n_sw = rho / m_av
     return n_sw
+
+def get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw):
+    """Computes Alfvén parameters in the stellar wind at a distance d_orb (though
+    n_sw_planet, B_sw, v_rel).
+       OUTPUT
+       INPUT
+    """
+    # Alfven speed and Mach Number
+    #v_alf = 2.18e11 * B_sw / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
+    #v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) 
+    # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
+    v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw_planet) * 1./np.sqrt(1 + (B_sw**2/(4.*np.pi * rho_sw_planet * c**2)))
+    M_A   = v_rel/v_alf # Alfven mach number
+    
+    #Radial Alfvén speed
+    mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
+    v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw_planet) # in cm/s
+    M_A_radial = np.abs(v_sw / v_alf_r)
+
+    return v_alf, M_A, v_alf_r, M_A_radial
 
 def plasma_freq(n_e = 1.0):
     """ Returns the plasma frequency.
