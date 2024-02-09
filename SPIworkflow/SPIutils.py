@@ -5,6 +5,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
+from scipy.special import lambertw
 
 
 # FUNCTION DEFINITIONS 
@@ -45,6 +46,7 @@ def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_ang
         # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
+
     return B_r, B_phi, B_sw, B_ang, theta, geom_f
 
 def getImage(path):
@@ -141,6 +143,36 @@ def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     Lnu_rad = 10**alpha * (B_star/1e3)**beta * R_star**(2*beta) * P_rot**(-beta) # erg/s/Hz
     Ltot_rad = Lnu_rad * nu_ecm
     return Ltot_rad
+    
+def v_stellar_wind(d_orb, M_star, T_corona):
+    """Computes the stellar wind speed at every distance (d_orb) from the star
+       It assumes an isothermal Parker wind 
+       OUTPUT:
+       INPUT: 
+    """
+    # Isothermal Parker wind (assumed)
+    # Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
+    v_sound = np.sqrt(k_B * T_corona / m_av) 
+
+    r_sonic =  G * M_star / (2 * v_sound**2) # Radius of sonic point, in cgs units
+
+    #
+    # The stellar wind speed is computed as in Turnpenney+18
+    # using the Lambert W function
+    # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
+    D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
+    v_sw2 = np.zeros(len(d_orb), dtype=complex)
+    v_sw  = np.zeros(len(d_orb))
+
+    for i in range(len(d_orb)):
+        if (d_orb[i]/r_sonic) >= 1.0:
+            v_sw2[i] = -v_sound**2 * lambertw(-D_r[i], k=-1)
+        else: 
+            v_sw2[i] = -v_sound**2 * lambertw(-D_r[i], k=0)
+        # The actual speeed is the real part of v_sw2[i]
+        v_sw[i]  = np.sqrt(v_sw2[i].real)
+
+    return v_sw
     
 def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, mu=0.5):
     """ Computes the particle density of the stellar wind at some distance d from the
