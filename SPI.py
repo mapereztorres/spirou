@@ -29,7 +29,7 @@ from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
             
-from SPIworkflow.load_data import get_spi_data, create_data_tables
+from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target
 
 # In the future, use function n_wind (under SPIworkflow)
 # ## Instead of using particle density, we'll use M_dot 
@@ -99,38 +99,14 @@ data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
 for indi in star_array:
-    d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
-    R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
-    M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
-    P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
+    d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb = load_target(data, indi)
+
     # Fill B_star column if empty. Uses original units from table
-    if pd.isna(data['bfield_star(gauss)'][indi]):
+    if pd.isna(B_star):
         data['bfield_star(gauss)'][indi] = spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-
-    # Read info for planets in table
-    if source_data == './INPUT/SPI-targets.csv':
-        # Planet - 
-        Exoplanet = data['planet_name'][indi]
-        Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-        if pd.isna(Mp): # If there is no mass value, use mass * sin(i)
-            Mp = data['mass_sini'][indi] * M_earth 
-        Rp = data['radius_planet(r_earth)'][indi]
-        if pd.isna(Rp): 
-            Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
-        Rp *= R_earth # Planetary radius, in cm
-        # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
-        r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
-    else:
-        # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
-        Exoplanet = 'Earth'
-        Mp = M_earth # Planetary mass, in grams
-        Rp = R_earth # Planetary radius, in cm
-        r_orb  = 0.2 * au    # orbital distance, in cm
-        P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
