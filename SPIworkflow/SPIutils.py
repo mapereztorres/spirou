@@ -8,6 +8,45 @@ from SPIworkflow.constants import *
 
 
 # FUNCTION DEFINITIONS 
+
+def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle):
+    """Computes the radial, azimuthal components of the stellar wind magnetic field for
+    an open (Parker spiral) and a closed (dipolar) magnetic field topologies of the host
+    star.
+    OUTPUT:
+    INPUT: 
+    ...
+    """
+    if open_field: 
+        # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
+        B_r = B_star * (d_orb/R_star)**(-2) # Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
+        B_phi = B_r * v_corot/v_sw # Azimuthal field (Eqn 21 Turnpenney 2018)
+        B_sw = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
+    else:
+        # Closed, dipolar configuration - It falls with distance as R^(-3)
+        # B_star - magnetic field at the magnetic equator on the stellar surface
+        # 
+        phi = 0. # azimuth, measured from the North magnetic pole of the star (in degrees)
+        phi *= np.pi/180. # to radians
+        B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(phi) # Radial component of the dipole magnetic field of the stellar wind as f(distance to star)
+        B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(phi) # Azimuthal component of the dipole magnetic field 
+        B_sw = np.sqrt(B_r**2 + B_phi**2) # Total dipole magnetic field 
+
+    # Eq. 23 of Turnpenney 2018 -  First term of RHS
+    B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
+
+    # Angle between the stellar wind magnetic field and the impinging plasma velocity
+    # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
+    theta = np.absolute(B_ang - v_rel_angle) 
+
+    geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
+    if open_field:
+        # theta is the angle between the B_sw (the insterstellar magnetic field), and the
+        # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
+        #
+        geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
+    return B_r, B_phi, B_sw, B_ang, theta, geom_f
+
 def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)
 
