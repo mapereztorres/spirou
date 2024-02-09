@@ -113,14 +113,14 @@ for indi in star_array:
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
-  
-    # Planet - 
-    Exoplanet = data['planet_name'][indi]
-    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
-    # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
-    r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-    P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+    if source_data == './INPUT/SPI-targets.csv':
+      # Planet - 
+      Exoplanet = data['planet_name'][indi]
+      Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
+      Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
+      # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
+      r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+      P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
 
 
     
@@ -143,7 +143,10 @@ for indi in star_array:
             d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
             Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+            if sweep=="RAD":
+              d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+            else:
+              d_orb=[r_orb]
             #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
             #print(len(d_orb))
             v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
