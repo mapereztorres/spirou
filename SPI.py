@@ -72,10 +72,10 @@ vsound = np.sqrt(k_B * T_corona / m_av)
 # The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
 #                        Bfield_geom_arr = 0 - closed dipolar geometry
 #Bfield_geom_arr = [0, 1]
-Bfield_geom_arr = [0, 1]
+Bfield_geom_arr = [0]
 
 # B_planet_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
-B_planet_arr= [0, 1]
+B_planet_arr= [0]
 Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
@@ -83,7 +83,7 @@ print(source_data)
 print(data)
 #star_array = range(len(data))
 #star_array = [0, 1, 2]
-star_array = [0]
+star_array = [0, 1]
 
 ### Table initialization
 # 
@@ -119,7 +119,12 @@ for indi in star_array:
         # Planet - 
         Exoplanet = data['planet_name'][indi]
         Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-        Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
+        if pd.isna(Mp): # If there is no mass value, use mass * sin(i)
+            Mp = data['mass_sini'][indi] * M_earth 
+        Rp = data['radius_planet(r_earth)'][indi]
+        if pd.isna(Rp): 
+            Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+        Rp *= R_earth # Planetary radius, in cm
         # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
         r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
         P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
@@ -132,25 +137,24 @@ for indi in star_array:
         P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
 
+    # Common properties for star and planet
+    # 
+    M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
+    Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
+    r_sonic =  G * M_star / (2 * vsound**2) # Radius of sonic point
     
+    # MPT: The two lines below ("Nsteps" and "d_orb" should be outside this loop, 
+    # but for some reason to be understood, the first time results in v_sw[0] = 0, which in turn results
+    # in a division by zero. This causes exiting the program. So, for now, we keep those lines inside the loop, which 
+    # prevents the zeroth value. Maybe the line v_sw = np.zeros(len(d_orb)) is causing the trouble? Check it
+    #Nsteps = 10
+    #d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
+    d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    Nsteps = int(2*d_orb_max)
+
     for ind in Bfield_geom_arr:
         for ind1 in B_planet_arr:
 
-            # Common properties for star and planet
-            # 
-            Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
-            M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
-        
-            r_sonic =  G * M_star / (2 * vsound**2) # Radius of sonic point
-
-            # MPT: The two lines below ("Nsteps" and "d_orb" should be outside this loop, 
-            # but for some reason to be understood, the first time results in v_sw[0] = 0, which in turn results
-            # in a division by zero. This causes exiting the program. So, for now, we keep those lines inside the loop, which 
-            # prevents the zeroth value. Maybe the line v_sw = np.zeros(len(d_orb)) is causing the trouble? Check it
-            #Nsteps = 10
-            #d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
-            d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
-            Nsteps = int(2*d_orb_max)
             #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
             if sweep=="RAD":
               d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
