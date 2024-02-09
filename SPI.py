@@ -132,7 +132,7 @@ for indi in star_array:
     v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
      
     # Plasma number density at base of the corona
-    n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
+    n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, m_av) 
 
     # Maximum plasma frequency at the base of the corona. If the ECM
     # freq is less than the plasma frequency, the emission is
@@ -148,18 +148,17 @@ for indi in star_array:
     v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
     
     # n_sw_planet - Number density of the wind at orbital distance to the planet. 
-    # 
     # If the stellar plasma is assumed to be isothermal, then 
     # the density falls down as ~ R^(-2) * v_sw^(-1).
-    #
     # Alternatively, we fix the density at the distance of the planet from the host star.
-    #
     if isothermal:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
-        n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, mu) # Plasma number density at distance (R/R_star)
+        n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
     else:
-        n_sw_planet = 1e4  # fixed                 
-        
+        n_sw_planet = np.ones(len(d_orb)) * 1e4  # fixed                 
+
+    rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
+
     for ind in Bfield_geom_arr:
         for ind1 in B_planet_arr:
             # Magnetic field geometry
@@ -167,28 +166,8 @@ for indi in star_array:
             open_field = Bfield_geom_arr[ind]
             B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
             
-            # Alfven speed and Mach Number
-            rho_sw = m_av * n_sw_planet #wind density, in g * cm^(-3)
-            #v_alf = 2.18e11 * B_sw / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
-            #v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) 
-            # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
-            v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_sw**2/(4.*np.pi * rho_sw * c**2)))
-            M_A   = v_rel/v_alf # Alfven mach number
-            
-            #Radial Alfvén speed
-            mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
-            v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw) # in cm/s
-            M_A_radial = np.abs(v_sw / v_alf_r)
-
-            #print('Relative speed = {0:.1e} km/s \n', format(v_rel/1e5))
-            #print('Alfvén speed   = {0:.1e} km/s \n', format(v_alf/1e5))
-            #print('Alfvén Mach number = {0:.3f} \n', format(M_A))
-            #print('v_alf_rel/v_alf  = {0:.1e} km/s \n', format(v_alf_rel/v_alf))
-
-            #print('Wind speed   = {0:.1e} km/s \n', format(v_sw/1e5))
-            #print('Alfvén radial speed = {0:.1e} km/s \n', format(v_alf_r/1e5))
-            #print('Alfvén radial Mach number = {0:.3f} \n', format(M_A_radial))
-
+            # Compute Alfvén parameters in the stellar wind at a distance d_orb 
+            v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
 
             # defines whether planet is unmagnetized (B_planet_arr[ind1] = 0), or magnetized (B_planet_arr[ind1] = 1)
             if B_planet_arr[ind1]: # magnetized planet
@@ -545,7 +524,7 @@ for indi in star_array:
             out_to_file = OutputWriter(outfileTXT)
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
-                Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
+                Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
                 Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
 
             
