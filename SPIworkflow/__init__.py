@@ -13,6 +13,7 @@ else:
 
 selection_criteria = False
 
+sweep="RAD"
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
 
