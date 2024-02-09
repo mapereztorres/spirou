@@ -29,7 +29,7 @@ from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
             
-from SPIworkflow.data import get_spi_data, create_data_tables
+from SPIworkflow.load_data import get_spi_data, create_data_tables
 
 # In the future, use function n_wind (under SPIworkflow)
 # ## Instead of using particle density, we'll use M_dot 
@@ -109,10 +109,6 @@ for indi in star_array:
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-    data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
-        M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
-    M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
-    print('M_star_dot :',M_star_dot)
 
     # Read info for planets in table
     if source_data == './INPUT/SPI-targets.csv':
@@ -135,6 +131,11 @@ for indi in star_array:
         Rp = R_earth # Planetary radius, in cm
         r_orb  = 0.2 * au    # orbital distance, in cm
         P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
+
+    data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
+        M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
+    M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+    print('M_star_dot :',M_star_dot)
 
 
     # Common properties for star and planet
