@@ -113,14 +113,23 @@ for indi in star_array:
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
+
+
     if source_data == './INPUT/SPI-targets.csv':
-      # Planet - 
-      Exoplanet = data['planet_name'][indi]
-      Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-      Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
-      # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
-      r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-      P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+        # Planet - 
+        Exoplanet = data['planet_name'][indi]
+        Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
+        Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
+        # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
+        r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+    else:
+        # 
+        Exoplanet = 'Earth'
+        Mp = M_earth # Planetary mass, in grams
+        Rp = R_earth # Planetary radius, in cm
+        r_orb  = 0.2 * au    # orbital distance, in cm
+        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
 
 
     
