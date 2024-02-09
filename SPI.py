@@ -114,7 +114,7 @@ for indi in star_array:
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
 
-
+    # Read info for planets in table
     if source_data == './INPUT/SPI-targets.csv':
         # Planet - 
         Exoplanet = data['planet_name'][indi]
@@ -124,12 +124,12 @@ for indi in star_array:
         r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
         P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
     else:
-        # 
+        # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
         Exoplanet = 'Earth'
         Mp = M_earth # Planetary mass, in grams
         Rp = R_earth # Planetary radius, in cm
         r_orb  = 0.2 * au    # orbital distance, in cm
-        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+        P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
 
     
