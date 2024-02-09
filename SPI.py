@@ -152,69 +152,69 @@ for indi in star_array:
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
     Nsteps = int(2*d_orb_max)
 
+    #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
+    if sweep=="RAD":
+      d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+    else:
+      d_orb=[r_orb]
+    #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
+    #print(len(d_orb))
+    v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
+    v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+
+    #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
+    Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
+
+    #
+    # The stellar wind speed is computed as in Turnpenney+18
+    # using the Lambert W function
+    # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
+    D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
+    v_sw2 = np.zeros(len(d_orb), dtype=complex)
+    v_sw  = np.zeros(len(d_orb))
+
+    for i in range(len(d_orb)):
+        if (d_orb[i]/r_sonic) >= 1.0:
+            v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=-1)
+        else: 
+            v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=0)
+        # The actual speeed is the real part of v_sw2[i]
+        v_sw[i]  = np.sqrt(v_sw2[i].real)
+
+    v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
+    
+    # Plasma number density at base of the corona
+    n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
+
+    # Maximum plasma frequency at the base of the corona. If the ECM
+    # freq is less than the plasma frequency, the emission is
+    # completely absorbed 
+    nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
+
+    #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
+    
+    # Eq. 23 of Turnpenney+18 - Second term of RHS 
+    # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
+    # 
+    v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
+    v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
+    
+    # n_sw_planet - Number density of the wind at orbital distance to the planet. 
+    # 
+    # If the stellar plasma is assumed to be isothermal, then 
+    # the density falls down as ~ R^(-2) * v_sw^(-1).
+    #
+    # Alternatively, we fix the density at the distance of the planet from the host star.
+    #
+    if isothermal:
+        #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
+        n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, mu) # Plasma number density at distance (R/R_star)
+    else:
+        n_sw_planet = 1e4  # fixed                 
+        
     for ind in Bfield_geom_arr:
         for ind1 in B_planet_arr:
 
-            #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            if sweep=="RAD":
-              d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
-            else:
-              d_orb=[r_orb]
-            #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
-            #print(len(d_orb))
-            v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
-            v_corot = d_orb * Omega_star # Corotation speed (cm/s)
-
-            #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
-            Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
-
-            #
-            # The stellar wind speed is computed as in Turnpenney+18
-            # using the Lambert W function
-            # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
-            D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
-            v_sw2 = np.zeros(len(d_orb), dtype=complex)
-            v_sw  = np.zeros(len(d_orb))
-
-            for i in range(len(d_orb)):
-                if (d_orb[i]/r_sonic) >= 1.0:
-                    v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=-1)
-                else: 
-                    v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=0)
-                # The actual speeed is the real part of v_sw2[i]
-                v_sw[i]  = np.sqrt(v_sw2[i].real)
-
-            v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
-            
-            # Plasma number density at base of the corona
-            n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
-
-            # Maximum plasma frequency at the base of the corona. If the ECM
-            # freq is less than the plasma frequency, the emission is
-            # completely absorbed 
-            nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
-
-            #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
-            
-            # Eq. 23 of Turnpenney+18 - Second term of RHS 
-            # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
-            # 
-            v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
-            v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
-            
-            # n_sw_planet - Number density of the wind at orbital distance to the planet. 
-            # 
-            # If the stellar plasma is assumed to be isothermal, then 
-            # the density falls down as ~ R^(-2) * v_sw^(-1).
-            #
-            # Alternatively, we fix the density at the distance of the planet from the host star.
-            #
-            if isothermal:
-                #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
-                n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, mu) # Plasma number density at distance (R/R_star)
-            else:
-                n_sw_planet = 1e4  # fixed                 
-                
             # Magnetic field geometry
             # open_field - defines the geometry of the magnetic field
             open_field = Bfield_geom_arr[ind]
