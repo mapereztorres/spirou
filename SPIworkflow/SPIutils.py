@@ -18,6 +18,14 @@ def Kepler_r(M_star, P_orb):
     r_orb = (G * M_star*M_sun)**(1/3) * (P_orb*day/2/np.pi)**(2/3)/au
     return r_orb
 
+def Kepler_P(M_star, r_orb):
+    """Computes the orbital period (P_orb) of a planet (in days) of a planet
+       orbiting a star of mass M_star (in solar masses) and semi-major axis (r_orb), in au.
+    """
+    
+    P_orb = 2*np.pi * (G * M_star*M_sun)**(-1/2) * (r_orb*au)**(3/2)/day
+    return P_orb
+
 def beta_keV(E_kin=511):
     """ Computes the velocity of an electron with kinetic energy E_k, in units of the speed of light
         OUTPUT: beta (= particle speed / speed of light)
