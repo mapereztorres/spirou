@@ -35,6 +35,20 @@ def beta_keV(E_kin=511):
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
 
+def Rp_Zeng(Mp = 1.0):
+    """ Computes the planet radius using the mass-radius relationship in 
+        in Zeng et al. (PNAS, 2019): 
+        https://www.pnas.org/content/116/20/9723
+        R [R_earth] = f * (M/M_earth)^(1/3.7)  (for rocky planets, f=1.)
+        
+        OUTPUT: Rp - planet radius, in units of Earth radius 
+        INPUT:  Mp - planet mass, in units of Earth mass
+        We assume f = 1 (Earth-like rocky planet)
+    """
+    f = 1.0
+    Rp = f * Mp**(1/3.7)
+    return Rp
+
 def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
         (From Sano, J. Geomag. Geolectr., 45, 65-77, 1993), 
