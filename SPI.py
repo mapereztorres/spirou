@@ -56,15 +56,6 @@ else:
      data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
 
 
-# Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
-mu = (0.5*m_p + 0.5*m_e)/(m_p + m_e) # mean "molecular weight"
-m_av = mu * m_p  # average mass density
-
-# Isothermal Parker wind (assumed)
-# Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
-vsound = np.sqrt(k_B * T_corona / m_av) 
-
-
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
 # 
@@ -118,14 +109,7 @@ for indi in star_array:
     # 
     M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
     Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
-    r_sonic =  G * M_star / (2 * vsound**2) # Radius of sonic point
-    
-    # MPT: The two lines below ("Nsteps" and "d_orb" should be outside this loop, 
-    # but for some reason to be understood, the first time results in v_sw[0] = 0, which in turn results
-    # in a division by zero. This causes exiting the program. So, for now, we keep those lines inside the loop, which 
-    # prevents the zeroth value. Maybe the line v_sw = np.zeros(len(d_orb)) is causing the trouble? Check it
-    #Nsteps = 10
-    #d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
+
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
     Nsteps = int(2*d_orb_max)
 
@@ -142,24 +126,11 @@ for indi in star_array:
     #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
     Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
 
-    #
-    # The stellar wind speed is computed as in Turnpenney+18
-    # using the Lambert W function
-    # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
-    D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
-    v_sw2 = np.zeros(len(d_orb), dtype=complex)
-    v_sw  = np.zeros(len(d_orb))
-
-    for i in range(len(d_orb)):
-        if (d_orb[i]/r_sonic) >= 1.0:
-            v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=-1)
-        else: 
-            v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=0)
-        # The actual speeed is the real part of v_sw2[i]
-        v_sw[i]  = np.sqrt(v_sw2[i].real)
+    # Compute stellar wind velocity at each value of d_orb
+    v_sw = spi.v_stellar_wind(d_orb, M_star, T_corona)
 
     v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
-    
+     
     # Plasma number density at base of the corona
     n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
 
