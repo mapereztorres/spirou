@@ -174,18 +174,20 @@ def v_stellar_wind(d_orb, M_star, T_corona):
 
     return v_sw
     
-def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, mu=0.5):
+def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av):
     """ Computes the particle density of the stellar wind at some distance d from the
         center of the star.
         OUTPUT: n_sw - particle density of the stellar wind at distance d, in #/cm^3
         INPUT:  M_star_dot - stellar mass-loss rate, in units of the Sun mass-loss rate
                 d          - distance from the center of the star, in cm 
                 v_sw       - Speed of stellar wind at distance d, in cm/s
-                mu         - mean molecular weight in the wind
+                m_av       - average mass density of the stellar wind 
     """
     M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
     M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
+    """
     m_av  =  mu * m_p # average particle mass of the solar wind, in grams
+    """
     rho = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
     n_sw = rho / m_av
     return n_sw
