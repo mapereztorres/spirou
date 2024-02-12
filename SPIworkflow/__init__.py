@@ -62,16 +62,11 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 # STELLAR WIND
 #####################################
 
-# Is the stellar plasma assumed to be isothermal?
+# Is the stellar wind plasma assumed to be isothermal?
 isothermal = True 
 
-# Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
+# Fully ionized, purely hydrogen stellar wind plasma (=> 50% protons, 50% electrons)
 X_p = 0.5 # fraction of protons
-X_e = 1 - X_p # fraction of electrons
-mu = (X_p * m_p + X_e * m_e)/(m_p + m_e) # mean "molecular weight"
-m_av = mu * m_p  # average mass density
-
-
 
 #####################################
 # SUB-ALFVENIC INTERACTION parameters
