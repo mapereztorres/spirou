@@ -31,12 +31,6 @@ import SPIworkflow.SPIutils as spi
             
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target
 
-# In the future, use function n_wind (under SPIworkflow)
-# ## Instead of using particle density, we'll use M_dot 
-# ### Currently, this function isn't used for the calculations
-#
-# n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
-
 
 # Create output directory for the results 
 # Return df_planets and df_no_planets
@@ -126,11 +120,15 @@ for indi in star_array:
     #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
     Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
 
+    # Get wind composition, from the fraction of protons
+    X_e, mu, m_av = spi.wind_composition(X_p)
+
     # Compute stellar wind velocity at each value of d_orb
-    v_sw = spi.v_stellar_wind(d_orb, M_star, T_corona)
+    v_sound, r_sonic, v_sw = spi.v_stellar_wind(d_orb, M_star, T_corona, m_av)
 
     v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
      
+
     # Plasma number density at base of the corona
     n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, m_av) 
 
