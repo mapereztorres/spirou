@@ -240,6 +240,22 @@ def plasma_freq(n_e = 1.0):
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
 
+def get_Rmp_Saur(Rp, theta_M, B_planet, B_sw):
+    """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
+       Saur+2013, A&A).  It depends on the orientation, theta_M, of the intrinsic planetary
+       magnetic field (B_planet) wrt the external magnetic field of the stellar wind (B_sw).
+    OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
+    INPUT : Rp           (cm) - Float: Planet radius, in cm
+            theta_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
+                                wind magnetic field, in radians
+            B_planet     (G)  - Float: Planetary magnetic field, in Gauss
+            B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
+    """
+    R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet/B_sw)**(1./3.) # in cm
+    R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+
+    return R_planet_eff
+
 def get_P_dyn_sw(n_sw=1e7, mu=0.5, v_rel=1e7):
     """Computes the dynamical pressure of the stellar wind at the orbital distance 
                of the planet, P_dyn_sw, in erg/cm3
