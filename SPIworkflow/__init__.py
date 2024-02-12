@@ -21,6 +21,7 @@ sweep="RAD"
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
+#star_array = range(len(data))
 star_array = [0]
 
 
