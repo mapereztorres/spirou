@@ -2,7 +2,9 @@ import numpy as np
 from SPIworkflow.constants import *
 
 
+###################################
 ### INPUT TABLE
+###################################
 EXOPLANETS = True
 
 # If true, it reads a table with stellar systems hosting planets, so 
@@ -16,7 +18,41 @@ selection_criteria = False
 
 sweep="RAD"
 
+#####################################################
+# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
+#####################################################
+star_array = [0]
+
+
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
+
+#####################################
+# MAGNETIC FIELD SETUP
+#####################################
+# Setting the stellar magnetic field geometry and the value of the 
+# intensity of the planetary magnetic field
+# 
+# Stellar magnetic field geometry
+# The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
+#                        Bfield_geom_arr = 0 - closed dipolar geometry
+Bfield_geom_arr = [0]
+
+# magnetized_pl_arr is a [False,True] array
+# False: Unmagnetized planet 
+# True : Magnetized planet
+# 
+#magnetized_pl_arr = [False, True]
+magnetized_pl_arr = [True]
+
+# Computation of planetary magnetic field
+# B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
+# B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
+B_planet_law = 'Sano'
+#B_planet_law = 'None'
+
+# Default planetary magnetic field, in Tesla
+B_planet_default = bfield_earth 
+
 
 ###################################
 # OBSERVED PARAMETERS
