@@ -184,15 +184,9 @@ for indi in star_array:
             
             #
             # Effective radius of the obstacle
-
             # Case 1. À la Saur+2013. 
-            #
-            # Effective radius of the Alfvén wing, in units of R_p (R_obst in Eq. 57 of Saur+2013, A&A)
-            # It depends on the orientation, theta_M, of the intrinsic planetary
-            # magnetic field (B_planet) wrt the external magnetic field (B_sw).
-            #
-            R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet/B_sw)**(1./3.) # in cm
-            R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet, B_sw)
+
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
             #
@@ -212,6 +206,7 @@ for indi in star_array:
 
             # The effective radius is the radius of the magnetopause
             R_planet_eff = Rmp
+
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
 
