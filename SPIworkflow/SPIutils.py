@@ -104,7 +104,8 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
     """
     # Scaling law for the planet's core radius, from Curtis & Ness (1986)
     r_core = M_planet**0.44 # in units of r_core_Earth
-    Magn_moment_planet = Omega_rot_planet * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
+    rho_core = M_planet / R_planet**3
+    Magn_moment_planet = Omega_rot_planet * rho_core**(1/2) * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
     B_planet  = Magn_moment_planet / R_planet**3 # in units of B_earth
  
     return B_planet
@@ -240,18 +241,18 @@ def plasma_freq(n_e = 1.0):
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
 
-def get_Rmp_Saur(Rp, theta_M, B_planet, B_sw):
+def get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw):
     """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
        Saur+2013, A&A).  It depends on the orientation, theta_M, of the intrinsic planetary
-       magnetic field (B_planet) wrt the external magnetic field of the stellar wind (B_sw).
+       magnetic field (B_planet_arr) wrt the external magnetic field of the stellar wind (B_sw).
     OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
     INPUT : Rp           (cm) - Float: Planet radius, in cm
             theta_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
                                 wind magnetic field, in radians
-            B_planet     (G)  - Float: Planetary magnetic field, in Gauss
+            B_planet_arr (G)  - Array: Planetary magnetic field, in Gauss
             B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
     """
-    R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet/B_sw)**(1./3.) # in cm
+    R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
     R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
 
     return R_planet_eff
