@@ -56,19 +56,15 @@ else:
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
 #                        Bfield_geom_arr = 0 - closed dipolar geometry
-#Bfield_geom_arr = [0, 1]
-Bfield_geom_arr = [0]
+#Bfield_geom_arr = [0]
 
-# B_planet_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
-B_planet_arr= [0]
-Bfield_pl = 0.5
+# magnetized_pl_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
+#magnetized_pl_arr= [0]
+#Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
 print(source_data)
 print(data)
-#star_array = range(len(data))
-#star_array = [0, 1, 2]
-star_array = [0, 1]
 
 ### Table initialization
 # 
@@ -157,8 +153,13 @@ for indi in star_array:
 
     rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
 
-    for ind in Bfield_geom_arr:
-        for ind1 in B_planet_arr:
+    for ind in range(len(Bfield_geom_arr)):
+        for ind1 in range(len(magnetized_pl_arr)):
+            if Bfield_geom_arr[ind]:
+                print("\nOpen Parker magnetic field geometry")
+            else:
+                print("\nClosed dipolar magnetic field geometry")
+           
             # Magnetic field geometry
             # open_field - defines the geometry of the magnetic field
             open_field = Bfield_geom_arr[ind]
@@ -167,25 +168,30 @@ for indi in star_array:
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
 
-            # defines whether planet is unmagnetized (B_planet_arr[ind1] = 0), or magnetized (B_planet_arr[ind1] = 1)
-            if B_planet_arr[ind1]: # magnetized planet
-                # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
-                # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
-                # core_radius equal to the Earth radius, and core density equal to that of the Earth.
-                B_planet = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
-                            Rp/R_earth, Omega_rot_planet =
-                            Omega_planet/Omega_earth) 
-                
-                B_planet *= bfield_earth * Tesla2Gauss # in Gauss 
-                # For now, force B_planet = Bfield_pl
-                B_planet  = np.ones(len(d_orb)) * Bfield_pl 
+            # defines whether planet is unmagnetized (magnetized_pl_arr[ind1] = 0), or magnetized (magnetized_pl_arr[ind1] = 1)
+            if magnetized_pl_arr[ind1]: # magnetized planet
+                print('Magnetized planet\n')
+                if B_planet_law == 'Sano':
+                    # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
+                    # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
+                    # core_radius equal to the Earth radius, and core density equal to that of the Earth.
+                    B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
+                                               R_planet = Rp / R_earth, 
+                                               Omega_rot_planet = Omega_planet / Omega_earth)  
+                    B_planet *= bfield_earth  # B_planet, in Tesla
+                else: 
+                    B_planet = B_planet_default  # B_planet, in Tesla
+
+                B_planet    *=  Tesla2Gauss #  B_planet, in Gauss 
+                B_planet_arr = np.ones(len(d_orb)) * B_planet  
             else:  # unmagnetized planet
-                B_planet  = np.zeros(len(d_orb)) # unmagnetized planet
-            
+                print('Unmagnetized planet\n')
+                B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
+            print('format of B_planet_arr', type(B_planet_arr)) 
             #
             # Effective radius of the obstacle
             # Case 1. À la Saur+2013. 
-            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet, B_sw)
+            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw)
 
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
@@ -194,7 +200,7 @@ for indi in star_array:
             # pressures
             
             # Planet pressure - only the magnetic component is considered
-            P_B_planet  = spi.get_P_B_planet(B_planet) 
+            P_B_planet  = spi.get_P_B_planet(B_planet_arr) 
 
             # Stellar wind pressure
             P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
@@ -464,14 +470,14 @@ for indi in star_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
-            B_planet_loc = round(float(B_planet[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
-            #B_planet_loc = int(B_planet[loc_pl]) # Planetary magnetic field, in Gauss
+            B_planet_loc = round(float(B_planet_arr[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
+            #B_planet_loc = int(B_planet_arr[loc_pl]) # Planetary magnetic field, in Gauss
             
             #ax2.text(x=60,y=1.8,s=r"$B_\ast = \,{\rm G}$")
             #ax2.text(x=60,y=1.4,s=r"$B_{\rm pl} = 1 \,{\rm G}$")
             #
             #ax2.text(x=12,y=-1.2,s=r"$B_{\rm cycl}$   = " + str(B_star) + " G ",fontsize='small')
-            #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(B_planet) + " G ", fontsize='small')
+            #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(B_planet_arr) + " G ", fontsize='small')
             #ax2.text(x=12,y=-2.0,s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             #ax2.text(x=3,y=0.1+np.log10(3*rms),s=r"Requested 3$\sigma$", fontsize='x-small')
             xpos =xmax*0.8
@@ -489,7 +495,7 @@ for indi in star_array:
                 os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
             except:
                 pass 
-            common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
+            common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet_arr[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if open_field:
                 # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
                 #outfile = Exoplanet + "-Open-Bstar"+ common_string
@@ -534,14 +540,14 @@ for indi in star_array:
             #print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
 
             # Print out minimum and maximum values of flux density at the planet location
-            #print("B_star =", B_star, " G; " "B_planet = ", B_planet, " G ")
+            #print("B_star =", B_star, " G; " "B_planet = ", B_planet_arr, " G ")
             #print("\nPrint out Poynting Flux at the planet location")
             #print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
             #print("\nPrint out Poynting Flux at the first cell")
             #print("Saur/Turnpenney (erg/s): ", S_poynt[0])
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
-            print('B_planet = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
+            print('B_planet_loc = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
             #print('Rmp / Rp = {0:.3f} '.format(Rmp[loc_pl]/Rp))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
