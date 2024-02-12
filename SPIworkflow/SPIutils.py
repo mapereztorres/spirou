@@ -145,21 +145,24 @@ def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     return Ltot_rad
     
 def v_stellar_wind(d_orb, M_star, T_corona, m_av):
-    """Computes the stellar wind speed at every distance (d_orb) from the star
-       It assumes an isothermal Parker wind 
-       OUTPUT:
-       INPUT: 
-    """
-    # Isothermal Parker wind (assumed)
-    # Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
-    v_sound = np.sqrt(k_B * T_corona / m_av) 
+    """ This function computes the sound speed (v_sound, in cm/s) and the sonic point (r_sonic) of
+        an isothermal stellar wind. v_sound only depends on the temperature of the corona,
+        T_corona. The sonic point, r_sonic, also depends on the mass of the star, M_star. 
+        It also computes the stellar wind speed, in cm/s, at every distance (d_orb) from the star. 
 
+        The stellar wind speed is computed as in Turnpenney+18, using the Lambert W
+        function,  with D_r obtained using Eq. 18. In turn, Eq. 18 is taken from Eq. 15 in Cranmer 2004. 
+
+       OUTPUT:  v_sound (cm/s) - Float: Sound speed of the isothermal stellar wind, in cm/s.
+                v_sw  (cm/s)   - Array: Stellar wind speed at every distance in d_orb
+       INPUT:   d_orb (cm)     - Array: Distances, measured from the center of the star
+                M_star (g)     - Float: Mass of star, in grams
+                T_corona (K)   - Float: Temperature at the base of the corona, in Kelvin
+                m_av     (g)   - Float: Average particle mass of the stellar wind, in grams
+    """
+    v_sound = np.sqrt(k_B * T_corona / m_av) 
     r_sonic =  G * M_star / (2 * v_sound**2) # Radius of sonic point, in cgs units
 
-    #
-    # The stellar wind speed is computed as in Turnpenney+18
-    # using the Lambert W function
-    # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
     D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
     v_sw2 = np.zeros(len(d_orb), dtype=complex)
     v_sw  = np.zeros(len(d_orb))
@@ -172,7 +175,7 @@ def v_stellar_wind(d_orb, M_star, T_corona, m_av):
         # The actual speeed is the real part of v_sw2[i]
         v_sw[i]  = np.sqrt(v_sw2[i].real)
 
-    return v_sw
+    return v_sound, r_sonic, v_sw
     
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
