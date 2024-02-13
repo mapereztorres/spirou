@@ -121,8 +121,17 @@ eps_min = 0.01; eps_max = 0.05
 theta_M = np.pi/2
 
 # Minimum and maximum kinetic energy of electrons emitting via ECM, in keV
+# Electrons are mildly relativistic, so 20 to 200 keV energies should be good values, 
+# but a choice from 10 to 511 keV (=m_e * c^2) should be also  OK. 
 Ekin_min = 20 
 Ekin_max = 200
+
+##
+which_beam_solid_angle = 'Jupiter-Io'
+#which_beam_solid_angle = 'Computed'
+
+
+
 
 #####################################
 # PLOTTING AND WRITING SETUP
