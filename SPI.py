@@ -61,7 +61,12 @@ else:
 # magnetized_pl_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
 #magnetized_pl_arr= [0]
 #Bfield_pl = 0.5
-planet_name_list,star_name_list, d_star_list, mass_star_list, radius_star_list, p_rot_list,  bfield_star_list, a_list,  p_orb_list,eccentricity_list,q_list,Q_list, mass_planet_list, radius_planet_list,T_cor_list, m_dot_list, nu_pl_list, nu_cycl_list, rho_pl_list, B_pl_list, B_sw_list, v_alf_list, M_A_list, Flux_r_S_ZL_min_list, Flux_r_S_ZL_max_list, P_Bpl_list, P_dyn_list, P_th_list, P_Bsw_list, Rmp_list=define_lists()
+
+#Here we call many empty lists to be used later in the final table
+variables=define_lists()
+locals().update(variables)
+
+
 ### Select data in the array to run the code on
 print(source_data)
 print(data)
