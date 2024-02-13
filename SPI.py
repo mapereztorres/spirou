@@ -173,15 +173,15 @@ for indi in star_array:
                 print('Magnetized planet\n')
                 if B_planet_law == 'Sano':
                     # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
-                    # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
-                    # core_radius equal to the Earth radius, and core density equal to that of the Earth.
-                    B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
+                    # Assumes a tidally locked planet, i.e., the rotation period of the
+                    # planet equals its orbital one.
+                    r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
                     B_planet = B_planet_default  # B_planet, in Tesla
-
+                #
                 B_planet    *=  Tesla2Gauss #  B_planet, in Gauss 
                 B_planet_arr = np.ones(len(d_orb)) * B_planet  
             else:  # unmagnetized planet
