@@ -419,7 +419,9 @@ for indi in star_array:
                 plt.tight_layout()
                 plt.show()
 
-            # Send output to external file/s
+            ###########################################################
+            ################### Send OUTPUT to external text file/s
+            ###########################################################
 
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
@@ -428,9 +430,6 @@ for indi in star_array:
                 Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
                 Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
 
-            
-
-            
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             # First, find out the position of the planet in the distance array
@@ -458,4 +457,5 @@ for indi in star_array:
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
 
-
+            #output_table=pd.copy(data)
+            #output=output[[
