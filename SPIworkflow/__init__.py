@@ -22,7 +22,7 @@ sweep="RAD"
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #star_array = range(len(data))
-star_array = [0]
+star_array = [1]
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -34,16 +34,16 @@ star_array = [0]
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-# The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#                        Bfield_geom_arr = 0 - closed dipolar geometry
+# The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
+#                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
 Bfield_geom_arr = [0]
 
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Computation of planetary magnetic field
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)

@@ -99,16 +99,15 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
                 Omega_rot_planet: Rotational speed of the planet. It is assumed that the 
                         planets are tidally locked, hence P_rot_planet = P_orb_planet. 
                         In units of the rotational speed of Earth (radians/sec) 
-                rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
-                value of the density of the Earth's outer core. 
+                rho_core - Planet outer core density, in g/cm^3. 
     """
     # Scaling law for the planet's core radius, from Curtis & Ness (1986)
     r_core = M_planet**0.44 # in units of r_core_Earth
     rho_core = M_planet / R_planet**3
-    Magn_moment_planet = Omega_rot_planet * rho_core**(1/2) * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
-    B_planet  = Magn_moment_planet / R_planet**3 # in units of B_earth
+    magn_moment_planet = Omega_rot_planet * rho_core**(1/2) * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
+    B_planet  = magn_moment_planet / R_planet**3 # in units of B_earth
  
-    return B_planet
+    return r_core, rho_core, magn_moment_planet, B_planet
 
 def R_planet_eff_func(Rp, theta_M, B_planet, B_tot):
     """ Computes the effective obstacle radius for the planet. 
