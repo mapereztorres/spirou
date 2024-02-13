@@ -215,42 +215,8 @@ for indi in star_array:
 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
-
-            # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
-            # Applies if  M_A is small (<< 1)
-            # Note that for the geometric factor, we follow Turnpenney's definition, so 
-            # the factor is sin^2(theta), not cos^2(theta)
-            # Saur says that the power is "per hemisphere", as Zarka below
-            #
-            # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
-            # Poynting flux, in mks units
-            S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
-            S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
-            
-            # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
-            # They have a value which is different by a factor 2 * M_A * alpha^2
-            # In addition, they include a geometric factor of order 1/2.
-            #
-            #ZL_factor = 0.5
-            #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
-
-            # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
-            # Alfvén conductance as defined in Neubaur.
-            # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
-            # In this sense, this is the same as in the expresion by Saur, 
-            # so there seems to be a factor of two discrepancy, 
-            # if taken into account that v_rel = v_alf * M_A. 
-            #
-            S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
-            S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
-            
             # Beam solid angle covered by the ECM emission
             # It depends on the kinetic energy of electrons (as beta is determined from them), in keV
-            #
-            #Ekin_min = 10 ; Ekin_max = 511        
-            Ekin_min = 20 ; Ekin_max = 200
             beta_min = spi.beta_keV(Ekin_min) 
             beta_max = spi.beta_keV(Ekin_max)
             
@@ -322,6 +288,36 @@ for indi in star_array:
             dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
             dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
 
+            # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
+            # Applies if  M_A is small (<< 1)
+            # Note that for the geometric factor, we follow Turnpenney's definition, so 
+            # the factor is sin^2(theta), not cos^2(theta)
+            # Saur says that the power is "per hemisphere", as Zarka below
+            #
+            # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
+            # Poynting flux, in mks units
+            S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
+                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
+            S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
+            
+            # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
+            # They have a value which is different by a factor 2 * M_A * alpha^2
+            # In addition, they include a geometric factor of order 1/2.
+            #
+            #ZL_factor = 0.5
+            #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
+
+            # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
+            # Alfvén conductance as defined in Neubaur.
+            # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
+            # In this sense, this is the same as in the expresion by Saur, 
+            # so there seems to be a factor of two discrepancy, 
+            # if taken into account that v_rel = v_alf * M_A. 
+            #
+            S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+                            * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
+            S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
+            
             # Min and Max expected flux density to be received for Saur-Turnpenney model, in erg/s/Hz/cm2
             Flux_r_S_min = S_poynt * dilution_factor_min
             Flux_r_S_min *= 1e26 # Flux density, in mJy
