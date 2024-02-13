@@ -29,8 +29,12 @@ yr2sec = yr*day                 #yr, in seconds
 
 Omega_earth = 2*np.pi / 86400.  # Angular speed of Earth, in [s^(-1)] = 2*pi radians/day
 
+# magnetic permeability in vacuum, in mks units
+mu_0_mks = 4*np.pi*1e-7 
+
 Tesla2Gauss = 1e4  # 1 Tesla, in Gauss
 Gauss2Tesla = 1e-4 # 1 Gauss, in Teslas
+
 
 ###############################
 # Specific constants for SPI.py

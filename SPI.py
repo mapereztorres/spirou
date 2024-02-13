@@ -223,10 +223,9 @@ for indi in star_array:
             # Saur says that the power is "per hemisphere", as Zarka below
             #
             # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
-            mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
             # Poynting flux, in mks units
             S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0 * geom_f
+                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
             S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
             
             # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
@@ -244,7 +243,7 @@ for indi in star_array:
             # if taken into account that v_rel = v_alf * M_A. 
             #
             S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(R_planet_eff/1e2)**2 
+                            * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
             S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
             
             # Beam solid angle covered by the ECM emission
@@ -489,12 +488,12 @@ for indi in star_array:
             #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(f'{M_star_dot:.1f}') + "$\dot{M}_\odot$", fontsize='small')
         
-            # save all plots in a specific folder for each planet  
-            print('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
-            try:
+            # Create OUTPUT folder if it doesn't exist
+            FOLDER = 'OUTPUT/'+str(Exoplanet.replace(" ", "_"))
+            if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
-            except:
-                pass 
+            else:
+                print(FOLDER+' already exists.')
             common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet_arr[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if open_field:
                 # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
