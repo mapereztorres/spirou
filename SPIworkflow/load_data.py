@@ -75,7 +75,7 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
         df2 = df[["planet_name", "star_name",  
             "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
             "e_bfield_star", "radius_planet(r_earth)", "mass_planet(m_earth)",
-            "mass_sini", "p_orb(days)", "a(au)" ]]
+            "mass_sini", "p_orb(days)", "a(au)" ,"eccentricity"]]
 
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
@@ -193,6 +193,7 @@ def load_target(data, indi):
     OUTPUT:
     INPUT: 
     """
+    starname=data['star_name'][indi]
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
     R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
@@ -212,6 +213,7 @@ def load_target(data, indi):
         Rp *= R_earth # Planetary radius, in cm
         # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
         r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+        eccentricity=data['eccentricity'][indi]
         P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
     else:
         # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
@@ -219,7 +221,42 @@ def load_target(data, indi):
         Mp = M_earth # Planetary mass, in grams
         Rp = R_earth # Planetary radius, in cm
         r_orb  = 0.2 * au    # orbital distance, in cm
+        eccentricity=0
         P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
-    return d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb
+    return starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity
 
+
+def define_lists():
+    planet_name_list=[]
+    star_name_list=[]
+    d_star_list=[]
+    mass_star_list=[]
+    radius_star_list=[]
+    p_rot_list=[]
+    bfield_star_list=[]
+    a_list=[]
+    p_orb_list=[]
+    eccentricity_list=[]
+    q_list=[]
+    Q_list=[]
+    mass_planet_list=[]
+    radius_planet_list=[]
+    T_cor_list=[]
+    m_dot_list=[]
+    nu_pl_list=[]
+    nu_cycl_list=[]
+    rho_pl_list=[]
+    B_pl_list=[]
+    B_sw_list=[]
+    v_alf_list=[]
+    M_A_list=[]
+    Flux_r_S_ZL_min_list=[]
+    Flux_r_S_ZL_max_list=[]
+    P_Bpl_list=[]
+    P_dyn_list=[]
+    P_th_list=[]
+    P_Bsw_list=[]
+    Rmp_list=[]
+    
+    return planet_name_list,star_name_list, d_star_list, mass_star_list, radius_star_list, p_rot_list,  bfield_star_list, a_list,  p_orb_list,eccentricity_list,q_list,Q_list, mass_planet_list, radius_planet_list,T_cor_list, m_dot_list, nu_pl_list, nu_cycl_list, rho_pl_list, B_pl_list, B_sw_list, v_alf_list, M_A_list, Flux_r_S_ZL_min_list, Flux_r_S_ZL_max_list, P_Bpl_list, P_dyn_list, P_th_list, P_Bsw_list, Rmp_list
