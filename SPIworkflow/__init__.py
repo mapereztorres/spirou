@@ -120,6 +120,9 @@ eps_min = 0.01; eps_max = 0.05
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
+# Minimum and maximum kinetic energy of electrons emitting via ECM, in keV
+Ekin_min = 20 
+Ekin_max = 200
 
 #####################################
 # PLOTTING AND WRITING SETUP
