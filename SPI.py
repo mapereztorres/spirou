@@ -94,6 +94,9 @@ for indi in star_array:
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
 
+    # Electron gyrofrequency and ECM bandwidth 
+    gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
+    Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission  assumed to be  (0.5 * gyrofreq)
 
     # Common properties for star and planet
     # 
@@ -215,121 +218,25 @@ for indi in star_array:
 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
-            # Beam solid angle covered by the ECM emission
-            # It depends on the kinetic energy of electrons (as beta is determined from them), in keV
-            beta_min = spi.beta_keV(Ekin_min) 
-            beta_max = spi.beta_keV(Ekin_max)
+            # Compute min and max speed of electrons emitting via ECM, in units of the speed of light 
+            beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
             
-            # BEAM SOLID ANGLE
-            # We assume an emission cone with half-opening angle theta and angular width d_theta.
-            # theta and d_theta are related to the speed of the electrons as theta \approx d_theta \approx v/c = beta
-            # 
-            # The solid angle, Omega, of a cone with half-opening angle, theta, 
-            # is Omega = 2*np.pi * (1. - np.cos(theta))
-            # Therefore, a cone sheet with inner half-opening angle, theta, and angular width d_theta
-            # has a solid angle Omega = 2*np.pi* ( np.cos (theta - d_theta/2) - np.cos(theta +d_theta/2)) 
+            # Beam solid angle covered by the ECM emission, in sterradians
+            if which_beam_solid_angle == 'Jupiter-Io':
+                bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
+                Omega_min = bsa_Omega; Omega_max = bsa_Omega
+            else:
+                # Get the minimum and maximum values of the beam solid angle for the cone of emission 
+                Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
             
-            #Range of beam solid angles (Omega) for the emitter depends on beta_min and beta_max
-            Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
-            Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
-            
-            # beam solid angle of the emitter / 4*pi 
-            # Check why I (MPT) wrote " /4*pi" in the previous line 
-            Omega_min = min(Omega_1, Omega_2)
-            Omega_max = max(Omega_1, Omega_2)
+            # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
+            # 2007 (S_poyn_ZL), in cgs units. They coincide, except for a factor 2. 
+            S_poynt, S_poynt_ZL = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f)
 
-            
-            #print("beta_min of electrons (E_k={0:.1f} keV) = {1:.3f}; \n beta_max of electrons (E_k={2:.1f} keV) = {3:.3f}".\
-            #      format(Ekin_min, beta_min, Ekin_max, beta_max))
-            #print("Half-opening angle of emission cone: theta_min = {0:.1f} deg; theta_max = {1:.1f} deg".\
-            #       format(np.arccos(beta_max)*180./np.pi, np.arccos(beta_min)*180/np.pi))
-            #print("(Angular) width of emission cone: theta_min = {0:.1f} deg; theta_max = {1:.1f} deg".\
-            #       format(beta_min*180./np.pi, beta_max*180/np.pi))
-            #print("solid angles: Min = {0:.3f}; Max = {1:.3f}".format(Omega_min, Omega_max))
-            #print(" ")
-
-            # in-band radio power received from one whole hemisphere
-            #power  = 2*np.pi * flux * mJy * d**2 * Delta_nu_obs 
-
-            # The range of allowed powers, considering the beamed solid angle
-            # and the possible total bandwidth
-            # 
-            gyrofreq = e*B_star/(2*np.pi * m_e * c)
-            Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission = (0.5 * gyrofreq)
-        
-            #Fix flux_min = flux_max = flux
-            #flux_min = flux_max = flux 
-
-            #
-            #power_min = power/(2*np.pi) * (flux_min/flux) * Omega_min * Delta_nu_cycl/Delta_nu_obs
-            #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
-            #
-            # Range of values for the star-ward Poynting flux
-            #Poynt_min = power_min / eps_max 
-            #Poynt_max = power_max / eps_min 
-
-            #print("In-band power (from 1 whole hemisphere) =  {0:.2e}".format(power))
-            #print("power (from 1 sr)  =  {0:.2e}".format(power/2/np.pi * Delta_nu_cycl/Delta_nu_obs))
-            #print("power_min =  {0:.2e}; power_max = {1:.2e}".format(power_min, power_max))
-            #print("Poynting fluxes: Min = {0:.2e}; Max = {1:.2e}".format(Poynt_min, Poynt_max))
-            # Flux density received at Earth (from the theoretically expected Poynting flux)
-            # 
-            
-            #beam solid angle of the ECMI emission, in sterradians. There is no need to fix this value, as this is
-            #given by the population of electrons. If we don't fix it, we can constrain other parameters, e.g., 
-            # eps, the efficienty factor in converting energy into Poynting flux.
-            bsa_Omega = 1.6 
-
-            # For simplicity, take Omega_min = Omega_max = Omega
-            #Omega_min = Omega_max = Omega
-            Omega_min = bsa_Omega
-            Omega_max = bsa_Omega
-            
-            dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
-            dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
-
-            # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
-            # Applies if  M_A is small (<< 1)
-            # Note that for the geometric factor, we follow Turnpenney's definition, so 
-            # the factor is sin^2(theta), not cos^2(theta)
-            # Saur says that the power is "per hemisphere", as Zarka below
-            #
-            # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
-            # Poynting flux, in mks units
-            S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
-            S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
-            
-            # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
-            # They have a value which is different by a factor 2 * M_A * alpha^2
-            # In addition, they include a geometric factor of order 1/2.
-            #
-            #ZL_factor = 0.5
-            #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
-
-            # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
-            # Alfvén conductance as defined in Neubaur.
-            # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
-            # In this sense, this is the same as in the expresion by Saur, 
-            # so there seems to be a factor of two discrepancy, 
-            # if taken into account that v_rel = v_alf * M_A. 
-            #
-            S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
-            S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
-            
-            # Min and Max expected flux density to be received for Saur-Turnpenney model, in erg/s/Hz/cm2
-            Flux_r_S_min = S_poynt * dilution_factor_min
-            Flux_r_S_min *= 1e26 # Flux density, in mJy
-            Flux_r_S_max = S_poynt * dilution_factor_max
-            Flux_r_S_max *= 1e26 # Flux density, in mJy
-
-            # Min and Max expècted flux density to be received for Zarka-Lanza model, in erg/s/Hz/cm2
-            Flux_r_S_ZL_min = S_poynt_ZL * dilution_factor_min
-            Flux_r_S_ZL_min *= 1e26 # Flux density, in mJy
-            Flux_r_S_ZL_max = S_poynt_ZL * dilution_factor_max
-            Flux_r_S_ZL_max *= 1e26 # Flux density, in mJy
-            
+            # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
+            # Zarka/Lanza (Flux_r_S_ZL...)
+            Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
+                                                          Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
 
             ###########################################################################
             ####                  PLOTTING                                         ####

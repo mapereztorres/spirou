@@ -469,3 +469,111 @@ def Mdot_star(R_star, M_star, Prot_star):
     Omega_star = 2*np.pi / (Prot_star*86400)
     Mdot = M_dot_sun_fit * (R_star/R_sun)**2 * (Omega_star/Omega_sun_fit)**a * (M_star/M_sun)**b
     return Mdot
+
+def beam_solid_angle(beta_min, beta_max):
+    """ Computes beam solid angle for the ECM emission cone 
+        We assume an emission cone with half-opening angle theta and angular width d_theta.
+        theta and d_theta are related to the speed of the electrons as 
+        theta ~ d_theta ~ v/c = beta (see Melrose and Dulk YYYY and Dulk ARA&A, YYYY
+
+        The solid angle, Omega, of a cone with half-opening angle, theta, is 
+        Omega = 2*np.pi * (1. - np.cos(theta))
+        Therefore, a cone sheet with inner half-opening angle, theta, and angular width d_theta
+        has a solid angle Omega = 2*np.pi* ( np.cos (theta - d_theta/2) - np.cos(theta +d_theta/2)) 
+
+        If we don't fix the beam solid angle of the emission, we can constrain other parameters, e.g., 
+        eps, the efficienty factor in converting energy into Poynting flux.
+
+        OUTPUT: Omega_min and Omega_max
+                Omega_min - Float: Minimun beam solid angle, in sterradians
+                Omega_max - Float: Maximum beam solid angle, in sterradians
+
+        INPUT:  beta_min and beta_max
+                beta_min - minimum speed of electrons emitting via ECM, in units of the speed of light
+                beta_max - Maximum speed of electrons emitting via ECM, in units of the speed of light
+    """
+    Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
+    Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
+    Omega_min = min(Omega_1, Omega_2)
+    Omega_max = max(Omega_1, Omega_2)
+
+    return Omega_min, Omega_max
+
+def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f):
+    """
+    # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
+    # Applies if  M_A is small (<< 1)
+    # Note that for the geometric factor, we follow Turnpenney's definition, so 
+    # the factor is sin^2(theta), not cos^2(theta)
+    # Saur says that the power is "per hemisphere", as Zarka below
+    #
+    # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
+    # Poynting flux, in mks units
+
+    # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
+    # They have a value which is different by a factor 2 * M_A * alpha^2
+    # In addition, they include a geometric factor of order 1/2.
+    #
+    #ZL_factor = 0.5
+    #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
+
+    # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
+    # Alfvén conductance as defined in Neubaur.
+    # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
+    # In this sense, this is the same as in the expresion by Saur, 
+    # so there seems to be a factor of two discrepancy, 
+    # if taken into account that v_rel = v_alf * M_A. 
+    #
+    """
+    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
+                    * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
+    S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
+    
+    S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
+    S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
+    
+    return S_poynt, S_poynt_ZL
+
+def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_ZL):
+    """ Computes the minimum and maximum expected flux densities to be received at
+        Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
+    """
+    dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
+    Flux_r_S_min = S_poynt * dilution_factor_min
+    Flux_r_S_min *= 1e26 # Flux density, in mJy
+    Flux_r_S_max = S_poynt * dilution_factor_max
+    Flux_r_S_max *= 1e26 # Flux density, in mJy
+
+    Flux_r_S_ZL_min = S_poynt_ZL * dilution_factor_min
+    Flux_r_S_ZL_min *= 1e26 # Flux density, in mJy
+    Flux_r_S_ZL_max = S_poynt_ZL * dilution_factor_max
+    Flux_r_S_ZL_max *= 1e26 # Flux density, in mJy
+
+    return Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max
+
+def power_estimations(flux, Delta_nu_obs, flux_min, flux_max):
+    """ To BE UPDATED
+        Computes in-band radio power received from one whole hemisphere of the star, and
+    the minimum and maximum power, depending of the efficiency of the conversion of
+    power into Poynting flux"
+            # 
+            #power  = 2*np.pi * flux * mJy * d**2 * Delta_nu_obs 
+
+            # The range of allowed powers, considering the beamed solid angle
+            # and the possible total bandwidth
+            # 
+
+            #
+            #power_min = power/(2*np.pi) * (flux_min/flux) * Omega_min * Delta_nu_cycl/Delta_nu_obs
+            #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
+            #
+            # Range of values for the star-ward Poynting flux
+            #Poynt_min = power_min / eps_max 
+            #Poynt_max = power_max / eps_min 
+    """
+    dummy = 1
+    return dummy
+
+
