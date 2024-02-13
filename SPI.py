@@ -28,8 +28,8 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
-from prepare_output_table import *             ################################################################################3
-from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target
+
+from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, define_lists
 
 
 # Create output directory for the results 
@@ -61,7 +61,7 @@ else:
 # magnetized_pl_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
 #magnetized_pl_arr= [0]
 #Bfield_pl = 0.5
-
+planet_name_list,star_name_list, d_star_list, mass_star_list, radius_star_list, p_rot_list,  bfield_star_list, a_list,  p_orb_list,eccentricity_list,q_list,Q_list, mass_planet_list, radius_planet_list,T_cor_list, m_dot_list, nu_pl_list, nu_cycl_list, rho_pl_list, B_pl_list, B_sw_list, v_alf_list, M_A_list, Flux_r_S_ZL_min_list, Flux_r_S_ZL_max_list, P_Bpl_list, P_dyn_list, P_th_list, P_Bsw_list, Rmp_list=define_lists()
 ### Select data in the array to run the code on
 print(source_data)
 print(data)
@@ -80,7 +80,7 @@ data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
 for indi in star_array:
-    d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb = load_target(data, indi)
+    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity = load_target(data, indi)
 
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
@@ -463,7 +463,7 @@ for indi in star_array:
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
             if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):            
                 planet_name_list.append(Exoplanet)
-                star_name_list.append(full_table['star_name'][indi])
+                star_name_list.append(starname)
                 d_star_list.append("{:.2f}".format(d/pc))
                 mass_star_list.append("{:.3f}".format(M_star/M_sun))
                 radius_star_list.append("{:.3f}".format(R_star/R_sun))
@@ -471,9 +471,9 @@ for indi in star_array:
                 bfield_star_list.append("{:.2f}".format(B_star))
                 a_list.append("{0:.3f}".format(r_orb/au))
                 p_orb_list.append("{0:.3f}".format(P_orb))
-                eccentricity_list.append("{0:.3f}".format(full_table['eccentricity'][indi]))
-                q_list.append("{0:.3f}".format((1-full_table['eccentricity'][indi])*r_orb/au))
-                Q_list.append("{0:.3f}".format((1+full_table['eccentricity'][indi])*r_orb/au))    
+                eccentricity_list.append("{0:.3f}".format(eccentricity))
+                q_list.append("{0:.3f}".format((1-eccentricity)*r_orb/au))
+                Q_list.append("{0:.3f}".format((1+eccentricity)*r_orb/au))    
                 mass_planet_list.append("{:.2f}".format(Mp/M_earth))
                 radius_planet_list.append("{:.2f}".format(Rp/R_earth))
                 T_cor_list.append("{:.2e}".format(T_corona))
@@ -517,7 +517,7 @@ parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_s
 output = pd.DataFrame(parameters)
 
             
-output.to_csv('out_table.csv')
+output.to_csv('OUTPUT/out_table.csv')
             
             
             
