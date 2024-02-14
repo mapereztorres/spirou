@@ -62,11 +62,8 @@ else:
 #magnetized_pl_arr= [0]
 #Bfield_pl = 0.5
 
-#Here we call many empty lists to be used later in the final table
-#variables=define_lists()
-#locals().update(variables)
-
-all_lists=table_lists()
+#Call many empty lists to be used later in out_table
+all_lists = table_lists()
 
 ### Select data in the array to run the code on
 print(source_data)
@@ -107,7 +104,7 @@ for indi in planet_array:
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
-    print('M_star_dot :',M_star_dot)
+    
 
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
@@ -119,9 +116,6 @@ for indi in planet_array:
     Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
 
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
-    print('R_star = ', R_star)
-    print('r_orb = ', r_orb)
-    print('P_orb = ', P_orb)
     Nsteps = int(2*d_orb_max)
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
@@ -201,6 +195,7 @@ for indi in planet_array:
                     r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
+                    print('Exoplanet :', Exoplanet)
                     print('B_planet after applying Sano scaling law:', B_planet)
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
@@ -211,7 +206,6 @@ for indi in planet_array:
             else:  # unmagnetized planet
                 print('Unmagnetized planet\n')
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
-            print('format of B_planet_arr', type(B_planet_arr)) 
             #
             # Effective radius of the obstacle
             # Case 1. À la Saur+2013. 
