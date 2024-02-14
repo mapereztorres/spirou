@@ -29,7 +29,7 @@ from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
 
-from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, define_lists
+from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
 
 
 # Create output directory for the results 
@@ -63,9 +63,10 @@ else:
 #Bfield_pl = 0.5
 
 #Here we call many empty lists to be used later in the final table
-variables=define_lists()
-locals().update(variables)
+#variables=define_lists()
+#locals().update(variables)
 
+all_lists=table_lists()
 
 ### Select data in the array to run the code on
 print(source_data)
@@ -493,7 +494,8 @@ for indi in planet_array:
             #output_table=pd.copy(data)
             #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
-            if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):            
+            if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):  
+                """          
                 planet_name_list.append(Exoplanet)
                 star_name_list.append(starname)
                 d_star_list.append("{:.2f}".format(d/pc))
@@ -524,8 +526,16 @@ for indi in planet_array:
                 P_th_list.append("{:.2e}".format(P_th_sw[loc_pl][0]))
                 P_Bsw_list.append("{:.2e}".format(P_B_sw[loc_pl][0]))
                 Rmp_list.append("{:.2e}".format(Rmp[loc_pl][0]/Rp))
+                """
+                all_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
+                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
+                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
+                    )
             
 # dictionary of lists 
+"""
 parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_star(pc)': d_star_list,
               'mass_star(m_sun)':mass_star_list, 'radius_star(r_sun)': radius_star_list, 
               'p_rot(days)': p_rot_list, 'bfield_star(gauss)': bfield_star_list, 'a(au)':a_list,
@@ -535,7 +545,18 @@ parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_s
               'nu_cycl':nu_cycl_list,'rho_pl':rho_pl_list,'B_pl':B_pl_list,'B_sw':B_sw_list,'v_alf':v_alf_list,
               'M_A':M_A_list,'Flux_r_S_ZL_min':Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':Flux_r_S_ZL_max_list,
               'P_Bpl':P_Bpl_list,'P_dyn':P_dyn_list,'P_th':P_th_list,'P_Bsw':P_Bsw_list,'Rmp':Rmp_list
-}   
+}
+"""
+parameters = {'planet_name': all_lists.planet_name_list, 'star_name': all_lists.star_name_list, 'd_star(pc)': all_lists.d_star_list,
+              'mass_star(m_sun)':all_lists.mass_star_list, 'radius_star(r_sun)': all_lists.radius_star_list, 
+              'p_rot(days)': all_lists.p_rot_list, 'bfield_star(gauss)': all_lists.bfield_star_list, 'a(au)':all_lists.a_list,
+              'p_orb(days)':all_lists.p_orb_list,'eccentricity':all_lists.eccentricity_list,'q':all_lists.q_list,'Q':all_lists.Q_list,
+              'mass_planet(m_earth)':all_lists.mass_planet_list, 'radius_planet(r_earth)': all_lists.radius_planet_list,
+              'T_cor(K)':all_lists.T_cor_list, 'mass_loss_rate(solar)':all_lists.m_dot_list, 'nu_pl':all_lists.nu_pl_list,
+              'nu_cycl':all_lists.nu_cycl_list,'rho_pl':all_lists.rho_pl_list,'B_pl':all_lists.B_pl_list,'B_sw':all_lists.B_sw_list,'v_alf':all_lists.v_alf_list,
+              'M_A':all_lists.M_A_list,'Flux_r_S_ZL_min':all_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':all_lists.Flux_r_S_ZL_max_list,
+              'P_Bpl':all_lists.P_Bpl_list,'P_dyn':all_lists.P_dyn_list,'P_th':all_lists.P_th_list,'P_Bsw':all_lists.P_Bsw_list,'Rmp':all_lists.Rmp_list
+}      
 output = pd.DataFrame(parameters)
 
             
