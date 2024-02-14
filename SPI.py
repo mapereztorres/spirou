@@ -81,11 +81,20 @@ data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
 #data['p_rot(days)'].replace('', np.nan, inplace=True)
 # Remove targets without p_rot
 data.dropna(subset=['p_rot(days)'], inplace=True)
+# Do not use stars with P_rot smaller than 10 days
+data = data[data['p_rot(days)'] > 10.0]
 data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
-for indi in star_array:
-    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity = load_target(data, indi)
+
+
+if COMPUTE_ALL:
+    planet_array = range(round(len(data)/1))
+else:
+    planet_array = compute_planets
+    
+for indi in planet_array:
+    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
 
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
@@ -101,7 +110,7 @@ for indi in star_array:
 
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
-    Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission  assumed to be  (0.5 * gyrofreq)
+    Delta_nu_cycl = 0.5 * gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
     # Common properties for star and planet
     # 
@@ -109,6 +118,9 @@ for indi in star_array:
     Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
 
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    print('R_star = ', R_star)
+    print('r_orb = ', r_orb)
+    print('P_orb = ', P_orb)
     Nsteps = int(2*d_orb_max)
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
@@ -182,11 +194,13 @@ for indi in star_array:
                 if B_planet_law == 'Sano':
                     # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                     # Assumes a tidally locked planet, i.e., the rotation period of the
-                    # planet equals its orbital one.
+                    # planet equals its orbital one. 
+                    # WARNING: For small rotation periods, the inferred magnetic field
+                    # is too large to be reliable at all.
                     r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
-                    print(B_planet)
+                    print('B_planet after applying Sano scaling law:', B_planet)
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
                     B_planet = B_planet_default  # B_planet, in Tesla
@@ -244,6 +258,14 @@ for indi in star_array:
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
 
+            """
+            Moving parts of plotting outside the loop
+            """
+            # Find out the position of the planet in the distance array
+            d_diff = np.abs((d_orb-r_orb)/R_star)
+            loc_pl = np.where(d_diff == d_diff.min())
+
+            """
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
@@ -318,7 +340,7 @@ for indi in star_array:
             ax1.set_xlim([xmin, xmax])
             ax2.set_xlim([xmin, xmax])
 
-            #ax1.set_xscale('log')
+            #ax1.set_xscale('log')
             #ax2.set_xscale('log')
             #VALORES ORIGINALES
             ymin_ax1=-3
@@ -462,7 +484,12 @@ for indi in star_array:
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
+            """
 
+
+            #### TEMPORARY TABLE
+            ####################
+            
             #output_table=pd.copy(data)
             #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
@@ -477,36 +504,26 @@ for indi in star_array:
                 a_list.append("{0:.3f}".format(r_orb/au))
                 p_orb_list.append("{0:.3f}".format(P_orb))
                 eccentricity_list.append("{0:.3f}".format(eccentricity))
-                q_list.append("{0:.3f}".format((1-eccentricity)*r_orb/au))
-                Q_list.append("{0:.3f}".format((1+eccentricity)*r_orb/au))    
+                q_list.append("{0:.3f}".format(q/au))
+                Q_list.append("{0:.3f}".format(Q/au))    
                 mass_planet_list.append("{:.2f}".format(Mp/M_earth))
                 radius_planet_list.append("{:.2f}".format(Rp/R_earth))
                 T_cor_list.append("{:.2e}".format(T_corona))
-                m_dot_list.append("{:.2f}".format(M_star_dot))
+                m_dot_list.append("{:.2e}".format(M_star_dot))
                 nu_pl_list.append("{:.2f}".format(nu_plasma_corona/1e6))
                 nu_cycl_list.append("{:.2f}".format(gyrofreq/1e6))
-                print(type(rho_sw_planet))
-                print(rho_sw_planet)
-                print(type(rho_sw_planet[0]))
-                print(rho_sw_planet[0])
-                print("{:.2f}".format(rho_sw_planet[0]))
-                print(type(rho_sw_planet[loc_pl]))
-                print(rho_sw_planet[loc_pl][0])
                 rho_pl_list.append("{:.2f}".format(rho_sw_planet[loc_pl][0]))
-                print(B_planet[loc_pl][0])
-                B_pl_list.append("{:.2f}".format(B_planet[loc_pl][0]))
-                B_sw_list.append("{:.2f}".format(B_sw[loc_pl][0]))
-                v_alf_list.append("{:.3e}".format(v_alf[loc_pl][0]))
-                M_A_list.append("{:.2f}".format(M_A[loc_pl][0]))
-                Flux_r_S_ZL_min_list.append("{:.2f}".format(Flux_r_S_ZL_min[loc_pl][0]))          
-                Flux_r_S_ZL_max_list.append("{:.2f}".format(Flux_r_S_ZL_max[loc_pl][0]))   
-                P_Bpl_list.append("{:.2f}".format(P_B_planet[loc_pl][0]))
-                print('P_dyn_sw[loc_pl] :',P_dyn_sw[loc_pl][0])
-                P_dyn_list.append("{:.3e}".format(P_dyn_sw[loc_pl][0]))
-                P_th_list.append("{:.3e}".format(P_th_sw[loc_pl][0]))
-                P_Bsw_list.append("{:.3e}".format(P_B_sw[loc_pl][0]))
-                Rmp_list.append("{:.2f}".format(Rmp[loc_pl][0]/Rp))
-                print('Rmp_list :',Rmp_list)
+                B_pl_list.append("{:.2e}".format(B_planet[loc_pl][0]))
+                B_sw_list.append("{:.2e}".format(B_sw[loc_pl][0]))
+                v_alf_list.append("{:.2e}".format(v_alf[loc_pl][0]))
+                M_A_list.append("{:.2e}".format(M_A[loc_pl][0]))
+                Flux_r_S_ZL_min_list.append("{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]))          
+                Flux_r_S_ZL_max_list.append("{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]))
+                P_Bpl_list.append("{:.2e}".format(P_B_planet[loc_pl][0]))
+                P_dyn_list.append("{:.2e}".format(P_dyn_sw[loc_pl][0]))
+                P_th_list.append("{:.2e}".format(P_th_sw[loc_pl][0]))
+                P_Bsw_list.append("{:.2e}".format(P_B_sw[loc_pl][0]))
+                Rmp_list.append("{:.2e}".format(Rmp[loc_pl][0]/Rp))
             
 # dictionary of lists 
 parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_star(pc)': d_star_list,
@@ -522,24 +539,8 @@ parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_s
 output = pd.DataFrame(parameters)
 
             
+# Generate table with useful SPI parameters to generate various plots
 output.to_csv('OUTPUT/out_table.csv')
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+
+# Generate plots from data in out_table.csv
+os.system('python plot_out_table.py')

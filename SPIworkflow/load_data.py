@@ -211,10 +211,11 @@ def load_target(data, indi):
         if pd.isna(Rp): 
             Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
         Rp *= R_earth # Planetary radius, in cm
-        # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
-        r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+        P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days
+        r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
+        if pd.isna(r_orb): # If there is no mass value, use mass * sin(i)
+            r_orb = spi.Kepler_r(M_star/M_sun, P_orb) * au
         eccentricity=data['eccentricity'][indi]
-        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
     else:
         # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
         Exoplanet = 'Earth'
@@ -224,7 +225,11 @@ def load_target(data, indi):
         eccentricity=0
         P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
-    return starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity
+    # compute periastron (q) and apoastron (Q), in cm
+    q = (1 - eccentricity) * r_orb 
+    Q = (1 + eccentricity) * r_orb
+
+    return starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q
 
 
 def define_lists():
