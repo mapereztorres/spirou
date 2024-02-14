@@ -212,9 +212,9 @@ def load_target(data, indi):
             Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
         Rp *= R_earth # Planetary radius, in cm
         P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days
-        r_orb  = data['a(au)'][indi]*au   # orbital distance, in cm
+        r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
         if pd.isna(r_orb): # If there is no mass value, use mass * sin(i)
-            r_orb = spi.Kepler_r(M_star/M_sun, P_orb)
+            r_orb = spi.Kepler_r(M_star/M_sun, P_orb) * au
         eccentricity=data['eccentricity'][indi]
     else:
         # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
