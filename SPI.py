@@ -544,16 +544,26 @@ output.to_csv('OUTPUT/out_table.csv')
 #######
 ####### PLOT OUT_TABLE
 #######
-fig = plt.figure(figsize=(4*16,4*15))
+scale = 2.0
+fig = plt.figure(figsize = (scale*16, scale*9))
 # plot flux_max (in mJy) vs. nu_cycl (in MHz)
 ax = fig.add_subplot(111) 
 #
-ax.set_xlim([300,1e4])
-ax.set_ylim([0.05, 2e4])
+xlim1 = 400; xlim2 = 1.1e4
+ylim1 = 0.05; ylim2 = 2e4
+rms_thresh = 1e2
+#
+ax.set_xlim([xlim1, xlim2])
+ax.set_ylim([ylim1, ylim2])
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.set_xlabel(r"$\nu_{\rm cycl, max}$ [MHz]")
-ax.set_ylabel(r"$S_{\nu, {\rm max}}$ [$\mu$Jy]")
+ax.set_xlabel(r"$\nu_{\rm cycl, max}$ [MHz]", fontsize = 50 )
+ax.set_ylabel(r"$S_{\nu, {\rm max}}$ [$\mu$Jy]", fontsize = 50)
+ax.set_title(r'Predicted radio SPI flux - Stellar dipole and magnetized planet',
+        fontsize = 50)
+
+ax.tick_params(axis='x', labelsize=40)
+ax.tick_params(axis='y', labelsize=40)
 
 """
 flux_max = output['Flux_r_S_ZL_max'].to_numpy()
@@ -562,25 +572,34 @@ planet_name = output['planet_name'].to_numpy()
 print(type(flux_max), type(nu_cycl), type(planet_name))
 """
 flux_max = np.array(Flux_r_S_ZL_max_list)
+flux_min = np.array(Flux_r_S_ZL_min_list)
 nu_cycl  = np.array(nu_cycl_list)
 planet_name  = np.array(planet_name_list)
 # flux_max in microJy
 flux_max = flux_max.astype(np.float) * 1e3
+flux_min = flux_min.astype(np.float) * 1e3
 nu_cycl  = nu_cycl.astype(np.float) 
 
-loc_flux_max = np.where(flux_max >= 2e4)
-print('planet name of outlier = ', planet_name[loc_flux_max])
+#loc_flux_max = np.where(flux_max >= 2e4)
+#print('planet name of outlier = ', planet_name[loc_flux_max])
 
-plt.scatter(nu_cycl, flux_max)
+print('flux_max/flux_min',flux_max/flux_min)
+
+plt.scatter(nu_cycl, flux_max, s = 200)
 for xi, yi, text in zip(nu_cycl, flux_max, planet_name):
     ax.annotate(text,
                 xy=(xi, yi), xycoords='data',
-                xytext=(1.5, 1.5), textcoords='offset points')
-    
+                xytext=(2.0, 2.0), textcoords='offset points')
+#plt.scatter(nu_cycl, flux_min, s = 200, c = 'green')
+
+ax.fill_between(np.array([xlim1, xlim2]),  ylim1, rms_thresh, color="red", alpha=0.2, label="Non-detectable")
+ax.axhline(y=rms_thresh, ls='-.', color='black', lw=2)
+ax.errorbar(x=1e4, y=1.0, xerr=0, yerr=np.log10(eps_max/eps_min), uplims = False, lw = 10)
+
 #for i in enumerate(planet_name):
     #ax.text(nu_cycl[i], flux_max[i], planet_name[i])
-plt.savefig('out_table_plot.pdf')
-os.system('evince out_table_plot.pdf')
-plt.show()
+plt.savefig('./OUTPUT/out_table_plot.pdf')
+os.system('evince ./OUTPUT/out_table_plot.pdf')
+#plt.show()
 
 
