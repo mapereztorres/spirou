@@ -79,8 +79,13 @@ data.dropna(subset=['p_rot(days)'], inplace=True)
 data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
-for indi in star_array:
-    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity = load_target(data, indi)
+if COMPUTE_ALL:
+    planet_array = range(round(len(data)/2))
+else:
+    planet_array = compute_planets
+    
+for indi in planet_array:
+    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
 
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
@@ -96,7 +101,7 @@ for indi in star_array:
 
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
-    Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission  assumed to be  (0.5 * gyrofreq)
+    Delta_nu_cycl = 0.5 * gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
     # Common properties for star and planet
     # 
@@ -104,6 +109,9 @@ for indi in star_array:
     Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
 
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    print('R_star = ', R_star)
+    print('r_orb = ', r_orb)
+    print('P_orb = ', P_orb)
     Nsteps = int(2*d_orb_max)
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
@@ -239,6 +247,14 @@ for indi in star_array:
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
 
+            """
+            Moving parts of plotting outside the loop
+            """
+            # Find out the position of the planet in the distance array
+            d_diff = np.abs((d_orb-r_orb)/R_star)
+            loc_pl = np.where(d_diff == d_diff.min())
+
+            """
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
@@ -457,7 +473,12 @@ for indi in star_array:
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
+            """
 
+
+            #### TEMPORARY TABLE
+            ####################
+            
             #output_table=pd.copy(data)
             #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
@@ -472,8 +493,8 @@ for indi in star_array:
                 a_list.append("{0:.3f}".format(r_orb/au))
                 p_orb_list.append("{0:.3f}".format(P_orb))
                 eccentricity_list.append("{0:.3f}".format(eccentricity))
-                q_list.append("{0:.3f}".format((1-eccentricity)*r_orb/au))
-                Q_list.append("{0:.3f}".format((1+eccentricity)*r_orb/au))    
+                q_list.append("{0:.3f}".format(q/au))
+                Q_list.append("{0:.3f}".format(Q/au))    
                 mass_planet_list.append("{:.2f}".format(Mp/M_earth))
                 radius_planet_list.append("{:.2f}".format(Rp/R_earth))
                 T_cor_list.append("{:.2e}".format(T_corona))
@@ -494,7 +515,7 @@ for indi in star_array:
                 v_alf_list.append("{:.3e}".format(v_alf[loc_pl][0]))
                 M_A_list.append("{:.2f}".format(M_A[loc_pl][0]))
                 Flux_r_S_ZL_min_list.append("{:.2f}".format(Flux_r_S_ZL_min[loc_pl][0]))          
-                Flux_r_S_ZL_max_list.append("{:.2f}".format(Flux_r_S_ZL_max[loc_pl][0]))   
+                Flux_r_S_ZL_max_list.append("{:.2f}".format(Flux_r_S_ZL_max[loc_pl][0]))
                 P_Bpl_list.append("{:.2f}".format(P_B_planet[loc_pl][0]))
                 print('P_dyn_sw[loc_pl] :',P_dyn_sw[loc_pl][0])
                 P_dyn_list.append("{:.3e}".format(P_dyn_sw[loc_pl][0]))
@@ -517,24 +538,30 @@ parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_s
 output = pd.DataFrame(parameters)
 
             
+# Generate table with useful SPI parameters to generate various plots
 output.to_csv('OUTPUT/out_table.csv')
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+
+"""
+flux_max = output['Flux_r_S_ZL_max'].to_numpy()
+nu_cycl  = output['nu_cycl'].to_numpy()
+planet_name = output['planet_name'].to_numpy()
+print(type(flux_max), type(nu_cycl), type(planet_name))
+"""
+flux_max = np.array(Flux_r_S_ZL_max_list)
+nu_cycl  = np.array(nu_cycl_list)
+planet_name  = np.array(planet_name_list)
+
+print(type(flux_max), type(nu_cycl), type(planet_name))
+
+fig = plt.figure(figsize=(16,15))
+#ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+# plot flux_max (in mJy) vs. nu_cycl (in MHz)
+#p = plt.plot(nu_cycl, flux_max)
+ax = fig.add_subplot(111) 
+nu_cycl_s, flux_max_s = zip(*sorted(zip(nu_cycl, flux_max)))
+plt.scatter(nu_cycl_s, flux_max_s)
+#for i in enumerate(planet_name):
+    #ax.text(nu_cycl[i], flux_max[i], planet_name[i])
+plt.show()
+
+
