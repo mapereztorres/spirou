@@ -80,7 +80,7 @@ data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
 if COMPUTE_ALL:
-    planet_array = range(round(len(data)/2))
+    planet_array = range(round(len(data)/1))
 else:
     planet_array = compute_planets
     
@@ -329,7 +329,7 @@ for indi in planet_array:
             ax1.set_xlim([xmin, xmax])
             ax2.set_xlim([xmin, xmax])
 
-            #ax1.set_xscale('log')
+            #ax1.set_xscale('log')
             #ax2.set_xscale('log')
             #VALORES ORIGINALES
             ymin_ax1=-3
@@ -498,7 +498,7 @@ for indi in planet_array:
                 mass_planet_list.append("{:.2f}".format(Mp/M_earth))
                 radius_planet_list.append("{:.2f}".format(Rp/R_earth))
                 T_cor_list.append("{:.2e}".format(T_corona))
-                m_dot_list.append("{:.2f}".format(M_star_dot))
+                m_dot_list.append("{:.2e}".format(M_star_dot))
                 nu_pl_list.append("{:.2f}".format(nu_plasma_corona/1e6))
                 nu_cycl_list.append("{:.2f}".format(gyrofreq/1e6))
                 print(type(rho_sw_planet))
@@ -510,18 +510,18 @@ for indi in planet_array:
                 print(rho_sw_planet[loc_pl][0])
                 rho_pl_list.append("{:.2f}".format(rho_sw_planet[loc_pl][0]))
                 print(B_planet[loc_pl][0])
-                B_pl_list.append("{:.2f}".format(B_planet[loc_pl][0]))
-                B_sw_list.append("{:.2f}".format(B_sw[loc_pl][0]))
-                v_alf_list.append("{:.3e}".format(v_alf[loc_pl][0]))
-                M_A_list.append("{:.2f}".format(M_A[loc_pl][0]))
-                Flux_r_S_ZL_min_list.append("{:.2f}".format(Flux_r_S_ZL_min[loc_pl][0]))          
-                Flux_r_S_ZL_max_list.append("{:.2f}".format(Flux_r_S_ZL_max[loc_pl][0]))
-                P_Bpl_list.append("{:.2f}".format(P_B_planet[loc_pl][0]))
+                B_pl_list.append("{:.2e}".format(B_planet[loc_pl][0]))
+                B_sw_list.append("{:.2e}".format(B_sw[loc_pl][0]))
+                v_alf_list.append("{:.2e}".format(v_alf[loc_pl][0]))
+                M_A_list.append("{:.2e}".format(M_A[loc_pl][0]))
+                Flux_r_S_ZL_min_list.append("{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]))          
+                Flux_r_S_ZL_max_list.append("{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]))
+                P_Bpl_list.append("{:.2e}".format(P_B_planet[loc_pl][0]))
                 print('P_dyn_sw[loc_pl] :',P_dyn_sw[loc_pl][0])
-                P_dyn_list.append("{:.3e}".format(P_dyn_sw[loc_pl][0]))
-                P_th_list.append("{:.3e}".format(P_th_sw[loc_pl][0]))
-                P_Bsw_list.append("{:.3e}".format(P_B_sw[loc_pl][0]))
-                Rmp_list.append("{:.2f}".format(Rmp[loc_pl][0]/Rp))
+                P_dyn_list.append("{:.2e}".format(P_dyn_sw[loc_pl][0]))
+                P_th_list.append("{:.2e}".format(P_th_sw[loc_pl][0]))
+                P_Bsw_list.append("{:.2e}".format(P_B_sw[loc_pl][0]))
+                Rmp_list.append("{:.2e}".format(Rmp[loc_pl][0]/Rp))
                 print('Rmp_list :',Rmp_list)
             
 # dictionary of lists 
@@ -541,6 +541,20 @@ output = pd.DataFrame(parameters)
 # Generate table with useful SPI parameters to generate various plots
 output.to_csv('OUTPUT/out_table.csv')
 
+#######
+####### PLOT OUT_TABLE
+#######
+fig = plt.figure(figsize=(4*16,4*15))
+# plot flux_max (in mJy) vs. nu_cycl (in MHz)
+ax = fig.add_subplot(111) 
+#
+ax.set_xlim([300,1e4])
+ax.set_ylim([0.05, 2e4])
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel(r"$\nu_{\rm cycl, max}$ [MHz]")
+ax.set_ylabel(r"$S_{\nu, {\rm max}}$ [$\mu$Jy]")
+
 """
 flux_max = output['Flux_r_S_ZL_max'].to_numpy()
 nu_cycl  = output['nu_cycl'].to_numpy()
@@ -550,18 +564,23 @@ print(type(flux_max), type(nu_cycl), type(planet_name))
 flux_max = np.array(Flux_r_S_ZL_max_list)
 nu_cycl  = np.array(nu_cycl_list)
 planet_name  = np.array(planet_name_list)
+# flux_max in microJy
+flux_max = flux_max.astype(np.float) * 1e3
+nu_cycl  = nu_cycl.astype(np.float) 
 
-print(type(flux_max), type(nu_cycl), type(planet_name))
+loc_flux_max = np.where(flux_max >= 2e4)
+print('planet name of outlier = ', planet_name[loc_flux_max])
 
-fig = plt.figure(figsize=(16,15))
-#ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
-# plot flux_max (in mJy) vs. nu_cycl (in MHz)
-#p = plt.plot(nu_cycl, flux_max)
-ax = fig.add_subplot(111) 
-nu_cycl_s, flux_max_s = zip(*sorted(zip(nu_cycl, flux_max)))
-plt.scatter(nu_cycl_s, flux_max_s)
+plt.scatter(nu_cycl, flux_max)
+for xi, yi, text in zip(nu_cycl, flux_max, planet_name):
+    ax.annotate(text,
+                xy=(xi, yi), xycoords='data',
+                xytext=(1.5, 1.5), textcoords='offset points')
+    
 #for i in enumerate(planet_name):
     #ax.text(nu_cycl[i], flux_max[i], planet_name[i])
+plt.savefig('out_table_plot.pdf')
+os.system('evince out_table_plot.pdf')
 plt.show()
 
 
