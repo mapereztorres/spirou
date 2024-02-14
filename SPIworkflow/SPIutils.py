@@ -5,9 +5,50 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
+from scipy.special import lambertw
 
 
 # FUNCTION DEFINITIONS 
+
+def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle):
+    """Computes the radial, azimuthal components of the stellar wind magnetic field for
+    an open (Parker spiral) and a closed (dipolar) magnetic field topologies of the host
+    star.
+    OUTPUT:
+    INPUT: 
+    ...
+    """
+    if open_field: 
+        # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
+        B_r = B_star * (d_orb/R_star)**(-2) # Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
+        B_phi = B_r * v_corot/v_sw # Azimuthal field (Eqn 21 Turnpenney 2018)
+        B_sw = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
+    else:
+        # Closed, dipolar configuration - It falls with distance as R^(-3)
+        # B_star - magnetic field at the magnetic equator on the stellar surface
+        # 
+        phi = 0. # azimuth, measured from the North magnetic pole of the star (in degrees)
+        phi *= np.pi/180. # to radians
+        B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(phi) # Radial component of the dipole magnetic field of the stellar wind as f(distance to star)
+        B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(phi) # Azimuthal component of the dipole magnetic field 
+        B_sw = np.sqrt(B_r**2 + B_phi**2) # Total dipole magnetic field 
+
+    # Eq. 23 of Turnpenney 2018 -  First term of RHS
+    B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
+
+    # Angle between the stellar wind magnetic field and the impinging plasma velocity
+    # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
+    theta = np.absolute(B_ang - v_rel_angle) 
+
+    geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
+    if open_field:
+        # theta is the angle between the B_sw (the insterstellar magnetic field), and the
+        # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
+        #
+        geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
+
+    return B_r, B_phi, B_sw, B_ang, theta, geom_f
+
 def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)
 
@@ -18,6 +59,14 @@ def Kepler_r(M_star, P_orb):
     r_orb = (G * M_star*M_sun)**(1/3) * (P_orb*day/2/np.pi)**(2/3)/au
     return r_orb
 
+def Kepler_P(M_star, r_orb):
+    """Computes the orbital period (P_orb) of a planet (in days) of a planet
+       orbiting a star of mass M_star (in solar masses) and semi-major axis (r_orb), in au.
+    """
+    
+    P_orb = 2*np.pi * (G * M_star*M_sun)**(-1/2) * (r_orb*au)**(3/2)/day
+    return P_orb
+
 def beta_keV(E_kin=511):
     """ Computes the velocity of an electron with kinetic energy E_k, in units of the speed of light
         OUTPUT: beta (= particle speed / speed of light)
@@ -26,6 +75,20 @@ def beta_keV(E_kin=511):
     E_0 = 511.0 # Rest mass of the electron, in keV
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
+
+def Rp_Zeng(Mp = 1.0):
+    """ Computes the planet radius using the mass-radius relationship in 
+        in Zeng et al. (PNAS, 2019): 
+        https://www.pnas.org/content/116/20/9723
+        R [R_earth] = f * (M/M_earth)^(1/3.7)  (for rocky planets, f=1.)
+        
+        OUTPUT: Rp - planet radius, in units of Earth radius 
+        INPUT:  Mp - planet mass, in units of Earth mass
+        We assume f = 1 (Earth-like rocky planet)
+    """
+    f = 1.0
+    Rp = f * Mp**(1/3.7)
+    return Rp
 
 def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
     """ Computes the surface magnetic field strength of a planet using the Sano scaling law.
@@ -36,15 +99,15 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
                 Omega_rot_planet: Rotational speed of the planet. It is assumed that the 
                         planets are tidally locked, hence P_rot_planet = P_orb_planet. 
                         In units of the rotational speed of Earth (radians/sec) 
-                rho_core - Planet outer core density, in g/cm^3. For now, fixed to the
-                value of the density of the Earth's outer core. 
+                rho_core - Planet outer core density, in g/cm^3. 
     """
     # Scaling law for the planet's core radius, from Curtis & Ness (1986)
     r_core = M_planet**0.44 # in units of r_core_Earth
-    Magn_moment_planet = Omega_rot_planet * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
-    B_planet  = Magn_moment_planet / R_planet**3 # in units of B_earth
+    rho_core = M_planet / R_planet**3
+    magn_moment_planet = Omega_rot_planet * rho_core**(1/2) * r_core**(7/2) # Magnetic moment, in units of Earth magn. moment
+    B_planet  = magn_moment_planet / R_planet**3 # in units of B_earth
  
-    return B_planet
+    return r_core, rho_core, magn_moment_planet, B_planet
 
 def R_planet_eff_func(Rp, theta_M, B_planet, B_tot):
     """ Computes the effective obstacle radius for the planet. 
@@ -81,21 +144,88 @@ def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     Ltot_rad = Lnu_rad * nu_ecm
     return Ltot_rad
     
-def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, mu=0.5):
+def v_stellar_wind(d_orb, M_star, T_corona, m_av):
+    """ This function computes the sound speed (v_sound, in cm/s) and the sonic point (r_sonic) of
+        an isothermal stellar wind. v_sound only depends on the temperature of the corona,
+        T_corona. The sonic point, r_sonic, also depends on the mass of the star, M_star. 
+        It also computes the stellar wind speed, in cm/s, at every distance (d_orb) from the star. 
+
+        The stellar wind speed is computed as in Turnpenney+18, using the Lambert W
+        function,  with D_r obtained using Eq. 18. In turn, Eq. 18 is taken from Eq. 15 in Cranmer 2004. 
+
+       OUTPUT:  v_sound (cm/s) - Float: Sound speed of the isothermal stellar wind, in cm/s.
+                v_sw  (cm/s)   - Array: Stellar wind speed at every distance in d_orb
+       INPUT:   d_orb (cm)     - Array: Distances, measured from the center of the star
+                M_star (g)     - Float: Mass of star, in grams
+                T_corona (K)   - Float: Temperature at the base of the corona, in Kelvin
+                m_av     (g)   - Float: Average particle mass of the stellar wind, in grams
+    """
+    v_sound = np.sqrt(k_B * T_corona / m_av) 
+    r_sonic =  G * M_star / (2 * v_sound**2) # Radius of sonic point, in cgs units
+
+    D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
+    v_sw2 = np.zeros(len(d_orb), dtype=complex)
+    v_sw  = np.zeros(len(d_orb))
+
+    for i in range(len(d_orb)):
+        if (d_orb[i]/r_sonic) >= 1.0:
+            v_sw2[i] = -v_sound**2 * lambertw(-D_r[i], k=-1)
+        else: 
+            v_sw2[i] = -v_sound**2 * lambertw(-D_r[i], k=0)
+        # The actual speeed is the real part of v_sw2[i]
+        v_sw[i]  = np.sqrt(v_sw2[i].real)
+
+    return v_sound, r_sonic, v_sw
+    
+def wind_composition(X_p = 0.5):
+    """ Computes fraction of electrons, mean "molecular weight" and average particle
+    mass of the stellar wind, given the fraction of protons.
+    OUTPUT: X_e - fraction of electrons of the stellar wind
+            mu  - mean "molecular" weight of the stellar wind
+            m_av - average particle mass of the stellar wind (in gr)
+    INPUT : X_p - fraction of protons
+    """
+    X_e = 1 - X_p
+    mu = (X_p * m_p + X_e * m_e)/(m_p + m_e) 
+    m_av = mu * m_p  
+
+    return X_e, mu, m_av
+
+def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = 0.5 * m_p):
     """ Computes the particle density of the stellar wind at some distance d from the
         center of the star.
         OUTPUT: n_sw - particle density of the stellar wind at distance d, in #/cm^3
         INPUT:  M_star_dot - stellar mass-loss rate, in units of the Sun mass-loss rate
                 d          - distance from the center of the star, in cm 
                 v_sw       - Speed of stellar wind at distance d, in cm/s
-                mu         - mean molecular weight in the wind
+                m_av       - average particle mass of the stellar wind (= mu * m_p) in grams
     """
     M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
     M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
-    m_av  =  mu * m_p # average particle mass of the solar wind, in grams
-    rho = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
     n_sw = rho / m_av
+
     return n_sw
+
+def get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw):
+    """Computes Alfvén parameters in the stellar wind at a distance d_orb (though
+    n_sw_planet, B_sw, v_rel).
+       OUTPUT
+       INPUT
+    """
+    # Alfven speed and Mach Number
+    #v_alf = 2.18e11 * B_sw / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
+    #v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) 
+    # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
+    v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw_planet) * 1./np.sqrt(1 + (B_sw**2/(4.*np.pi * rho_sw_planet * c**2)))
+    M_A   = v_rel/v_alf # Alfven mach number
+    
+    #Radial Alfvén speed
+    mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
+    v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw_planet) # in cm/s
+    M_A_radial = np.abs(v_sw / v_alf_r)
+
+    return v_alf, M_A, v_alf_r, M_A_radial
 
 def plasma_freq(n_e = 1.0):
     """ Returns the plasma frequency.
@@ -109,6 +239,22 @@ def plasma_freq(n_e = 1.0):
     """
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
+
+def get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw):
+    """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
+       Saur+2013, A&A).  It depends on the orientation, theta_M, of the intrinsic planetary
+       magnetic field (B_planet_arr) wrt the external magnetic field of the stellar wind (B_sw).
+    OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
+    INPUT : Rp           (cm) - Float: Planet radius, in cm
+            theta_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
+                                wind magnetic field, in radians
+            B_planet_arr (G)  - Array: Planetary magnetic field, in Gauss
+            B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
+    """
+    R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
+    R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+
+    return R_planet_eff
 
 def get_P_dyn_sw(n_sw=1e7, mu=0.5, v_rel=1e7):
     """Computes the dynamical pressure of the stellar wind at the orbital distance 
@@ -266,7 +412,9 @@ def B_starmass(star_mass,Prot):
     B_mass= 199*Ro_mass**alpha
   elif Ro_mass<0.13:
     print('Fast rotator')
-    B_mass= 2050*Ro_mass**alpha_fast
+    B_mass= 2050*Ro_mass**alpha_fast    
+  else:
+    print('Uncertain regime: Ro=',Ro_mass)
   return B_mass
 
 def B_color(starname,star_mass,Prot):
@@ -321,3 +469,111 @@ def Mdot_star(R_star, M_star, Prot_star):
     Omega_star = 2*np.pi / (Prot_star*86400)
     Mdot = M_dot_sun_fit * (R_star/R_sun)**2 * (Omega_star/Omega_sun_fit)**a * (M_star/M_sun)**b
     return Mdot
+
+def beam_solid_angle(beta_min, beta_max):
+    """ Computes beam solid angle for the ECM emission cone 
+        We assume an emission cone with half-opening angle theta and angular width d_theta.
+        theta and d_theta are related to the speed of the electrons as 
+        theta ~ d_theta ~ v/c = beta (see Melrose and Dulk YYYY and Dulk ARA&A, YYYY
+
+        The solid angle, Omega, of a cone with half-opening angle, theta, is 
+        Omega = 2*np.pi * (1. - np.cos(theta))
+        Therefore, a cone sheet with inner half-opening angle, theta, and angular width d_theta
+        has a solid angle Omega = 2*np.pi* ( np.cos (theta - d_theta/2) - np.cos(theta +d_theta/2)) 
+
+        If we don't fix the beam solid angle of the emission, we can constrain other parameters, e.g., 
+        eps, the efficienty factor in converting energy into Poynting flux.
+
+        OUTPUT: Omega_min and Omega_max
+                Omega_min - Float: Minimun beam solid angle, in sterradians
+                Omega_max - Float: Maximum beam solid angle, in sterradians
+
+        INPUT:  beta_min and beta_max
+                beta_min - minimum speed of electrons emitting via ECM, in units of the speed of light
+                beta_max - Maximum speed of electrons emitting via ECM, in units of the speed of light
+    """
+    Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
+    Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
+    Omega_min = min(Omega_1, Omega_2)
+    Omega_max = max(Omega_1, Omega_2)
+
+    return Omega_min, Omega_max
+
+def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f):
+    """
+    # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
+    # Applies if  M_A is small (<< 1)
+    # Note that for the geometric factor, we follow Turnpenney's definition, so 
+    # the factor is sin^2(theta), not cos^2(theta)
+    # Saur says that the power is "per hemisphere", as Zarka below
+    #
+    # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
+    # Poynting flux, in mks units
+
+    # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
+    # They have a value which is different by a factor 2 * M_A * alpha^2
+    # In addition, they include a geometric factor of order 1/2.
+    #
+    #ZL_factor = 0.5
+    #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
+
+    # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
+    # Alfvén conductance as defined in Neubaur.
+    # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
+    # In this sense, this is the same as in the expresion by Saur, 
+    # so there seems to be a factor of two discrepancy, 
+    # if taken into account that v_rel = v_alf * M_A. 
+    #
+    """
+    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
+                    * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
+    S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
+    
+    S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
+    S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
+    
+    return S_poynt, S_poynt_ZL
+
+def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_ZL):
+    """ Computes the minimum and maximum expected flux densities to be received at
+        Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
+    """
+    dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
+    Flux_r_S_min = S_poynt * dilution_factor_min
+    Flux_r_S_min *= 1e26 # Flux density, in mJy
+    Flux_r_S_max = S_poynt * dilution_factor_max
+    Flux_r_S_max *= 1e26 # Flux density, in mJy
+
+    Flux_r_S_ZL_min = S_poynt_ZL * dilution_factor_min
+    Flux_r_S_ZL_min *= 1e26 # Flux density, in mJy
+    Flux_r_S_ZL_max = S_poynt_ZL * dilution_factor_max
+    Flux_r_S_ZL_max *= 1e26 # Flux density, in mJy
+
+    return Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max
+
+def power_estimations(flux, Delta_nu_obs, flux_min, flux_max):
+    """ To BE UPDATED
+        Computes in-band radio power received from one whole hemisphere of the star, and
+    the minimum and maximum power, depending of the efficiency of the conversion of
+    power into Poynting flux"
+            # 
+            #power  = 2*np.pi * flux * mJy * d**2 * Delta_nu_obs 
+
+            # The range of allowed powers, considering the beamed solid angle
+            # and the possible total bandwidth
+            # 
+
+            #
+            #power_min = power/(2*np.pi) * (flux_min/flux) * Omega_min * Delta_nu_cycl/Delta_nu_obs
+            #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
+            #
+            # Range of values for the star-ward Poynting flux
+            #Poynt_min = power_min / eps_max 
+            #Poynt_max = power_max / eps_min 
+    """
+    dummy = 1
+    return dummy
+
+

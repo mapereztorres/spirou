@@ -1,13 +1,59 @@
 import numpy as np
+from SPIworkflow.constants import *
 
+
+###################################
 ### INPUT TABLE
+###################################
+EXOPLANETS = True
 
-raw_data = './INPUT/SPI-targets-raw.csv'
-source_data = './INPUT/SPI-targets.csv'
+# If true, it reads a table with stellar systems hosting planets, so 
+# the code expects info from the planets.
+if EXOPLANETS == True:
+    source_data = './INPUT/SPI-targets.csv'
+else:
+    source_data = './INPUT/SPI-NO-planets.csv'
+
 selection_criteria = False
+
+sweep="RAD"
+
+#####################################################
+# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
+#####################################################
+#star_array = range(len(data))
+star_array = [1]
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
+
+#####################################
+# MAGNETIC FIELD SETUP
+#####################################
+# Setting the stellar magnetic field geometry and the value of the 
+# intensity of the planetary magnetic field
+# 
+# Stellar magnetic field geometry
+# The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
+#                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
+Bfield_geom_arr = [0]
+
+# magnetized_pl_arr is a [False,True] array
+# False: Unmagnetized planet 
+# True : Magnetized planet
+# 
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
+
+# Computation of planetary magnetic field
+# B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
+# B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
+B_planet_law = 'Sano'
+#B_planet_law = 'None'
+
+# Default planetary magnetic field, in Tesla
+B_planet_default = bfield_earth 
+
 
 ###################################
 # OBSERVED PARAMETERS
@@ -53,8 +99,11 @@ T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of 
 # STELLAR WIND
 #####################################
 
-# Is the stellar plasma assumed to be isothermal?
+# Is the stellar wind plasma assumed to be isothermal?
 isothermal = True 
+
+# Fully ionized, purely hydrogen stellar wind plasma (=> 50% protons, 50% electrons)
+X_p = 0.5 # fraction of protons
 
 #####################################
 # SUB-ALFVENIC INTERACTION parameters
@@ -70,6 +119,18 @@ eps_min = 0.01; eps_max = 0.05
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
+
+# Minimum and maximum kinetic energy of electrons emitting via ECM, in keV
+# Electrons are mildly relativistic, so 20 to 200 keV energies should be good values, 
+# but a choice from 10 to 511 keV (=m_e * c^2) should be also  OK. 
+Ekin_min = 20 
+Ekin_max = 200
+
+##
+which_beam_solid_angle = 'Jupiter-Io'
+#which_beam_solid_angle = 'Computed'
+
+
 
 
 #####################################

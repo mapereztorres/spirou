@@ -1,5 +1,9 @@
 import os
 import pandas as pd
+import numpy as np
+import SPIworkflow.SPIutils as spi
+from SPIworkflow.__init__ import *
+from SPIworkflow.constants import *
 
 
 def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
@@ -69,9 +73,9 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
             "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
     else: 
         df2 = df[["planet_name", "star_name",  
-            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
-            "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)",
-            "M_star_dot(M_sun_dot)"]]
+            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
+            "e_bfield_star", "radius_planet(r_earth)", "mass_planet(m_earth)",
+            "mass_sini", "p_orb(days)", "a(au)" ]]
 
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
@@ -183,3 +187,39 @@ def create_data_tables(infile_data='./INPUT/SPI-targets.csv'):
         df_no_planets.to_csv(outfile_no_planets)
 
     return outdir, df_planets, df_no_planets 
+
+def load_target(data, indi):
+    """Loads data for each target in input data frame
+    OUTPUT:
+    INPUT: 
+    """
+    d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
+    R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
+    M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
+    P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
+    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+
+    # Read info for planets in table
+    if source_data == './INPUT/SPI-targets.csv':
+        # Planet - 
+        Exoplanet = data['planet_name'][indi]
+        Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
+        if pd.isna(Mp): # If there is no mass value, use mass * sin(i)
+            Mp = data['mass_sini'][indi] * M_earth 
+        Rp = data['radius_planet(r_earth)'][indi]
+        if pd.isna(Rp): 
+            Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+        Rp *= R_earth # Planetary radius, in cm
+        # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
+        r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
+        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+    else:
+        # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
+        Exoplanet = 'Earth'
+        Mp = M_earth # Planetary mass, in grams
+        Rp = R_earth # Planetary radius, in cm
+        r_orb  = 0.2 * au    # orbital distance, in cm
+        P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
+
+    return d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb
+

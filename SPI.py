@@ -29,13 +29,7 @@ from SPIworkflow.__init__ import *
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
             
-from SPIworkflow.data import get_spi_data, create_data_tables
-
-# In the future, use function n_wind (under SPIworkflow)
-# ## Instead of using particle density, we'll use M_dot 
-# ### Currently, this function isn't used for the calculations
-#
-# n_w = n_wind(M_star_dot, r0=R_sun, v_r0=1.0)
+from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target
 
 
 # Create output directory for the results 
@@ -56,209 +50,152 @@ else:
      data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
 
 
-# Assume fully ionized, purely hydrogen plasma (=> 50% protons, 50% electrons)
-mu = (0.5*m_p + 0.5*m_e)/(m_p + m_e) # mean "molecular weight"
-m_av = mu * m_p  # average mass density
-
-# Isothermal Parker wind (assumed)
-# Isothermal sound speed, in cm/s- Depends only on the Temperature of the stellar corona
-vsound = np.sqrt(k_B * T_corona / m_av) 
-
-
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
 #                        Bfield_geom_arr = 0 - closed dipolar geometry
-#Bfield_geom_arr = [0, 1]
-Bfield_geom_arr = [0, 1]
+#Bfield_geom_arr = [0]
 
-# B_planet_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
-B_planet_arr= [0, 1]
-Bfield_pl = 0.5
+# magnetized_pl_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
+#magnetized_pl_arr= [0]
+#Bfield_pl = 0.5
 
 ### Select data in the array to run the code on
 print(source_data)
 print(data)
-#star_array = range(len(data))
-#star_array = [0, 1, 2]
-star_array = [0]
+
+### Table initialization
+# 
+# Create column for M_star_dot to fill it with values
+data['M_star_dot(M_sun_dot)']=''
+# If bfield_star(gauss) is missing, set it to np.nan
+data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+# If p_rot is missing, set it to np.nan
+#data['p_rot(days)'].replace('', np.nan, inplace=True)
+# Remove targets without p_rot
+data.dropna(subset=['p_rot(days)'], inplace=True)
+data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
+data.reset_index(inplace=True) # to prevent funny jumps in the indices
 
 for indi in star_array:
-    d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
-    R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
-    M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
-    P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
+    d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb = load_target(data, indi)
+
+    # Fill B_star column if empty. Uses original units from table
+    if pd.isna(B_star):
+        data['bfield_star(gauss)'][indi] = spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
+        # Eventually include uncertainties in B _star
+        data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+
+    data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
+        M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     print('M_star_dot :',M_star_dot)
-  
-    # Planet - 
-    Exoplanet = data['planet_name'][indi]
-    Rp = data['radius_planet(r_earth)'][indi]*R_earth # Planetary radius, in cm
-    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-    r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-    P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+
+    # Electron gyrofrequency and ECM bandwidth 
+    gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
+    Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission  assumed to be  (0.5 * gyrofreq)
+
+    # Common properties for star and planet
+    # 
+    M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
+    Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
+
+    d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    Nsteps = int(2*d_orb_max)
+
+    #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
+    if sweep=="RAD":
+      d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+    else:
+      d_orb=[r_orb]
+    #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
+    #print(len(d_orb))
+    v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
+    v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+
+    #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
+    Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
+
+    # Get wind composition, from the fraction of protons
+    X_e, mu, m_av = spi.wind_composition(X_p)
+
+    # Compute stellar wind velocity at each value of d_orb
+    v_sound, r_sonic, v_sw = spi.v_stellar_wind(d_orb, M_star, T_corona, m_av)
+
+    v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
+     
+
+    # Plasma number density at base of the corona
+    n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, m_av) 
+
+    # Maximum plasma frequency at the base of the corona. If the ECM
+    # freq is less than the plasma frequency, the emission is
+    # completely absorbed 
+    nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
+
+    #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
     
-    for ind in Bfield_geom_arr:
-        for ind1 in B_planet_arr:
+    # Eq. 23 of Turnpenney+18 - Second term of RHS 
+    # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
+    # 
+    v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
+    v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
+    
+    # n_sw_planet - Number density of the wind at orbital distance to the planet. 
+    # If the stellar plasma is assumed to be isothermal, then 
+    # the density falls down as ~ R^(-2) * v_sw^(-1).
+    # Alternatively, we fix the density at the distance of the planet from the host star.
+    if isothermal:
+        #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
+        n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
+    else:
+        n_sw_planet = np.ones(len(d_orb)) * 1e4  # fixed                 
 
-            # Common properties for star and planet
-            # 
-            Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
-            M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
-        
-            r_sonic =  G * M_star / (2 * vsound**2) # Radius of sonic point
+    rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
 
-            # MPT: The two lines below ("Nsteps" and "d_orb" should be outside this loop, 
-            # but for some reason to be understood, the first time results in v_sw[0] = 0, which in turn results
-            # in a division by zero. This causes exiting the program. So, for now, we keep those lines inside the loop, which 
-            # prevents the zeroth value. Maybe the line v_sw = np.zeros(len(d_orb)) is causing the trouble? Check it
-            #Nsteps = 10
-            #d_orb_max = 2*r_orb/R_star # Max. orbital distance, in units of R_star
-            d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
-            Nsteps = int(2*d_orb_max)
-            #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-            d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
-            #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
-            #print(len(d_orb))
-            v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
-            v_corot = d_orb * Omega_star # Corotation speed (cm/s)
-
-            #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
-            Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
-
-            #
-            # The stellar wind speed is computed as in Turnpenney+18
-            # using the Lambert W function
-            # D_r as in Eq. 18 of Turnpenney+2018, which is taken from eq. 15 in Cranmer 2004
-            D_r = (d_orb/r_sonic)**(-4) * np.exp(4*(1 - r_sonic/d_orb) - 1)
-            v_sw2 = np.zeros(len(d_orb), dtype=complex)
-            v_sw  = np.zeros(len(d_orb))
-
-            for i in range(len(d_orb)):
-                if (d_orb[i]/r_sonic) >= 1.0:
-                    v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=-1)
-                else: 
-                    v_sw2[i] = -vsound**2 * lambertw(-D_r[i], k=0)
-                # The actual speeed is the real part of v_sw2[i]
-                v_sw[i]  = np.sqrt(v_sw2[i].real)
-
-            v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
-            
-            # Plasma number density at base of the corona
-            n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, mu) 
-
-            # Maximum plasma frequency at the base of the corona. If the ECM
-            # freq is less than the plasma frequency, the emission is
-            # completely absorbed 
-            nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
-
-            #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
-            
-            # Eq. 23 of Turnpenney+18 - Second term of RHS 
-            # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
-            # 
-            v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
-            v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
-            
-            # n_sw_planet - Number density of the wind at orbital distance to the planet. 
-            # 
-            # If the stellar plasma is assumed to be isothermal, then 
-            # the density falls down as ~ R^(-2) * v_sw^(-1).
-            #
-            # Alternatively, we fix the density at the distance of the planet from the host star.
-            #
-            if isothermal:
-                #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
-                n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, mu) # Plasma number density at distance (R/R_star)
+    for ind in range(len(Bfield_geom_arr)):
+        for ind1 in range(len(magnetized_pl_arr)):
+            if Bfield_geom_arr[ind]:
+                print("\nOpen Parker magnetic field geometry")
             else:
-                n_sw_planet = 1e4  # fixed                 
-                
+                print("\nClosed dipolar magnetic field geometry")
+           
             # Magnetic field geometry
             # open_field - defines the geometry of the magnetic field
             open_field = Bfield_geom_arr[ind]
+            B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
             
-            if open_field: 
-                # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
-                B_r = B_star * (d_orb/R_star)**(-2) # Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
-                B_phi = B_r * v_corot/v_sw # Azimuthal field (Eqn 21 Turnpenney 2018)
-                B_sw = np.sqrt(B_r**2 + B_phi**2) # Total stellar wind B-field at planet orbital distance
+            # Compute Alfvén parameters in the stellar wind at a distance d_orb 
+            v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
 
-                # Eq. 23 of Turnpenney 2018 -  First term of RHS
-                B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
-
-                # Angle between the stellar wind magnetic field and the impinging plasma velocity
-                # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
-                theta = np.absolute(B_ang - v_rel_angle) 
-
-                # theta is the angle between the B_sw (the insterstellar magnetic field), and the
-                # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
+            # defines whether planet is unmagnetized (magnetized_pl_arr[ind1] = 0), or magnetized (magnetized_pl_arr[ind1] = 1)
+            if magnetized_pl_arr[ind1]: # magnetized planet
+                print('Magnetized planet\n')
+                if B_planet_law == 'Sano':
+                    # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
+                    # Assumes a tidally locked planet, i.e., the rotation period of the
+                    # planet equals its orbital one.
+                    r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
+                                               R_planet = Rp / R_earth, 
+                                               Omega_rot_planet = Omega_planet / Omega_earth)  
+                    B_planet *= bfield_earth  # B_planet, in Tesla
+                else: 
+                    B_planet = B_planet_default  # B_planet, in Tesla
                 #
-                geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
-            else:
-                # Closed, dipolar configuration - It falls with distance as R^(-3)
-                # B_star - magnetic field at the magnetic equator on the stellar surface
-                # 
-                phi = 0. # azimuth, measured from the North magnetic pole of the star (in degrees)
-                phi *= np.pi/180. # to radians
-
-                B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(phi) # Radial component of the dipole magnetic field of the stellar wind as f(distance to star)
-                B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(phi) # Azimuthal component of the dipole magnetic field 
-                B_sw = np.sqrt(B_r**2 + B_phi**2) # Total dipole magnetic field 
-
-                geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
-
-            # Alfven speed and Mach Number
-            rho_sw = m_av * n_sw_planet #wind density, in g * cm^(-3)
-            #v_alf = 2.18e11 * B_sw / np.sqrt(n_sw_planet) # Alfven speed at the distance of the planet, in cm/s
-            #v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) 
-            # Relativistically corrected Alfvén speed, as v_alf must be less than the speed of light
-            v_alf = B_sw / np.sqrt(4.0 * np.pi * rho_sw) * 1./np.sqrt(1 + (B_sw**2/(4.*np.pi * rho_sw * c**2)))
-            M_A   = v_rel/v_alf # Alfven mach number
-            
-            #Radial Alfvén speed
-            mu_0_cgs = 1.0 # magnetic permeability in vacuum, in cgs units
-            v_alf_r = B_r / np.sqrt(mu_0_cgs * rho_sw) # in cm/s
-            M_A_radial = np.abs(v_sw / v_alf_r)
-
-            #print('Relative speed = {0:.1e} km/s \n', format(v_rel/1e5))
-            #print('Alfvén speed   = {0:.1e} km/s \n', format(v_alf/1e5))
-            #print('Alfvén Mach number = {0:.3f} \n', format(M_A))
-            #print('v_alf_rel/v_alf  = {0:.1e} km/s \n', format(v_alf_rel/v_alf))
-
-            #print('Wind speed   = {0:.1e} km/s \n', format(v_sw/1e5))
-            #print('Alfvén radial speed = {0:.1e} km/s \n', format(v_alf_r/1e5))
-            #print('Alfvén radial Mach number = {0:.3f} \n', format(M_A_radial))
-
-
-            # defines whether planet is unmagnetized (B_planet_arr[ind1] = 0), or magnetized (B_planet_arr[ind1] = 1)
-            if B_planet_arr[ind1]: # magnetized planet
-                # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
-                # This is a simple Sano(1993) scaling law dependence, assuming a tidally locked planet, 
-                # core_radius equal to the Earth radius, and core density equal to that of the Earth.
-                B_planet = spi.bfield_sano(M_planet = Mp/M_earth, R_planet =
-                            Rp/R_earth, Omega_rot_planet =
-                            Omega_planet/Omega_earth) 
-                
-                B_planet *= bfield_earth * Tesla2Gauss # in Gauss 
-                # For now, force B_planet = Bfield_pl
-                B_planet  = np.ones(len(d_orb)) * Bfield_pl 
+                B_planet    *=  Tesla2Gauss #  B_planet, in Gauss 
+                B_planet_arr = np.ones(len(d_orb)) * B_planet  
             else:  # unmagnetized planet
-                B_planet  = np.zeros(len(d_orb)) # unmagnetized planet
-            
+                print('Unmagnetized planet\n')
+                B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
+            print('format of B_planet_arr', type(B_planet_arr)) 
             #
             # Effective radius of the obstacle
-
             # Case 1. À la Saur+2013. 
-            #
-            # Effective radius of the Alfvén wing, in units of R_p (R_obst in Eq. 57 of Saur+2013, A&A)
-            # It depends on the orientation, theta_M, of the intrinsic planetary
-            # magnetic field (B_planet) wrt the external magnetic field (B_sw).
-            #
-            R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet/B_sw)**(1./3.) # in cm
-            R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw)
+
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
             #
@@ -266,7 +203,7 @@ for indi in star_array:
             # pressures
             
             # Planet pressure - only the magnetic component is considered
-            P_B_planet  = spi.get_P_B_planet(B_planet) 
+            P_B_planet  = spi.get_P_B_planet(B_planet_arr) 
 
             # Stellar wind pressure
             P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
@@ -278,128 +215,28 @@ for indi in star_array:
 
             # The effective radius is the radius of the magnetopause
             R_planet_eff = Rmp
+
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
-
-            # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
-            # Applies if  M_A is small (<< 1)
-            # Note that for the geometric factor, we follow Turnpenney's definition, so 
-            # the factor is sin^2(theta), not cos^2(theta)
-            # Saur says that the power is "per hemisphere", as Zarka below
-            #
-            # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
-            mu_0 = 4*np.pi*1e-7 # magnetic permeability in vacuum, in mks units
-            # Poynting flux, in mks units
-            S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
-                            * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0 * geom_f
-            S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
+            # Compute min and max speed of electrons emitting via ECM, in units of the speed of light 
+            beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
             
-            # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
-            # They have a value which is different by a factor 2 * M_A * alpha^2
-            # In addition, they include a geometric factor of order 1/2.
-            #
-            #ZL_factor = 0.5
-            #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
-
-            # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
-            # Alfvén conductance as defined in Neubaur.
-            # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
-            # In this sense, this is the same as in the expresion by Saur, 
-            # so there seems to be a factor of two discrepancy, 
-            # if taken into account that v_rel = v_alf * M_A. 
-            #
-            S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                            * (B_sw/1e4)**2 * geom_f / mu_0 * np.pi*(R_planet_eff/1e2)**2 
-            S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
+            # Beam solid angle covered by the ECM emission, in sterradians
+            if which_beam_solid_angle == 'Jupiter-Io':
+                bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
+                Omega_min = bsa_Omega; Omega_max = bsa_Omega
+            else:
+                # Get the minimum and maximum values of the beam solid angle for the cone of emission 
+                Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
             
-            # Beam solid angle covered by the ECM emission
-            # It depends on the kinetic energy of electrons (as beta is determined from them), in keV
-            #
-            #Ekin_min = 10 ; Ekin_max = 511        
-            Ekin_min = 20 ; Ekin_max = 200
-            beta_min = spi.beta_keV(Ekin_min) 
-            beta_max = spi.beta_keV(Ekin_max)
-            
-            # BEAM SOLID ANGLE
-            # We assume an emission cone with half-opening angle theta and angular width d_theta.
-            # theta and d_theta are related to the speed of the electrons as theta \approx d_theta \approx v/c = beta
-            # 
-            # The solid angle, Omega, of a cone with half-opening angle, theta, 
-            # is Omega = 2*np.pi * (1. - np.cos(theta))
-            # Therefore, a cone sheet with inner half-opening angle, theta, and angular width d_theta
-            # has a solid angle Omega = 2*np.pi* ( np.cos (theta - d_theta/2) - np.cos(theta +d_theta/2)) 
-            
-            #Range of beam solid angles (Omega) for the emitter depends on beta_min and beta_max
-            Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
-            Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
-            
-            # beam solid angle of the emitter / 4*pi 
-            # Check why I (MPT) wrote " /4*pi" in the previous line 
-            Omega_min = min(Omega_1, Omega_2)
-            Omega_max = max(Omega_1, Omega_2)
+            # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
+            # 2007 (S_poyn_ZL), in cgs units. They coincide, except for a factor 2. 
+            S_poynt, S_poynt_ZL = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f)
 
-            
-            #print("beta_min of electrons (E_k={0:.1f} keV) = {1:.3f}; \n beta_max of electrons (E_k={2:.1f} keV) = {3:.3f}".\
-            #      format(Ekin_min, beta_min, Ekin_max, beta_max))
-            #print("Half-opening angle of emission cone: theta_min = {0:.1f} deg; theta_max = {1:.1f} deg".\
-            #       format(np.arccos(beta_max)*180./np.pi, np.arccos(beta_min)*180/np.pi))
-            #print("(Angular) width of emission cone: theta_min = {0:.1f} deg; theta_max = {1:.1f} deg".\
-            #       format(beta_min*180./np.pi, beta_max*180/np.pi))
-            #print("solid angles: Min = {0:.3f}; Max = {1:.3f}".format(Omega_min, Omega_max))
-            #print(" ")
-
-            # in-band radio power received from one whole hemisphere
-            #power  = 2*np.pi * flux * mJy * d**2 * Delta_nu_obs 
-
-            # The range of allowed powers, considering the beamed solid angle
-            # and the possible total bandwidth
-            # 
-            gyrofreq = e*B_star/(2*np.pi * m_e * c)
-            Delta_nu_cycl = 0.5 * gyrofreq # width of ECMI emission = (0.5 * gyrofreq)
-        
-            #Fix flux_min = flux_max = flux
-            #flux_min = flux_max = flux 
-
-            #
-            #power_min = power/(2*np.pi) * (flux_min/flux) * Omega_min * Delta_nu_cycl/Delta_nu_obs
-            #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
-            #
-            # Range of values for the star-ward Poynting flux
-            #Poynt_min = power_min / eps_max 
-            #Poynt_max = power_max / eps_min 
-
-            #print("In-band power (from 1 whole hemisphere) =  {0:.2e}".format(power))
-            #print("power (from 1 sr)  =  {0:.2e}".format(power/2/np.pi * Delta_nu_cycl/Delta_nu_obs))
-            #print("power_min =  {0:.2e}; power_max = {1:.2e}".format(power_min, power_max))
-            #print("Poynting fluxes: Min = {0:.2e}; Max = {1:.2e}".format(Poynt_min, Poynt_max))
-            # Flux density received at Earth (from the theoretically expected Poynting flux)
-            # 
-            
-            #beam solid angle of the ECMI emission, in sterradians. There is no need to fix this value, as this is
-            #given by the population of electrons. If we don't fix it, we can constrain other parameters, e.g., 
-            # eps, the efficienty factor in converting energy into Poynting flux.
-            bsa_Omega = 1.6 
-
-            # For simplicity, take Omega_min = Omega_max = Omega
-            #Omega_min = Omega_max = Omega
-            Omega_min = bsa_Omega
-            Omega_max = bsa_Omega
-            
-            dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
-            dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
-
-            # Min and Max expected flux density to be received for Saur-Turnpenney model, in erg/s/Hz/cm2
-            Flux_r_S_min = S_poynt * dilution_factor_min
-            Flux_r_S_min *= 1e26 # Flux density, in mJy
-            Flux_r_S_max = S_poynt * dilution_factor_max
-            Flux_r_S_max *= 1e26 # Flux density, in mJy
-
-            # Min and Max expècted flux density to be received for Zarka-Lanza model, in erg/s/Hz/cm2
-            Flux_r_S_ZL_min = S_poynt_ZL * dilution_factor_min
-            Flux_r_S_ZL_min *= 1e26 # Flux density, in mJy
-            Flux_r_S_ZL_max = S_poynt_ZL * dilution_factor_max
-            Flux_r_S_ZL_max *= 1e26 # Flux density, in mJy
-            
+            # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
+            # Zarka/Lanza (Flux_r_S_ZL...)
+            Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
+                                                          Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
 
             ###########################################################################
             ####                  PLOTTING                                         ####
@@ -535,14 +372,14 @@ for indi in star_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
-            B_planet_loc = round(float(B_planet[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
-            #B_planet_loc = int(B_planet[loc_pl]) # Planetary magnetic field, in Gauss
+            B_planet_loc = round(float(B_planet_arr[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
+            #B_planet_loc = int(B_planet_arr[loc_pl]) # Planetary magnetic field, in Gauss
             
             #ax2.text(x=60,y=1.8,s=r"$B_\ast = \,{\rm G}$")
             #ax2.text(x=60,y=1.4,s=r"$B_{\rm pl} = 1 \,{\rm G}$")
             #
             #ax2.text(x=12,y=-1.2,s=r"$B_{\rm cycl}$   = " + str(B_star) + " G ",fontsize='small')
-            #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(B_planet) + " G ", fontsize='small')
+            #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(B_planet_arr) + " G ", fontsize='small')
             #ax2.text(x=12,y=-2.0,s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             #ax2.text(x=3,y=0.1+np.log10(3*rms),s=r"Requested 3$\sigma$", fontsize='x-small')
             xpos =xmax*0.8
@@ -554,13 +391,13 @@ for indi in star_array:
             #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(f'{M_star_dot:.1f}') + "$\dot{M}_\odot$", fontsize='small')
         
-            # save all plots in a specific folder for each planet  
-            print('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
-            try:
+            # Create OUTPUT folder if it doesn't exist
+            FOLDER = 'OUTPUT/'+str(Exoplanet.replace(" ", "_"))
+            if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
-            except:
-                pass 
-            common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
+            else:
+                print(FOLDER+' already exists.')
+            common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet_arr[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if open_field:
                 # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
                 #outfile = Exoplanet + "-Open-Bstar"+ common_string
@@ -582,18 +419,17 @@ for indi in star_array:
                 plt.tight_layout()
                 plt.show()
 
-            # Send output to external file/s
+            ###########################################################
+            ################### Send OUTPUT to external text file/s
+            ###########################################################
 
             outfileTXT = os.path.join(outdir, outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
-                Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
+                Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
                 Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
 
-            
-
-            
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             # First, find out the position of the planet in the distance array
@@ -605,14 +441,14 @@ for indi in star_array:
             #print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
 
             # Print out minimum and maximum values of flux density at the planet location
-            #print("B_star =", B_star, " G; " "B_planet = ", B_planet, " G ")
+            #print("B_star =", B_star, " G; " "B_planet = ", B_planet_arr, " G ")
             #print("\nPrint out Poynting Flux at the planet location")
             #print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
             #print("\nPrint out Poynting Flux at the first cell")
             #print("Saur/Turnpenney (erg/s): ", S_poynt[0])
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
-            print('B_planet = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
+            print('B_planet_loc = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
             #print('Rmp / Rp = {0:.3f} '.format(Rmp[loc_pl]/Rp))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
@@ -621,4 +457,5 @@ for indi in star_array:
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
 
-
+            #output_table=pd.copy(data)
+            #output=output[[
