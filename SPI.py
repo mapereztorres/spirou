@@ -76,8 +76,12 @@ data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
 #data['p_rot(days)'].replace('', np.nan, inplace=True)
 # Remove targets without p_rot
 data.dropna(subset=['p_rot(days)'], inplace=True)
+# Do not use stars with P_rot smaller than 10 days
+data = data[data['p_rot(days)'] > 10.0]
 data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
 data.reset_index(inplace=True) # to prevent funny jumps in the indices
+
+
 
 if COMPUTE_ALL:
     planet_array = range(round(len(data)/1))
@@ -185,11 +189,13 @@ for indi in planet_array:
                 if B_planet_law == 'Sano':
                     # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                     # Assumes a tidally locked planet, i.e., the rotation period of the
-                    # planet equals its orbital one.
+                    # planet equals its orbital one. 
+                    # WARNING: For small rotation periods, the inferred magnetic field
+                    # is too large to be reliable at all.
                     r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
-                    print(B_planet)
+                    print('B_planet after applying Sano scaling law:', B_planet)
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
                     B_planet = B_planet_default  # B_planet, in Tesla
@@ -501,15 +507,7 @@ for indi in planet_array:
                 m_dot_list.append("{:.2e}".format(M_star_dot))
                 nu_pl_list.append("{:.2f}".format(nu_plasma_corona/1e6))
                 nu_cycl_list.append("{:.2f}".format(gyrofreq/1e6))
-                print(type(rho_sw_planet))
-                print(rho_sw_planet)
-                print(type(rho_sw_planet[0]))
-                print(rho_sw_planet[0])
-                print("{:.2f}".format(rho_sw_planet[0]))
-                print(type(rho_sw_planet[loc_pl]))
-                print(rho_sw_planet[loc_pl][0])
                 rho_pl_list.append("{:.2f}".format(rho_sw_planet[loc_pl][0]))
-                print(B_planet[loc_pl][0])
                 B_pl_list.append("{:.2e}".format(B_planet[loc_pl][0]))
                 B_sw_list.append("{:.2e}".format(B_sw[loc_pl][0]))
                 v_alf_list.append("{:.2e}".format(v_alf[loc_pl][0]))
@@ -517,12 +515,10 @@ for indi in planet_array:
                 Flux_r_S_ZL_min_list.append("{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]))          
                 Flux_r_S_ZL_max_list.append("{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]))
                 P_Bpl_list.append("{:.2e}".format(P_B_planet[loc_pl][0]))
-                print('P_dyn_sw[loc_pl] :',P_dyn_sw[loc_pl][0])
                 P_dyn_list.append("{:.2e}".format(P_dyn_sw[loc_pl][0]))
                 P_th_list.append("{:.2e}".format(P_th_sw[loc_pl][0]))
                 P_Bsw_list.append("{:.2e}".format(P_B_sw[loc_pl][0]))
                 Rmp_list.append("{:.2e}".format(Rmp[loc_pl][0]/Rp))
-                print('Rmp_list :',Rmp_list)
             
 # dictionary of lists 
 parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_star(pc)': d_star_list,
@@ -541,65 +537,5 @@ output = pd.DataFrame(parameters)
 # Generate table with useful SPI parameters to generate various plots
 output.to_csv('OUTPUT/out_table.csv')
 
-#######
-####### PLOT OUT_TABLE
-#######
-scale = 2.0
-fig = plt.figure(figsize = (scale*16, scale*9))
-# plot flux_max (in mJy) vs. nu_cycl (in MHz)
-ax = fig.add_subplot(111) 
-#
-xlim1 = 400; xlim2 = 1.1e4
-ylim1 = 0.05; ylim2 = 2e4
-rms_thresh = 1e2
-#
-ax.set_xlim([xlim1, xlim2])
-ax.set_ylim([ylim1, ylim2])
-ax.set_xscale('log')
-ax.set_yscale('log')
-ax.set_xlabel(r"$\nu_{\rm cycl, max}$ [MHz]", fontsize = 50 )
-ax.set_ylabel(r"$S_{\nu, {\rm max}}$ [$\mu$Jy]", fontsize = 50)
-ax.set_title(r'Predicted radio SPI flux - Stellar dipole and magnetized planet',
-        fontsize = 50)
-
-ax.tick_params(axis='x', labelsize=40)
-ax.tick_params(axis='y', labelsize=40)
-
-"""
-flux_max = output['Flux_r_S_ZL_max'].to_numpy()
-nu_cycl  = output['nu_cycl'].to_numpy()
-planet_name = output['planet_name'].to_numpy()
-print(type(flux_max), type(nu_cycl), type(planet_name))
-"""
-flux_max = np.array(Flux_r_S_ZL_max_list)
-flux_min = np.array(Flux_r_S_ZL_min_list)
-nu_cycl  = np.array(nu_cycl_list)
-planet_name  = np.array(planet_name_list)
-# flux_max in microJy
-flux_max = flux_max.astype(np.float) * 1e3
-flux_min = flux_min.astype(np.float) * 1e3
-nu_cycl  = nu_cycl.astype(np.float) 
-
-#loc_flux_max = np.where(flux_max >= 2e4)
-#print('planet name of outlier = ', planet_name[loc_flux_max])
-
-print('flux_max/flux_min',flux_max/flux_min)
-
-plt.scatter(nu_cycl, flux_max, s = 200)
-for xi, yi, text in zip(nu_cycl, flux_max, planet_name):
-    ax.annotate(text,
-                xy=(xi, yi), xycoords='data',
-                xytext=(2.0, 2.0), textcoords='offset points')
-#plt.scatter(nu_cycl, flux_min, s = 200, c = 'green')
-
-ax.fill_between(np.array([xlim1, xlim2]),  ylim1, rms_thresh, color="red", alpha=0.2, label="Non-detectable")
-ax.axhline(y=rms_thresh, ls='-.', color='black', lw=2)
-ax.errorbar(x=1e4, y=1.0, xerr=0, yerr=np.log10(eps_max/eps_min), uplims = False, lw = 10)
-
-#for i in enumerate(planet_name):
-    #ax.text(nu_cycl[i], flux_max[i], planet_name[i])
-plt.savefig('./OUTPUT/out_table_plot.pdf')
-os.system('evince ./OUTPUT/out_table_plot.pdf')
-#plt.show()
-
-
+# Generate plots from data in out_table.csv
+os.system('python plot_out_table.py')
