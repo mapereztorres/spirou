@@ -63,7 +63,11 @@ else:
 #Bfield_pl = 0.5
 
 #Call many empty lists to be used later in out_table
-all_lists = table_lists()
+#all_lists = table_lists()
+dipole_mag_pl_lists   = table_lists()
+dipole_unmag_pl_lists = table_lists()
+spiral_mag_pl_lists   = table_lists()
+spiral_unmag_pl_lists = table_lists()
 
 ### Select data in the array to run the code on
 print(source_data)
@@ -200,12 +204,14 @@ for indi in planet_array:
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
                     B_planet = B_planet_default  # B_planet, in Tesla
+
                 B_planet    *=  Tesla2Gauss #  B_planet, in Gauss 
                 B_planet_arr = np.ones(len(d_orb)) * B_planet  
-                
+                #print('B_planet_arr - B_planet: ', (B_planet_arr - B_planet))
             else:  # unmagnetized planet
                 print('Unmagnetized planet\n')
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
+                B_planet = B_planet_arr
             #
             # Effective radius of the obstacle
             # Case 1. À la Saur+2013. 
@@ -485,77 +491,109 @@ for indi in planet_array:
             #### TEMPORARY TABLE
             ####################
             
+            # dipole_mag_pl_lists   = table_lists()
+
             #output_table=pd.copy(data)
             #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
             if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):  
-                """          
-                planet_name_list.append(Exoplanet)
-                star_name_list.append(starname)
-                d_star_list.append("{:.2f}".format(d/pc))
-                mass_star_list.append("{:.3f}".format(M_star/M_sun))
-                radius_star_list.append("{:.3f}".format(R_star/R_sun))
-                p_rot_list.append("{:.3f}".format(P_rot_star/day))
-                bfield_star_list.append("{:.2f}".format(B_star))
-                a_list.append("{0:.3f}".format(r_orb/au))
-                p_orb_list.append("{0:.3f}".format(P_orb))
-                eccentricity_list.append("{0:.3f}".format(eccentricity))
-                q_list.append("{0:.3f}".format(q/au))
-                Q_list.append("{0:.3f}".format(Q/au))    
-                mass_planet_list.append("{:.2f}".format(Mp/M_earth))
-                radius_planet_list.append("{:.2f}".format(Rp/R_earth))
-                T_cor_list.append("{:.2e}".format(T_corona))
-                m_dot_list.append("{:.2e}".format(M_star_dot))
-                nu_pl_list.append("{:.2f}".format(nu_plasma_corona/1e6))
-                nu_cycl_list.append("{:.2f}".format(gyrofreq/1e6))
-                rho_pl_list.append("{:.2f}".format(rho_sw_planet[loc_pl][0]))
-                B_pl_list.append("{:.2e}".format(B_planet[loc_pl][0]))
-                B_sw_list.append("{:.2e}".format(B_sw[loc_pl][0]))
-                v_alf_list.append("{:.2e}".format(v_alf[loc_pl][0]))
-                M_A_list.append("{:.2e}".format(M_A[loc_pl][0]))
-                Flux_r_S_ZL_min_list.append("{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]))          
-                Flux_r_S_ZL_max_list.append("{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]))
-                P_Bpl_list.append("{:.2e}".format(P_B_planet[loc_pl][0]))
-                P_dyn_list.append("{:.2e}".format(P_dyn_sw[loc_pl][0]))
-                P_th_list.append("{:.2e}".format(P_th_sw[loc_pl][0]))
-                P_Bsw_list.append("{:.2e}".format(P_B_sw[loc_pl][0]))
-                Rmp_list.append("{:.2e}".format(Rmp[loc_pl][0]/Rp))
-                """
-                all_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
+                dipole_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
                     "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
                     "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
                     "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
                     "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
-                    )
+                )
             
-# dictionary of lists 
-"""
-parameters = {'planet_name': planet_name_list, 'star_name': star_name_list, 'd_star(pc)': d_star_list,
-              'mass_star(m_sun)':mass_star_list, 'radius_star(r_sun)': radius_star_list, 
-              'p_rot(days)': p_rot_list, 'bfield_star(gauss)': bfield_star_list, 'a(au)':a_list,
-              'p_orb(days)':p_orb_list,'eccentricity':eccentricity_list,'q':q_list,'Q':Q_list,
-              'mass_planet(m_earth)':mass_planet_list, 'radius_planet(r_earth)': radius_planet_list,
-              'T_cor(K)':T_cor_list, 'mass_loss_rate(solar)':m_dot_list, 'nu_pl':nu_pl_list,
-              'nu_cycl':nu_cycl_list,'rho_pl':rho_pl_list,'B_pl':B_pl_list,'B_sw':B_sw_list,'v_alf':v_alf_list,
-              'M_A':M_A_list,'Flux_r_S_ZL_min':Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':Flux_r_S_ZL_max_list,
-              'P_Bpl':P_Bpl_list,'P_dyn':P_dyn_list,'P_th':P_th_list,'P_Bsw':P_Bsw_list,'Rmp':Rmp_list
-}
-"""
-parameters = {'planet_name': all_lists.planet_name_list, 'star_name': all_lists.star_name_list, 'd_star(pc)': all_lists.d_star_list,
-              'mass_star(m_sun)':all_lists.mass_star_list, 'radius_star(r_sun)': all_lists.radius_star_list, 
-              'p_rot(days)': all_lists.p_rot_list, 'bfield_star(gauss)': all_lists.bfield_star_list, 'a(au)':all_lists.a_list,
-              'p_orb(days)':all_lists.p_orb_list,'eccentricity':all_lists.eccentricity_list,'q':all_lists.q_list,'Q':all_lists.Q_list,
-              'mass_planet(m_earth)':all_lists.mass_planet_list, 'radius_planet(r_earth)': all_lists.radius_planet_list,
-              'T_cor(K)':all_lists.T_cor_list, 'mass_loss_rate(solar)':all_lists.m_dot_list, 'nu_pl':all_lists.nu_pl_list,
-              'nu_cycl':all_lists.nu_cycl_list,'rho_pl':all_lists.rho_pl_list,'B_pl':all_lists.B_pl_list,'B_sw':all_lists.B_sw_list,'v_alf':all_lists.v_alf_list,
-              'M_A':all_lists.M_A_list,'Flux_r_S_ZL_min':all_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':all_lists.Flux_r_S_ZL_max_list,
-              'P_Bpl':all_lists.P_Bpl_list,'P_dyn':all_lists.P_dyn_list,'P_th':all_lists.P_th_list,'P_Bsw':all_lists.P_Bsw_list,'Rmp':all_lists.Rmp_list
+            elif ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1] == False)):  
+                dipole_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
+                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
+                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
+                )
+
+            elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == True)):  
+                spiral_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
+                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
+                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
+                )
+
+            elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == False)):  
+                spiral_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
+                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
+                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
+                )
+
+# dictionaries of lists 
+dipole_mag_pl_dict = {'planet_name': dipole_mag_pl_lists.planet_name_list, 'star_name': dipole_mag_pl_lists.star_name_list, 'd_star(pc)': dipole_mag_pl_lists.d_star_list,
+              'mass_star(m_sun)':dipole_mag_pl_lists.mass_star_list, 'radius_star(r_sun)': dipole_mag_pl_lists.radius_star_list, 
+              'p_rot(days)': dipole_mag_pl_lists.p_rot_list, 'bfield_star(gauss)': dipole_mag_pl_lists.bfield_star_list, 'a(au)':dipole_mag_pl_lists.a_list,
+              'p_orb(days)':dipole_mag_pl_lists.p_orb_list,'eccentricity':dipole_mag_pl_lists.eccentricity_list,'q':dipole_mag_pl_lists.q_list,'Q':dipole_mag_pl_lists.Q_list,
+              'mass_planet(m_earth)':dipole_mag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': dipole_mag_pl_lists.radius_planet_list,
+              'T_cor(K)':dipole_mag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':dipole_mag_pl_lists.m_dot_list, 'nu_pl':dipole_mag_pl_lists.nu_pl_list,
+              'nu_cycl':dipole_mag_pl_lists.nu_cycl_list,'rho_pl':dipole_mag_pl_lists.rho_pl_list,'B_pl':dipole_mag_pl_lists.B_pl_list,'B_sw':dipole_mag_pl_lists.B_sw_list,'v_alf':dipole_mag_pl_lists.v_alf_list,
+              'M_A':dipole_mag_pl_lists.M_A_list,'Flux_r_S_ZL_min':dipole_mag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':dipole_mag_pl_lists.Flux_r_S_ZL_max_list,
+              'P_Bpl':dipole_mag_pl_lists.P_Bpl_list,'P_dyn':dipole_mag_pl_lists.P_dyn_list,'P_th':dipole_mag_pl_lists.P_th_list,'P_Bsw':dipole_mag_pl_lists.P_Bsw_list,'Rmp':dipole_mag_pl_lists.Rmp_list
 }      
-output = pd.DataFrame(parameters)
+
+dipole_mag_pl = pd.DataFrame(dipole_mag_pl_dict)
 
             
-# Generate table with useful SPI parameters to generate various plots
-output.to_csv('OUTPUT/out_table.csv')
+dipole_unmag_pl_dict = {'planet_name': dipole_unmag_pl_lists.planet_name_list, 'star_name': dipole_unmag_pl_lists.star_name_list, 'd_star(pc)': dipole_unmag_pl_lists.d_star_list,
+              'mass_star(m_sun)':dipole_unmag_pl_lists.mass_star_list, 'radius_star(r_sun)': dipole_unmag_pl_lists.radius_star_list, 
+              'p_rot(days)': dipole_unmag_pl_lists.p_rot_list, 'bfield_star(gauss)': dipole_unmag_pl_lists.bfield_star_list, 'a(au)':dipole_unmag_pl_lists.a_list,
+              'p_orb(days)':dipole_unmag_pl_lists.p_orb_list,'eccentricity':dipole_unmag_pl_lists.eccentricity_list,'q':dipole_unmag_pl_lists.q_list,'Q':dipole_unmag_pl_lists.Q_list,
+              'mass_planet(m_earth)':dipole_unmag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': dipole_unmag_pl_lists.radius_planet_list,
+              'T_cor(K)':dipole_unmag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':dipole_unmag_pl_lists.m_dot_list, 'nu_pl':dipole_unmag_pl_lists.nu_pl_list,
+              'nu_cycl':dipole_unmag_pl_lists.nu_cycl_list,'rho_pl':dipole_unmag_pl_lists.rho_pl_list,'B_pl':dipole_unmag_pl_lists.B_pl_list,'B_sw':dipole_unmag_pl_lists.B_sw_list,'v_alf':dipole_unmag_pl_lists.v_alf_list,
+              'M_A':dipole_unmag_pl_lists.M_A_list,'Flux_r_S_ZL_min':dipole_unmag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':dipole_unmag_pl_lists.Flux_r_S_ZL_max_list,
+              'P_Bpl':dipole_unmag_pl_lists.P_Bpl_list,'P_dyn':dipole_unmag_pl_lists.P_dyn_list,'P_th':dipole_unmag_pl_lists.P_th_list,'P_Bsw':dipole_unmag_pl_lists.P_Bsw_list,'Rmp':dipole_unmag_pl_lists.Rmp_list
+}      
 
-# Generate plots from data in out_table.csv
+dipole_unmag_pl = pd.DataFrame(dipole_unmag_pl_dict)
+
+spiral_mag_pl_dict = {'planet_name': spiral_mag_pl_lists.planet_name_list, 'star_name': spiral_mag_pl_lists.star_name_list, 'd_star(pc)': spiral_mag_pl_lists.d_star_list,
+              'mass_star(m_sun)':spiral_mag_pl_lists.mass_star_list, 'radius_star(r_sun)': spiral_mag_pl_lists.radius_star_list, 
+              'p_rot(days)': spiral_mag_pl_lists.p_rot_list, 'bfield_star(gauss)': spiral_mag_pl_lists.bfield_star_list, 'a(au)':spiral_mag_pl_lists.a_list,
+              'p_orb(days)':spiral_mag_pl_lists.p_orb_list,'eccentricity':spiral_mag_pl_lists.eccentricity_list,'q':spiral_mag_pl_lists.q_list,'Q':spiral_mag_pl_lists.Q_list,
+              'mass_planet(m_earth)':spiral_mag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': spiral_mag_pl_lists.radius_planet_list,
+              'T_cor(K)':spiral_mag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':spiral_mag_pl_lists.m_dot_list, 'nu_pl':spiral_mag_pl_lists.nu_pl_list,
+              'nu_cycl':spiral_mag_pl_lists.nu_cycl_list,'rho_pl':spiral_mag_pl_lists.rho_pl_list,'B_pl':spiral_mag_pl_lists.B_pl_list,'B_sw':spiral_mag_pl_lists.B_sw_list,'v_alf':spiral_mag_pl_lists.v_alf_list,
+              'M_A':spiral_mag_pl_lists.M_A_list,'Flux_r_S_ZL_min':spiral_mag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':spiral_mag_pl_lists.Flux_r_S_ZL_max_list,
+              'P_Bpl':spiral_mag_pl_lists.P_Bpl_list,'P_dyn':spiral_mag_pl_lists.P_dyn_list,'P_th':spiral_mag_pl_lists.P_th_list,'P_Bsw':spiral_mag_pl_lists.P_Bsw_list,'Rmp':spiral_mag_pl_lists.Rmp_list
+}      
+
+spiral_mag_pl = pd.DataFrame(spiral_mag_pl_dict)
+
+            
+spiral_unmag_pl_dict = {'planet_name': spiral_unmag_pl_lists.planet_name_list, 'star_name': spiral_unmag_pl_lists.star_name_list, 'd_star(pc)': spiral_unmag_pl_lists.d_star_list,
+              'mass_star(m_sun)':spiral_unmag_pl_lists.mass_star_list, 'radius_star(r_sun)': spiral_unmag_pl_lists.radius_star_list, 
+              'p_rot(days)': spiral_unmag_pl_lists.p_rot_list, 'bfield_star(gauss)': spiral_unmag_pl_lists.bfield_star_list, 'a(au)':spiral_unmag_pl_lists.a_list,
+              'p_orb(days)':spiral_unmag_pl_lists.p_orb_list,'eccentricity':spiral_unmag_pl_lists.eccentricity_list,'q':spiral_unmag_pl_lists.q_list,'Q':spiral_unmag_pl_lists.Q_list,
+              'mass_planet(m_earth)':spiral_unmag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': spiral_unmag_pl_lists.radius_planet_list,
+              'T_cor(K)':spiral_unmag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':spiral_unmag_pl_lists.m_dot_list, 'nu_pl':spiral_unmag_pl_lists.nu_pl_list,
+              'nu_cycl':spiral_unmag_pl_lists.nu_cycl_list,'rho_pl':spiral_unmag_pl_lists.rho_pl_list,'B_pl':spiral_unmag_pl_lists.B_pl_list,'B_sw':spiral_unmag_pl_lists.B_sw_list,'v_alf':spiral_unmag_pl_lists.v_alf_list,
+              'M_A':spiral_unmag_pl_lists.M_A_list,'Flux_r_S_ZL_min':spiral_unmag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':spiral_unmag_pl_lists.Flux_r_S_ZL_max_list,
+              'P_Bpl':spiral_unmag_pl_lists.P_Bpl_list,'P_dyn':spiral_unmag_pl_lists.P_dyn_list,'P_th':spiral_unmag_pl_lists.P_th_list,'P_Bsw':spiral_unmag_pl_lists.P_Bsw_list,'Rmp':spiral_unmag_pl_lists.Rmp_list
+}      
+
+spiral_unmag_pl = pd.DataFrame(spiral_unmag_pl_dict)
+
+
+
+
+
+# Generate table with useful SPI parameters to generate various plots
+# and generate plots from data in out_table.csv
+dipole_mag_pl.to_csv('OUTPUT/dipole_mag_pl.csv')
+os.system('python plot_out_table.py')
+dipole_mag_pl.to_csv('OUTPUT/dipole_unmag_pl.csv')
+os.system('python plot_out_table.py')
+dipole_mag_pl.to_csv('OUTPUT/spiral_mag_pl.csv')
+os.system('python plot_out_table.py')
+dipole_mag_pl.to_csv('OUTPUT/spiral_unmag_pl.csv')
 os.system('python plot_out_table.py')
