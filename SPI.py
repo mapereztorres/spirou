@@ -69,11 +69,28 @@ dipole_unmag_pl_lists = table_lists()
 spiral_mag_pl_lists   = table_lists()
 spiral_unmag_pl_lists = table_lists()
 
-### Select data in the array to run the code on
-print(source_data)
+
+#################################################################
+################## GENERAL EMISSION PARAMETERS  #################
+#################################################################
+
+# Compute min and max speed of electrons emitting via ECM, in units of the speed of light 
+beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
+            
+# Beam solid angle covered by the ECM emission, in sterradians
+if which_beam_solid_angle == 'Jupiter-Io':
+   bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
+   Omega_min = bsa_Omega; Omega_max = bsa_Omega
+else:
+   # Get the minimum and maximum values of the beam solid angle for the cone of emission 
+   Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
+
+
+############## CHECK THAT THE DATA TABLE IS CORRECT
+print('Reading table: ', source_data)
 print(data)
 
-### Table initialization
+############## TABLE INITIALIZATION 
 # 
 # Create column for M_star_dot to fill it with values
 data['M_star_dot(M_sun_dot)']=''
@@ -86,14 +103,18 @@ data.dropna(subset=['p_rot(days)'], inplace=True)
 # Do not use stars with P_rot smaller than 10 days
 data = data[data['p_rot(days)'] > 10.0]
 data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
-data.reset_index(inplace=True) # to prevent funny jumps in the indices
+data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
+############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
+print('All table planets')
+print(data['planet_name'])
 
-
-if COMPUTE_ALL:
+# Select the exoplanets for which to run the simulation
+# COMPUTE_ALL and which_planets are set up in __init__.py
+if COMPUTE_ALL == True:
     planet_array = range(round(len(data)/1))
 else:
-    planet_array = compute_planets
+    planet_array = which_planets
     
 for indi in planet_array:
     starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
@@ -110,23 +131,29 @@ for indi in planet_array:
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
     
 
-    # Electron gyrofrequency and ECM bandwidth 
-    gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
-    Delta_nu_cycl = 0.5 * gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
+    print('Exoplanet name: ', Exoplanet)
 
+    ###############################################
+
+   
     # Common properties for star and planet
     # 
     M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
     Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
 
+    # Electron gyrofrequency and ECM bandwidth 
+    gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
+    Delta_nu_cycl = 0.5 * gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
+
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
-    Nsteps = int(2*d_orb_max)
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
     if sweep=="RAD":
-      d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+        Nsteps = int(2*d_orb_max)
+        d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+        M_star_dot = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
     else:
-      d_orb=[r_orb]
+        d_orb=[r_orb]
     #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
     #print(len(d_orb))
     v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
@@ -168,21 +195,20 @@ for indi in planet_array:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
         n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
     else:
-        n_sw_planet = np.ones(len(d_orb)) * 1e4  # fixed                 
+        # WARNING: This (arbitrary) value of 1e4 for n_sw_planet to be set up in __init__.py
+        n_sw_planet = np.ones(len(d_orb)) * 1e4  
 
     rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
 
     for ind in range(len(Bfield_geom_arr)):
         for ind1 in range(len(magnetized_pl_arr)):
+            # Bfield_geom_arr defines the geometry of the magnetic field (closed / open)
             if Bfield_geom_arr[ind]:
                 print("\nOpen Parker magnetic field geometry")
             else:
                 print("\nClosed dipolar magnetic field geometry")
            
-            # Magnetic field geometry
-            # open_field - defines the geometry of the magnetic field
-            open_field = Bfield_geom_arr[ind]
-            B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
+            B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
@@ -199,8 +225,6 @@ for indi in planet_array:
                     r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
-                    print('Exoplanet :', Exoplanet)
-                    print('B_planet after applying Sano scaling law:', B_planet)
                     B_planet *= bfield_earth  # B_planet, in Tesla
                 else: 
                     B_planet = B_planet_default  # B_planet, in Tesla
@@ -227,9 +251,12 @@ for indi in planet_array:
             P_B_planet  = spi.get_P_B_planet(B_planet_arr) 
 
             # Stellar wind pressure
-            P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
-            P_th_sw  = spi.get_P_th_sw(n_sw_planet, T_corona)
-            P_B_sw   = spi.get_P_B_sw(B_sw)
+            P_sw, P_dyn_sw, P_th_sw, P_B_sw = spi.get_P_sw(n_sw_planet, v_rel, T_corona, B_sw, mu)
+
+            #P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
+            #P_th_sw  = spi.get_P_th_sw(n_sw_planet, T_corona)
+            #P_B_sw   = spi.get_P_B_sw(B_sw)
+
 
             # Radius of magnetopause, in cm
             Rmp = spi.get_Rmp(P_B_planet, P_dyn_sw, P_th_sw, P_B_sw) * Rp
@@ -239,16 +266,6 @@ for indi in planet_array:
 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
-            # Compute min and max speed of electrons emitting via ECM, in units of the speed of light 
-            beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
-            
-            # Beam solid angle covered by the ECM emission, in sterradians
-            if which_beam_solid_angle == 'Jupiter-Io':
-                bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
-                Omega_min = bsa_Omega; Omega_max = bsa_Omega
-            else:
-                # Get the minimum and maximum values of the beam solid angle for the cone of emission 
-                Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
             
             # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
             # 2007 (S_poyn_ZL), in cgs units. They coincide, except for a factor 2. 
@@ -427,7 +444,7 @@ for indi in planet_array:
             else:
                 print(FOLDER+' already exists.')
             common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet_arr[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
-            if open_field:
+            if Bfield_geom_arr[ind]:
                 # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
                 #outfile = Exoplanet + "-Open-Bstar"+ common_string
                 outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
