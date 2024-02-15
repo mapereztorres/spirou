@@ -148,7 +148,7 @@ for indi in planet_array:
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-    if sweep=="RAD":
+    if STUDY=="D_ORB":
         Nsteps = int(2*d_orb_max)
         d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
         M_star_dot = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
@@ -283,7 +283,6 @@ for indi in planet_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
-            """
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
@@ -502,7 +501,6 @@ for indi in planet_array:
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-            """
 
 
             #### TEMPORARY TABLE

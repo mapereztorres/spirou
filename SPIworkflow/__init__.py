@@ -5,6 +5,7 @@ from SPIworkflow.constants import *
 ###################################
 ### INPUT TABLE
 ###################################
+# If EXOPLANETS = True, then we use SPI-targets.csv, which contains (confirmed) planets
 EXOPLANETS = True
 
 # If true, it reads a table with stellar systems hosting planets, so 
@@ -16,13 +17,22 @@ else:
 
 selection_criteria = False
 
-sweep="RAD"
 
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
-COMPUTE_ALL = True
-compute_planets = [0,1]
+STUDY = "D_ORB"
+# STUDY = "M_DOT"
+# STUDY = "B_PL"
+
+#####################################################
+# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
+#####################################################
+# If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
+COMPUTE_ALL = False
+# If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
+# which_planets
+which_planets = [21]
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -42,8 +52,8 @@ Bfield_geom_arr = [0]
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-magnetized_pl_arr = [False, True]
-#magnetized_pl_arr = [True]
+#magnetized_pl_arr = [False, True]
+magnetized_pl_arr = [True]
 
 # Computation of planetary magnetic field
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
