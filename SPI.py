@@ -150,17 +150,20 @@ for indi in planet_array:
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
     # Nsteps defines the size of the array
     if STUDY == "D_ORB":
+        print('You asked to carry out a study of radio emission vs orbital separation: STUDY == "D_ORB" ')
         Nsteps = int(2*d_orb_max)
         d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
         M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
     elif STUDY == "M_DOT":
-        d_orb=[r_orb]
+        print('You asked to carry out a study of radio emission vs Mass loss rate: STUDY == "M_DOT" ')
+        d_orb=np.array([r_orb])
         Nsteps =  int(M_DOT_STRETCH * np.log10(M_DOT_MAX/M_DOT_MIN))
         M_star_dot_arr = np.logspace(np.log10(M_DOT_MIN), np.log10(M_DOT_MAX), Nsteps)
 
     #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
     #print(len(d_orb))
     v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
+    print('type of Omega_star: ', type(Omega_star))
     v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
     # Angular speed of the planet, in s^(-1). NOte that it's an array
