@@ -590,10 +590,22 @@ spiral_unmag_pl = pd.DataFrame(spiral_unmag_pl_dict)
 # Generate table with useful SPI parameters to generate various plots
 # and generate plots from data in out_table.csv
 dipole_mag_pl.to_csv('OUTPUT/dipole_mag_pl.csv')
+os.system('cp ./OUTPUT/dipole_mag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
-dipole_mag_pl.to_csv('OUTPUT/dipole_unmag_pl.csv')
+os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/dipole_mag_pl.pdf')
+
+dipole_unmag_pl.to_csv('OUTPUT/dipole_unmag_pl.csv')
+os.system('cp ./OUTPUT/dipole_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
-dipole_mag_pl.to_csv('OUTPUT/spiral_mag_pl.csv')
+os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/dipole_unmag_pl.pdf')
+
+spiral_mag_pl.to_csv('OUTPUT/spiral_mag_pl.csv')
+os.system('cp ./OUTPUT/spiral_mag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
-dipole_mag_pl.to_csv('OUTPUT/spiral_unmag_pl.csv')
+os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_mag_pl.pdf')
+
+spiral_unmag_pl.to_csv('OUTPUT/spiral_unmag_pl.csv')
+os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
+os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
+
