@@ -201,8 +201,13 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = 0.5 * m_p):
                 m_av       - average particle mass of the stellar wind (= mu * m_p) in grams
     """
     M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
-    M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
-    rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    ### WARNING: when using the " *= " format below, the original value of M_star_dot is
+    # overwritten outside the function, even if not present in return!!
+    #
+    #M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
+    #rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    M_star_dot_grams = M_star_dot * M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
+    rho  = M_star_dot_grams / (4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
     n_sw = rho / m_av
 
     return n_sw
