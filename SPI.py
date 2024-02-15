@@ -148,19 +148,23 @@ for indi in planet_array:
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
-    if STUDY=="D_ORB":
+    # Nsteps defines the size of the array
+    if STUDY == "D_ORB":
         Nsteps = int(2*d_orb_max)
         d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
-        M_star_dot = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
-    else:
+        M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
+    elif STUDY == "M_DOT":
         d_orb=[r_orb]
+        Nsteps =  int(M_DOT_STRETCH * np.log10(M_DOT_MAX/M_DOT_MIN))
+        M_star_dot_arr = np.logspace(np.log10(M_DOT_MIN), np.log10(M_DOT_MAX), Nsteps)
+
     #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
     #print(len(d_orb))
     v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
     v_corot = d_orb * Omega_star # Corotation speed (cm/s)
 
-    #Omega_planet = np.ones(len(d_orb)) * Omega_earth # array of angular speeds of the planet, in  s^(-1)
-    Omega_planet =  v_orb / d_orb # Angular speed of the planet, in s^(-1). NOte that it's an array
+    # Angular speed of the planet, in s^(-1). NOte that it's an array
+    Omega_planet =  v_orb / d_orb 
 
     # Get wind composition, from the fraction of protons
     X_e, mu, m_av = spi.wind_composition(X_p)
@@ -172,7 +176,7 @@ for indi in planet_array:
      
 
     # Plasma number density at base of the corona
-    n_base_corona = spi.n_wind(M_star_dot, R_star, v_sw_base, m_av) 
+    n_base_corona = spi.n_wind(M_star_dot_arr, R_star, v_sw_base, m_av) 
 
     # Maximum plasma frequency at the base of the corona. If the ECM
     # freq is less than the plasma frequency, the emission is
@@ -193,10 +197,11 @@ for indi in planet_array:
     # Alternatively, we fix the density at the distance of the planet from the host star.
     if isothermal:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
-        n_sw_planet = spi.n_wind(M_star_dot, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
+        n_sw_planet = spi.n_wind(M_star_dot_arr, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
     else:
         # WARNING: This (arbitrary) value of 1e4 for n_sw_planet to be set up in __init__.py
-        n_sw_planet = np.ones(len(d_orb)) * 1e4  
+        #n_sw_planet = np.ones(len(d_orb)) * 1e4  
+        n_sw_planet = np.ones(Nsteps) * 1e4  
 
     rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
 
@@ -222,20 +227,18 @@ for indi in planet_array:
                     # planet equals its orbital one. 
                     # WARNING: For small rotation periods, the inferred magnetic field
                     # is too large to be reliable at all.
-                    r_core, rho_core, magn_moment_planet, B_planet = spi.bfield_sano(M_planet = Mp / M_earth, 
+                    r_core, rho_core, magn_moment_planet, B_planet_arr = spi.bfield_sano(M_planet = Mp / M_earth, 
                                                R_planet = Rp / R_earth, 
                                                Omega_rot_planet = Omega_planet / Omega_earth)  
-                    B_planet *= bfield_earth  # B_planet, in Tesla
+                    B_planet_arr *= bfield_earth  # B_planet_arr, in Tesla
                 else: 
-                    B_planet = B_planet_default  # B_planet, in Tesla
+                    B_planet_arr = np.ones(len(Omega_planet)) * B_PLANET_DEFAULT  # B_planet_arr, in Tesla
 
-                B_planet    *=  Tesla2Gauss #  B_planet, in Gauss 
-                B_planet_arr = np.ones(len(d_orb)) * B_planet  
-                #print('B_planet_arr - B_planet: ', (B_planet_arr - B_planet))
+                B_planet_arr    *=  Tesla2Gauss #  B_planet_arr, in Gauss 
+
             else:  # unmagnetized planet
                 print('Unmagnetized planet\n')
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
-                B_planet = B_planet_arr
             #
             # Effective radius of the obstacle
             # Case 1. À la Saur+2013. 
@@ -283,6 +286,9 @@ for indi in planet_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
+            print('Flux_r_S_min : ', Flux_r_S_min)
+
+            """
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
@@ -486,7 +492,7 @@ for indi in planet_array:
             #print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
 
             # Print out minimum and maximum values of flux density at the planet location
-            #print("B_star =", B_star, " G; " "B_planet = ", B_planet_arr, " G ")
+            #print("B_star =", B_star, " G; " "B_planet_arr = ", B_planet_arr, " G ")
             #print("\nPrint out Poynting Flux at the planet location")
             #print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
             #print("\nPrint out Poynting Flux at the first cell")
@@ -501,20 +507,22 @@ for indi in planet_array:
             #print("\nPrint out minimum and maximum values of flux density at the first cell")
             #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
+            """
 
             #### TEMPORARY TABLE
             ####################
             
+            """ 
             # dipole_mag_pl_lists   = table_lists()
 
             #output_table=pd.copy(data)
             #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
             print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
+
             if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):  
                 dipole_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
                     "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
                     "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
                     "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
                 )
@@ -522,7 +530,7 @@ for indi in planet_array:
             elif ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1] == False)):  
                 dipole_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
                     "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
                     "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
                     "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
                 )
@@ -530,7 +538,7 @@ for indi in planet_array:
             elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == True)):  
                 spiral_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
                     "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
                     "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
                     "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
                 )
@@ -538,11 +546,14 @@ for indi in planet_array:
             elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == False)):  
                 spiral_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
                     "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet[loc_pl][0]),
+                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
                     "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
                     "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
                 )
 
+                """
+
+"""
 # dictionaries of lists 
 dipole_mag_pl_dict = {'planet_name': dipole_mag_pl_lists.planet_name_list, 'star_name': dipole_mag_pl_lists.star_name_list, 'd_star(pc)': dipole_mag_pl_lists.d_star_list,
               'mass_star(m_sun)':dipole_mag_pl_lists.mass_star_list, 'radius_star(r_sun)': dipole_mag_pl_lists.radius_star_list, 
@@ -623,4 +634,5 @@ spiral_unmag_pl.to_csv('OUTPUT/spiral_unmag_pl.csv')
 os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
 os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
+"""
 

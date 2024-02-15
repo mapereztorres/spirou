@@ -26,6 +26,16 @@ STUDY = "D_ORB"
 # STUDY = "B_PL"
 
 #####################################################
+#  STUDY = 'M_DOT' SETUP
+#####################################################
+# M_DOT_MIN, M_DOT_MAX: Minimum and maximum mass-loss rates to carry out the study of M_dot
+# In units of M_dot_sun 
+# M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
+M_DOT_STRETCH = 100
+M_DOT_MIN = 1e-1
+M_DOT_MAX = 1e+1
+
+#####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
@@ -62,7 +72,7 @@ B_planet_law = 'Sano'
 #B_planet_law = 'None'
 
 # Default planetary magnetic field, in Tesla
-B_planet_default = bfield_earth 
+B_PLANET_DEFAULT = bfield_earth 
 
 
 ###################################
