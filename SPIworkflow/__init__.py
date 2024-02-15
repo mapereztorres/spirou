@@ -134,7 +134,7 @@ X_p = 0.5 # fraction of protons
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-#eps_min = 0.01; eps_max = 0.1
+#eps_min = 0.01; eps_max = 0.11G
 eps_min = 0.01; eps_max = 0.05
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
@@ -156,8 +156,14 @@ which_beam_solid_angle = 'Jupiter-Io'
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
-
-# plotout = True => plot graphs to external files
-# plotout = False => plot in terminal
-plotout = True 
- 
+## LINEWIDTH 
+LW = 3
+# PLOT ALSO Alfvén Mach Number, M_A?
+PLOT_M_A = True
+# PLOTOUT = True => plot graphs to external files
+# PLOTOUT = False => plot in terminal
+PLOTOUT = True 
+# DRAW_RMS?
+DRAW_RMS = True
+# DRAW Little Earth?
+DRAW_EARTH = True
