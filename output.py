@@ -7,7 +7,7 @@ class OutputWriter:
     
     def write_parameters(self, T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star,
         Exoplanet, Rp, Mp, r_orb, P_orb, 
-        loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
+        loc_pl, M_star_dot_loc, n_base_corona, nu_plasma_corona, gyrofreq,
         Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
         Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff):
 
@@ -42,8 +42,8 @@ class OutputWriter:
              f.write('#                                 ########\n') 
              f.write('# OUTPUT PARAMETERS:              ########\n')
              f.write('#                                 ########\n') 
-             f.write('n_base_corona = {0:.3e} cm^-3\n'.format(n_base_corona))
-             f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona/1e6))
+             f.write('n_base_corona = {0:.3e} cm^-3\n'.format(n_base_corona[M_star_dot_loc][0]))
+             f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona[M_star_dot_loc][0]/1e6))
              f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
              f.write('Flux_ST: ({0}, {1}) mJy\n'.format(Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl]))
              #f.write('Flux_ZL: ({0}, {1}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl]))

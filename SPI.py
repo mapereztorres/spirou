@@ -289,6 +289,9 @@ for indi in planet_array:
             d_diff = np.abs((d_orb-r_orb)/R_star)
             loc_pl = np.where(d_diff == d_diff.min())
 
+            M_star_dot_diff = np.abs(M_star_dot_arr - M_star_dot)
+            M_star_dot_loc  = np.where(M_star_dot_diff == M_star_dot_diff.min())
+
             print('Flux_r_S_min : ', Flux_r_S_min)
 
             ###########################################################################
@@ -316,9 +319,13 @@ for indi in planet_array:
                 plt.figure(figsize=(8,11))
                 ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
                 ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
+                ax1.set_facecolor("white")	
+                ax2.set_facecolor("white")	
             else:
                 plt.figure(figsize=(8,7.5))
                 ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                ax2.set_facecolor("white")	
+
             if STUDY == 'D_ORB':
                 x   = d_orb / R_star # (distance array, in units of R_star)
             elif STUDY == 'M_DOT':
@@ -333,7 +340,7 @@ for indi in planet_array:
             y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
             y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
 
-            ax1.plot(x, np.log10(M_A), color='k', lw=lw)
+            ax1.plot(x, M_A, color='k', lw=lw)
             #ax2.plot(x, y_min, lw=lw, color='orange', lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(x, y_max, lw=lw, color='orange')
             
@@ -388,20 +395,23 @@ for indi in planet_array:
             """
 
             if STUDY == 'D_ORB':
+                ax1.set_yscale('log'); ax2.set_yscale('log'); 
                 # Draw vertical line at nominal orbital separation of planet
                 ax1.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
                 ax2.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
                 ax2.set_xlabel(r"Distance / Stellar radius")
             elif STUDY == 'M_DOT':
+                ax2.set_xscale('log') 
+                ax1.set_yscale('log'); ax2.set_yscale('log'); 
                 # Draw vertical line at nomimal M_star_dot value
                 ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
                 ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"log(Mass Loss rate [$\dot{M}_\odot$])",fontsize=20)
+                ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
  
             #
             #ax11.set_xlabel("Orbital period [days]")
-            ax1.set_ylabel(r"${\rm log} (M_A)$")
-            ax2.set_ylabel(r"${\rm log}$ (Flux density [mJy])")
+            ax1.set_ylabel(r"$M_A$")
+            ax2.set_ylabel(r"Flux density [mJy]")
 
             """
             #Draw also Alfven radial Mach number
@@ -442,48 +452,37 @@ for indi in planet_array:
             loc_pl = np.where(d_diff == d_diff.min())
             print('Position in d_orb array where the planet is located', loc_pl)
             
-            """
             B_planet_loc = round(float(B_planet_arr[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
             #B_planet_loc = int(B_planet_arr[loc_pl]) # Planetary magnetic field, in Gauss
             
-            #ax2.text(x=60,y=1.8,s=r"$B_\ast = \,{\rm G}$")
-            #ax2.text(x=60,y=1.4,s=r"$B_{\rm pl} = 1 \,{\rm G}$")
-            #
-            #ax2.text(x=12,y=-1.2,s=r"$B_{\rm cycl}$   = " + str(B_star) + " G ",fontsize='small')
-            #ax2.text(x=12,y=-1.6,s=r"$B_{\rm planet}$ = " + str(B_planet_arr) + " G ", fontsize='small')
-            #ax2.text(x=12,y=-2.0,s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
-            #ax2.text(x=3,y=0.1+np.log10(3*rms),s=r"Requested 3$\sigma$", fontsize='x-small')
+            """
             xpos =xmax*0.8
             ypos_offset = (ymax-ymin)/8
             ypos = (ymax-ymin)/4 + ypos_offset
             d_ypos = (ymax-ymin)/12
             ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(f'{B_star:.1f}') + " G ",fontsize='small')
             ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(f'{B_planet_loc:.1f}') + r"$B_{\rm Earth}$", fontsize='small')
-            #ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$n_{\rm corona}$ = " + str(n_sw_base/1e7) + "x10$^7$ cm$^{-3}$ ", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(f'{M_star_dot:.1f}') + "$\dot{M}_\odot$", fontsize='small')
-        
+            """
+
             # Create OUTPUT folder if it doesn't exist
-            FOLDER = 'OUTPUT/'+str(Exoplanet.replace(" ", "_"))
+            FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
             if not(os.path.isdir(FOLDER)):
-                os.system('mkdir OUTPUT/'+str(Exoplanet.replace(" ", "_")))
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
             else:
-                print(FOLDER+' already exists.')
-            common_string = str(B_star)+"G"+"-Bplanet"+str(B_planet_arr[loc_pl])+"G"+'-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
+                print(FOLDER + ' already exists.')
+            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
             if Bfield_geom_arr[ind]:
-                # ax1.text(x=0, y=1, s= Exoplanet + " - Open field")
-                #outfile = Exoplanet + "-Open-Bstar"+ common_string
-                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
+                outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
-                # ax1.text(x=0, y=1, s= Exoplanet + " - Closed field")
-                #outfile = Exoplanet + "-Closed-Bstar"+ common_string
-                outfile = str(Exoplanet.replace(" ", "_")) + '/' + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
+                outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (PLOTOUT= True), or show them in
             # the terminal (PLOTOUT = False) 
             if PLOTOUT:
                 plt.tight_layout()
-                outfilePDF = os.path.join(outdir, outfile+".pdf")
+                outfilePDF = os.path.join(outfile + ".pdf")
                 plt.savefig(outfilePDF)
-                outfilePNG = os.path.join(outdir, outfile+".png")
+                outfilePNG = os.path.join(outfile + ".png")
                 plt.savefig(outfilePNG)
                 plt.close()
             else:
@@ -494,40 +493,23 @@ for indi in planet_array:
             ################### Send OUTPUT to external text file/s
             ###########################################################
 
-            outfileTXT = os.path.join(outdir, outfile+'.txt')
+            outfileTXT = os.path.join(outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
+            ### NOTE: Add B_planet_arr[loc_pl] in the output table
+            print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
-                Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, n_base_corona, nu_plasma_corona, gyrofreq,
-                Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
+                Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
+                nu_plasma_corona, gyrofreq, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
                 Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
 
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
-            # First, find out the position of the planet in the distance array
-            d_diff = np.abs((d_orb-r_orb)/R_star)
-            location_pl = np.where(d_diff == d_diff.min())
-
-            #print('S_poynt: {0} erg/s\n'.format(S_poynt))
-            #print('Flux_ST: {0} mJy\n'.format(Flux_r_S_max))    
-            #print('Flux_ZL: {0} mJy\n'.format(Flux_r_S_ZL_max))    
-
-            # Print out minimum and maximum values of flux density at the planet location
-            #print("B_star =", B_star, " G; " "B_planet_arr = ", B_planet_arr, " G ")
-            #print("\nPrint out Poynting Flux at the planet location")
-            #print("Saur/Turnpenney (erg/s): ", S_poynt[location_pl])
-            #print("\nPrint out Poynting Flux at the first cell")
-            #print("Saur/Turnpenney (erg/s): ", S_poynt[0])
-
             print("\nPrint out minimum and maximum values of flux density at the planet location")
             print('B_planet_loc = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
-            #print('Rmp / Rp = {0:.3f} '.format(Rmp[loc_pl]/Rp))
-            print("Saur/Turnpenney (mJy): ", Flux_r_S_min[location_pl], Flux_r_S_max[location_pl])
-            print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[location_pl], Flux_r_S_ZL_max[location_pl])
+            print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
+            print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
-            #print("\nPrint out minimum and maximum values of flux density at the first cell")
-            #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[0], Flux_r_S_max[0])
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-            """
 
             #### TEMPORARY TABLE
             ####################

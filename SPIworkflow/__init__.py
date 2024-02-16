@@ -2,6 +2,15 @@ import numpy as np
 from SPIworkflow.constants import *
 
 
+#####################################################
+# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
+#####################################################
+# If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
+COMPUTE_ALL = False
+# If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
+# which_planets
+which_planets = [20, 21]
+
 ###################################
 ### INPUT TABLE
 ###################################
@@ -34,15 +43,6 @@ STUDY = "M_DOT"
 M_DOT_STRETCH = 100
 M_DOT_MIN = 1e-1
 M_DOT_MAX = 1e+1
-
-#####################################################
-# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
-#####################################################
-# If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
-COMPUTE_ALL = False
-# If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
-# which_planets
-which_planets = [21]
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -134,8 +134,8 @@ X_p = 0.5 # fraction of protons
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-#eps_min = 0.01; eps_max = 0.11G
-eps_min = 0.01; eps_max = 0.05
+#eps_min = 0.01; eps_max = 0.11
+eps_min = 0.002; eps_max = 0.02
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
