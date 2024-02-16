@@ -31,18 +31,32 @@ selection_criteria = False
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #STUDY = "D_ORB"
-STUDY = "M_DOT"
-# STUDY = "B_PL"
+#STUDY = "M_DOT"
+STUDY = "B_PL"
 
-#####################################################
+#######################################################################
+#  STUDY CASES
+#  STUDY == 'D_ORB' - Predicted flux as a function of orbital distance
+#  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
+#  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
+#######################################################################
 #  STUDY = 'M_DOT' SETUP
-#####################################################
+#
 # M_DOT_MIN, M_DOT_MAX: Minimum and maximum mass-loss rates to carry out the study of M_dot
 # In units of M_dot_sun 
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 100
 M_DOT_MIN = 1e-1
 M_DOT_MAX = 1e+1
+
+#  STUDY = 'B_PL' SETUP
+#
+# B_PL_MIN, B_PL_MAX: Minimum and maximum planetary magnetic field to carry out 
+# the study of "B_PL". Values in Gauss
+#
+STEP = 0.05
+B_PL_MIN = 0
+B_PL_MAX = 20
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION

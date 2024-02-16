@@ -149,16 +149,23 @@ for indi in planet_array:
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
     # Nsteps defines the size of the array
+    # NOTE: Consider renaming M_star_dot_arr (and maybe d_orb also)  in the STUDY  cases
+    # below.
     if STUDY == "D_ORB":
         print('You asked to carry out a study of radio emission vs orbital separation: STUDY == "D_ORB" ')
         Nsteps = int(2*d_orb_max)
-        d_orb = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
+        d_orb  = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
         M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
     elif STUDY == "M_DOT":
         print('You asked to carry out a study of radio emission vs Mass loss rate: STUDY == "M_DOT" ')
-        d_orb=np.array([r_orb])
-        Nsteps =  int(M_DOT_STRETCH * np.log10(M_DOT_MAX/M_DOT_MIN))
+        d_orb  = np.array([r_orb])
+        Nsteps = int(M_DOT_STRETCH * np.log10(M_DOT_MAX/M_DOT_MIN))
         M_star_dot_arr = np.logspace(np.log10(M_DOT_MIN), np.log10(M_DOT_MAX), Nsteps)
+    elif STUDY == "B_PL":
+        print('You asked to carry out a study of radio emission vs B_planet: STUDY == "B_PL" ')
+        Nsteps = round( (B_PL_MAX - B_PL_MIN) / STEP)
+        d_orb = np.array([r_orb])
+        M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
 
     #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
     #print(len(d_orb))
@@ -236,12 +243,16 @@ for indi in planet_array:
                     B_planet_arr *= bfield_earth  # B_planet_arr, in Tesla
                 else: 
                     B_planet_arr = np.ones(len(Omega_planet)) * B_PLANET_DEFAULT  # B_planet_arr, in Tesla
-
+                
                 B_planet_arr    *=  Tesla2Gauss #  B_planet_arr, in Gauss 
 
             else:  # unmagnetized planet
                 print('Unmagnetized planet\n')
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
+
+            if STUDY == "B_PL":
+                B_planet_Sano = B_planet_arr # Planet magnetic field at r_orb. 1-element array, in Gauss. 
+                B_planet_arr = np.array([B_PL_MIN, B_PL_MAX, Nsteps])
             #
             # Effective radius of the obstacle
             # Case 1. À la Saur+2013. 
@@ -452,7 +463,11 @@ for indi in planet_array:
             loc_pl = np.where(d_diff == d_diff.min())
             print('Position in d_orb array where the planet is located', loc_pl)
             
-            B_planet_loc = round(float(B_planet_arr[loc_pl]/(bfield_earth*Tesla2Gauss)), 2) # Planetary magnetic field, in units of Bfield_earth
+            # Planetary magnetic field, in Gauss
+            if STUDY == 'B_PL':
+                B_planet_loc = round(float(B_planet_Sano /(bfield_earth * Tesla2Gauss) ), 2) 
+            else:
+                B_planet_loc = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
             #B_planet_loc = int(B_planet_arr[loc_pl]) # Planetary magnetic field, in Gauss
             
             """
