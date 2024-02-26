@@ -31,8 +31,8 @@ selection_criteria = False
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #STUDY = "D_ORB"
-#STUDY = "M_DOT"
-STUDY = "B_PL"
+STUDY = "M_DOT"
+#STUDY = "B_PL"
 
 #######################################################################
 #  STUDY CASES
