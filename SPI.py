@@ -155,7 +155,7 @@ for indi in planet_array:
         print('You asked to carry out a study of radio emission vs orbital separation: STUDY == "D_ORB" ')
         Nsteps = int(2*d_orb_max)
         d_orb  = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
-        M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
+        M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
     elif STUDY == "M_DOT":
         print('You asked to carry out a study of radio emission vs Mass loss rate: STUDY == "M_DOT" ')
         d_orb  = np.array([r_orb])
@@ -165,7 +165,7 @@ for indi in planet_array:
         print('You asked to carry out a study of radio emission vs B_planet: STUDY == "B_PL" ')
         Nsteps = round( (B_PL_MAX - B_PL_MIN) / STEP)
         d_orb = np.array([r_orb])
-        M_star_dot_arr = np.array(M_star_dot) # Convert to a numpy array of 1 element for safety reasons
+        M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
 
     #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
     #print(len(d_orb))
