@@ -511,6 +511,12 @@ for indi in planet_array:
             outfileTXT = os.path.join(outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
             ### NOTE: Add B_planet_arr[loc_pl] in the output table
+            print(" ")
+            print('n_base_corona = ', n_base_corona)
+            print('type(n_base_corona) = ', type(n_base_corona))
+            print(" ")
+            print('M_star_dot_loc = ', M_star_dot_loc)
+            print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
             print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
