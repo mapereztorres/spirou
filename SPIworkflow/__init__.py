@@ -37,9 +37,9 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-#STUDY = "D_ORB"
+STUDY = "D_ORB"
 #STUDY = "M_DOT"
-STUDY = "B_PL"
+#STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -57,7 +57,7 @@ M_DOT_MAX = 1e+1
 #
 STEP = 0.05
 B_PL_MIN = 0
-B_PL_MAX = 20
+B_PL_MAX = 20 
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -173,8 +173,6 @@ which_beam_solid_angle = 'Jupiter-Io'
 #####################################
 ## LINEWIDTH 
 LW = 3
-# PLOT ALSO Alfvén Mach Number, M_A?
-PLOT_M_A = True
 # PLOTOUT = True => plot graphs to external files
 # PLOTOUT = False => plot in terminal
 PLOTOUT = True 

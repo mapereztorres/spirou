@@ -305,8 +305,6 @@ for indi in planet_array:
             M_star_dot_diff = np.abs(M_star_dot_arr - M_star_dot)
             M_star_dot_loc  = np.where(M_star_dot_diff == M_star_dot_diff.min())
 
-            print('Flux_r_S_min : ', Flux_r_S_min)
-
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
@@ -327,22 +325,26 @@ for indi in planet_array:
             period_mark = np.array([1, 10, 30, 60, 100, 200, 500, 1000, 2000])
             d_orb_mark = (period_mark/yr)**(2/3) * M_star_msun**(1/3) * (au/R_star)
 
-            # Plot only Flux density vs. orbital distance, or also log(M_A) vs. d_orb 
-            if PLOT_M_A == True:
+            # Plotting is different, depending on the "STUDY" case
+            if STUDY == 'D_ORB':
+                x = d_orb / R_star # (distance array, in units of R_star)
+            elif STUDY == 'M_DOT':
+                x = M_star_dot_arr # (M_star_dot_arr array, in units of M_dot_sun)
+            elif STUDY == 'B_PL':
+                x = B_planet_arr # (B_planet_arr array, in Gauss )
+
+            if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
                 plt.figure(figsize=(8,11))
                 ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
                 ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
                 ax1.set_facecolor("white")	
                 ax2.set_facecolor("white")	
-            else:
+                ax1.plot(x, M_A, color='k', lw=lw)
+                ax1.set_ylabel(r"$M_A$")
+            elif STUDY == 'B_PL':
                 plt.figure(figsize=(8,7.5))
                 ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
                 ax2.set_facecolor("white")	
-
-            if STUDY == 'D_ORB':
-                x   = d_orb / R_star # (distance array, in units of R_star)
-            elif STUDY == 'M_DOT':
-                x   = M_star_dot_arr # (M_star_dot_arr array, in units of M_dot_sun)
 
             #y_min = np.log10(Flux_r_S_min) # minimum flux (array), Saur/Turnpenney model
             #y_max = np.log10(Flux_r_S_max) # maximum flux (array)
@@ -353,7 +355,7 @@ for indi in planet_array:
             y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
             y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
 
-            ax1.plot(x, M_A, color='k', lw=lw)
+            #ax1.plot(x, M_A, color='k', lw=lw)
             #ax2.plot(x, y_min, lw=lw, color='orange', lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(x, y_max, lw=lw, color='orange')
             
@@ -408,22 +410,27 @@ for indi in planet_array:
             """
 
             if STUDY == 'D_ORB':
-                ax1.set_yscale('log'); ax2.set_yscale('log'); 
+                ax1.set_yscale('log')
+                ax2.set_yscale('log') 
                 # Draw vertical line at nominal orbital separation of planet
                 ax1.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
                 ax2.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
                 ax2.set_xlabel(r"Distance / Stellar radius")
+                #ax11.set_xlabel("Orbital period [days]")
             elif STUDY == 'M_DOT':
                 ax2.set_xscale('log') 
-                ax1.set_yscale('log'); ax2.set_yscale('log'); 
+                ax1.set_yscale('log')
+                ax2.set_yscale('log') 
                 # Draw vertical line at nomimal M_star_dot value
                 ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
                 ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
                 ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
- 
-            #
-            #ax11.set_xlabel("Orbital period [days]")
-            ax1.set_ylabel(r"$M_A$")
+            elif STUDY == 'B_PL':
+                ax2.set_yscale('log'); 
+                # Draw vertical line at the reference planetary magnetic field
+                ax2.axvline(x = B_planet_Sano, ls='--', color='k', lw=2)
+                ax2.set_xlabel(r"Planetary magnetic field [Gauss]",fontsize=20)
+
             ax2.set_ylabel(r"Flux density [mJy]")
 
             """
@@ -439,18 +446,12 @@ for indi in planet_array:
                 ax12.tick_params(axis='y', labelcolor=color)
             """ 
 
-            # draw 3*rms upper limit
+            # draw 3*rms upper limit?
             if DRAW_RMS == True:
                 ax2.axhline(y = 3*rms, ls='-.', color='grey', lw=2)
-                #xpos = d_orb_max/6
-                #ypos = np.log10(4*rms)
-                #ax2.text(x=xpos,y=ypos,s=r"3$\times$RMS",fontsize='small')
-            
-            #ax1.plot([xmin, xmax],[22,22],'k--') # This line needs to be modified to take into account different
-            #ax2.legend(loc=1)
 
-            # draw a little Earth at the planet position for visualization purposes
-            if DRAW_EARTH == True and STUDY == 'D_ORB':
+            # draw a little Earth at the planet position for visualization purposes?
+            if (DRAW_EARTH == True) and (STUDY == 'D_ORB'):
                 paths = ['./pics/earth.png']
                 x = [r_orb / R_star]
                 y = [3*rms]
@@ -465,8 +466,7 @@ for indi in planet_array:
             loc_pl = np.where(d_diff == d_diff.min())
             print('Position in d_orb array where the planet is located', loc_pl)
             
-            # Print in plot the value of the planetary magnetic field, in units of
-            # bfield_earth
+            # Print in the graph the value of the planetary magnetic field, in units of bfield_earth
             if STUDY == 'B_PL':
                 B_planet_ref = round(float(B_planet_Sano /(bfield_earth * Tesla2Gauss) ), 2) 
             else:
@@ -495,7 +495,7 @@ for indi in planet_array:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (PLOTOUT= True), or show them in
             # the terminal (PLOTOUT = False) 
-            if PLOTOUT:
+            if PLOTOUT == True:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outfile + ".pdf")
                 plt.savefig(outfilePDF)
