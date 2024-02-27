@@ -252,9 +252,9 @@ for indi in planet_array:
 
             if STUDY == "B_PL":
                 B_planet_Sano = B_planet_arr # Planet magnetic field at r_orb. 1-element array, in Gauss. 
-                B_planet_arr = np.array([B_PL_MIN, B_PL_MAX, Nsteps])
-            #
-            # Effective radius of the obstacle
+                B_planet_arr  = np.linspace(B_PL_MIN, B_PL_MAX, Nsteps)
+            
+            # Effective radius of the obstacle, in cm
             # Case 1. À la Saur+2013. 
             R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw)
 
@@ -264,10 +264,10 @@ for indi in planet_array:
             # Compute radius of magnetopause, Rmp as balance of wind and planet's
             # pressures
             
-            # Planet pressure - only the magnetic component is considered
+            # Planet pressure, in erg/cm3 - only the magnetic component is considered
             P_B_planet  = spi.get_P_B_planet(B_planet_arr) 
 
-            # Stellar wind pressure
+            # Stellar wind pressure, in erg/cm3
             P_sw, P_dyn_sw, P_th_sw, P_B_sw = spi.get_P_sw(n_sw_planet, v_rel, T_corona, B_sw, mu)
 
             #P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
@@ -278,7 +278,7 @@ for indi in planet_array:
             # Radius of magnetopause, in cm
             Rmp = spi.get_Rmp(P_B_planet, P_dyn_sw, P_th_sw, P_B_sw) * Rp
 
-            # The effective radius is the radius of the magnetopause
+            # The effective radius (in cm) is the radius of the magnetopause
             R_planet_eff = Rmp
 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
@@ -286,10 +286,12 @@ for indi in planet_array:
             
             # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
             # 2007 (S_poyn_ZL), in cgs units. They coincide, except for a factor 2. 
+            # In mks units
             S_poynt, S_poynt_ZL = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f)
 
             # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
             # Zarka/Lanza (Flux_r_S_ZL...)
+            # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
 
@@ -463,12 +465,12 @@ for indi in planet_array:
             loc_pl = np.where(d_diff == d_diff.min())
             print('Position in d_orb array where the planet is located', loc_pl)
             
-            # Planetary magnetic field, in Gauss
+            # Print in plot the value of the planetary magnetic field, in units of
+            # bfield_earth
             if STUDY == 'B_PL':
-                B_planet_loc = round(float(B_planet_Sano /(bfield_earth * Tesla2Gauss) ), 2) 
+                B_planet_ref = round(float(B_planet_Sano /(bfield_earth * Tesla2Gauss) ), 2) 
             else:
-                B_planet_loc = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
-            #B_planet_loc = int(B_planet_arr[loc_pl]) # Planetary magnetic field, in Gauss
+                B_planet_ref = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
             
             """
             xpos =xmax*0.8
@@ -476,7 +478,7 @@ for indi in planet_array:
             ypos = (ymax-ymin)/4 + ypos_offset
             d_ypos = (ymax-ymin)/12
             ax2.text(x=xpos,y=ypos,s=r"$B_\star$    = " + str(f'{B_star:.1f}') + " G ",fontsize='small')
-            ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(f'{B_planet_loc:.1f}') + r"$B_{\rm Earth}$", fontsize='small')
+            ax2.text(x=xpos,y=ypos-d_ypos,s=r"$B_{\rm planet}$ = " + str(f'{B_planet_ref:.1f}') + r"$B_{\rm Earth}$", fontsize='small')
             ax2.text(x=xpos,y=ypos-2*d_ypos, s=r"$\dot{M}$ = " + str(f'{M_star_dot:.1f}') + "$\dot{M}_\odot$", fontsize='small')
             """
 
@@ -526,7 +528,7 @@ for indi in planet_array:
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
-            print('B_planet_loc = {0:.3f} G'.format(B_planet_loc * bfield_earth*Tesla2Gauss))
+            print('B_planet_ref = {0:.3f} G'.format(B_planet_ref * bfield_earth*Tesla2Gauss))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
