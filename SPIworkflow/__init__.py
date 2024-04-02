@@ -37,8 +37,8 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-STUDY = "D_ORB"
-#STUDY = "M_DOT"
+#STUDY = "D_ORB"
+STUDY = "M_DOT"
 #STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
@@ -71,14 +71,14 @@ B_PL_MAX = 20
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-Bfield_geom_arr = [0]
+Bfield_geom_arr = [0,1]
 
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Computation of planetary magnetic field
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
@@ -180,3 +180,7 @@ PLOTOUT = True
 DRAW_RMS = True
 # DRAW Little Earth?
 DRAW_EARTH = True
+LIMS_MA=True
+LIM_MA_LOW=10**(-2)
+LIM_MA_HIGH=1
+
