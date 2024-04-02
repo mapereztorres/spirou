@@ -421,6 +421,8 @@ for indi in planet_array:
                 ax2.set_xscale('log') 
                 ax1.set_yscale('log')
                 ax2.set_yscale('log') 
+                ax1.set_xscale('log')
+                ax1.set_ylim((10**-2, 1))
                 # Draw vertical line at nomimal M_star_dot value
                 ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
                 ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
