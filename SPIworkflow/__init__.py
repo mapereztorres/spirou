@@ -2,9 +2,19 @@ import numpy as np
 from SPIworkflow.constants import *
 
 
+#####################################################
+# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
+#####################################################
+# If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
+COMPUTE_ALL = False
+# If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
+# which_planets
+which_planets = [20, 21]
+
 ###################################
 ### INPUT TABLE
 ###################################
+# If EXOPLANETS = True, then we use SPI-targets.csv, which contains (confirmed) planets
 EXOPLANETS = True
 
 # If true, it reads a table with stellar systems hosting planets, so 
@@ -16,13 +26,38 @@ else:
 
 selection_criteria = False
 
-sweep="RAD"
 
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
-#star_array = range(len(data))
-star_array = [1]
+
+#######################################################################
+#  STUDY CASES
+#  STUDY == 'D_ORB' - Predicted flux as a function of orbital distance
+#  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
+#  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
+#######################################################################
+STUDY = "D_ORB"
+#STUDY = "M_DOT"
+#STUDY = "B_PL"
+
+#  STUDY = 'M_DOT' SETUP
+#
+# M_DOT_MIN, M_DOT_MAX: Minimum and maximum mass-loss rates to carry out the study of M_dot
+# In units of M_dot_sun 
+# M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
+M_DOT_STRETCH = 100
+M_DOT_MIN = 1e-1
+M_DOT_MAX = 1e+1
+
+#  STUDY = 'B_PL' SETUP
+#
+# B_PL_MIN, B_PL_MAX: Minimum and maximum planetary magnetic field to carry out 
+# the study of "B_PL". Values in Gauss
+#
+STEP = 0.05
+B_PL_MIN = 0
+B_PL_MAX = 20 
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -42,8 +77,8 @@ Bfield_geom_arr = [0]
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-magnetized_pl_arr = [False, True]
-#magnetized_pl_arr = [True]
+#magnetized_pl_arr = [False, True]
+magnetized_pl_arr = [True]
 
 # Computation of planetary magnetic field
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
@@ -52,7 +87,7 @@ B_planet_law = 'Sano'
 #B_planet_law = 'None'
 
 # Default planetary magnetic field, in Tesla
-B_planet_default = bfield_earth 
+B_PLANET_DEFAULT = bfield_earth 
 
 
 ###################################
@@ -114,8 +149,8 @@ X_p = 0.5 # fraction of protons
 alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
-#eps_min = 0.01; eps_max = 0.1
-eps_min = 0.01; eps_max = 0.05
+#eps_min = 0.01; eps_max = 0.11
+eps_min = 0.002; eps_max = 0.02
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
@@ -136,8 +171,12 @@ which_beam_solid_angle = 'Jupiter-Io'
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
-
-# plotout = True => plot graphs to external files
-# plotout = False => plot in terminal
-plotout = True 
- 
+## LINEWIDTH 
+LW = 3
+# PLOTOUT = True => plot graphs to external files
+# PLOTOUT = False => plot in terminal
+PLOTOUT = True 
+# DRAW_RMS?
+DRAW_RMS = True
+# DRAW Little Earth?
+DRAW_EARTH = True

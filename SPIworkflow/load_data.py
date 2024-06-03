@@ -75,7 +75,7 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
         df2 = df[["planet_name", "star_name",  
             "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
             "e_bfield_star", "radius_planet(r_earth)", "mass_planet(m_earth)",
-            "mass_sini", "p_orb(days)", "a(au)" ]]
+            "mass_sini", "p_orb(days)", "a(au)" ,"eccentricity"]]
 
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
@@ -193,6 +193,7 @@ def load_target(data, indi):
     OUTPUT:
     INPUT: 
     """
+    starname=data['star_name'][indi]
     d      = data['d_star(pc)'][indi] * pc               # Distance to stellar system , in  cm
     R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
@@ -210,16 +211,87 @@ def load_target(data, indi):
         if pd.isna(Rp): 
             Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
         Rp *= R_earth # Planetary radius, in cm
-        # WARNING: Add Rp estimator if Rp values are missing in table (To be included)
-        r_orb  = data['a(au)'][indi]*au    # orbital distance, in cm
-        P_orb = data['p_orb(days)'][indi] #orbital period of planet, in days
+        P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days
+        r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
+        if pd.isna(r_orb): # If there is no mass value, use mass * sin(i)
+            r_orb = spi.Kepler_r(M_star/M_sun, P_orb) * au
+        eccentricity=data['eccentricity'][indi]
     else:
         # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
         Exoplanet = 'Earth'
         Mp = M_earth # Planetary mass, in grams
         Rp = R_earth # Planetary radius, in cm
         r_orb  = 0.2 * au    # orbital distance, in cm
+        eccentricity=0
         P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
-    return d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb
+    # compute periastron (q) and apoastron (Q), in cm
+    q = (1 - eccentricity) * r_orb 
+    Q = (1 + eccentricity) * r_orb
 
+    return starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q
+
+
+class table_lists:
+    def __init__(self):
+        self.planet_name_list=[]
+        self.star_name_list=[]
+        self.d_star_list=[]
+        self.mass_star_list=[]
+        self.radius_star_list=[]
+        self.p_rot_list=[]
+        self.bfield_star_list=[]
+        self.a_list=[]
+        self.p_orb_list=[]
+        self.eccentricity_list=[]
+        self.q_list=[]
+        self.Q_list=[]
+        self.mass_planet_list=[]
+        self.radius_planet_list=[]
+        self.T_cor_list=[]
+        self.m_dot_list=[]
+        self.nu_pl_list=[]
+        self.nu_cycl_list=[]
+        self.rho_pl_list=[]
+        self.B_pl_list=[]
+        self.B_sw_list=[]
+        self.v_alf_list=[]
+        self.M_A_list=[]
+        self.Flux_r_S_ZL_min_list=[]
+        self.Flux_r_S_ZL_max_list=[]
+        self.P_Bpl_list=[]
+        self.P_dyn_list=[]
+        self.P_th_list=[]
+        self.P_Bsw_list=[]
+        self.Rmp_list=[]
+    def add_values(self,planet_name,star_name,d_star,mass_star,radius_star,p_rot,bfield_star,a,p_orb,eccentricity,q,Q,mass_planet,radius_planet,T_cor,m_dot,nu_pl,nu_cycl,rho_pl,B_pl,B_sw,v_alf,M_A,Flux_r_S_ZL_min,Flux_r_S_ZL_max,P_Bpl,P_dyn,P_th,P_Bsw,Rmp):
+        self.planet_name_list.append(planet_name)
+        self.star_name_list.append(star_name)
+        self.d_star_list.append(d_star)
+        self.mass_star_list.append(mass_star)
+        self.radius_star_list.append(radius_star)
+        self.p_rot_list.append(p_rot)
+        self.bfield_star_list.append(bfield_star)
+        self.a_list.append(a)
+        self.p_orb_list.append(p_orb)
+        self.eccentricity_list.append(eccentricity)
+        self.q_list.append(q)
+        self.Q_list.append(Q)
+        self.mass_planet_list.append(mass_planet)
+        self.radius_planet_list.append(radius_planet)
+        self.T_cor_list.append(T_cor)
+        self.m_dot_list.append(m_dot)
+        self.nu_pl_list.append(nu_pl)
+        self.nu_cycl_list.append(nu_cycl)
+        self.rho_pl_list.append(rho_pl)
+        self.B_pl_list.append(B_pl)
+        self.B_sw_list.append(B_sw)
+        self.v_alf_list.append(v_alf)
+        self.M_A_list.append(M_A)
+        self.Flux_r_S_ZL_min_list.append(Flux_r_S_ZL_min)
+        self.Flux_r_S_ZL_max_list.append(Flux_r_S_ZL_max)
+        self.P_Bpl_list.append(P_Bpl)
+        self.P_dyn_list.append(P_dyn)
+        self.P_th_list.append(P_th)
+        self.P_Bsw_list.append(P_Bsw)
+        self.Rmp_list.append(Rmp)

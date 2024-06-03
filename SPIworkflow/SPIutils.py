@@ -201,8 +201,13 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = 0.5 * m_p):
                 m_av       - average particle mass of the stellar wind (= mu * m_p) in grams
     """
     M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
-    M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
-    rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    ### WARNING: when using the " *= " format below, the original value of M_star_dot is
+    # overwritten outside the function, even if not present in return!!
+    #
+    #M_star_dot *= M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
+    #rho  = M_star_dot/(4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
+    M_star_dot_grams = M_star_dot * M_sun_dot * M_sun/yr2sec  # mass-loss rate, in grams/sec
+    rho  = M_star_dot_grams / (4*np.pi * d**2 * v_sw) # Density of the stellar wind, in gr/cm3
     n_sw = rho / m_av
 
     return n_sw
@@ -256,17 +261,41 @@ def get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw):
 
     return R_planet_eff
 
+def get_P_sw(n_sw, v_rel, T_e, B_sw, mu):
+    """
+       Computes the total pressure of the stellar wind exerted on the planet.
+
+       OUTPUT: P_sw, P_dyn_sw, P_th_sw, P_B_sw - all in erg/cm3
+               P_sw     - total pressure stellar wind at the orbital distance of the planet
+               P_dyn_sw - dynamical pressure of the stellar wind at the orbital distance of the planet
+               P_th_sw  - thermal pressure of the stellar wind at the orbital distance of the planet
+               P_B_sw   - magnetic pressure of the stellar wind at the orbital distance of the planet
+
+       INPUT : n_sw  - number density of the stellar wind at the planet's orbital position, in  # cm^(-3)
+               v_rel - Relative velocity between the stellar wind to the orbital velocity of the planet, in cm/s
+               T_e  - Temperature of the stellar wind ath the planet's position. 
+               B_sw  - Stellar wind magnetic field, in Gauss
+               mu    - mean molecular weight (adimensional)
+    """
+
+    rho_sw  = mu * m_p * n_sw
+    P_dyn_sw = rho_sw * v_rel**2
+    P_th_sw = n_sw * k_B * T_e
+    P_B_sw = B_sw**2 / (8 * np.pi)
+
+    P_sw = P_dyn_sw + P_th_sw + P_B_sw
+
+    return P_sw, P_dyn_sw, P_th_sw, P_B_sw
+
 def get_P_dyn_sw(n_sw=1e7, mu=0.5, v_rel=1e7):
     """Computes the dynamical pressure of the stellar wind at the orbital distance 
                of the planet, P_dyn_sw, in erg/cm3
 
        OUTPUT: P_dyn_sw, in erg/cm3
 
-       INPUT : n_sw  - number density of the stellar wind at the planet's
-                       orbital position, in  # cm^(-3)
+       INPUT : n_sw  - number density of the stellar wind at the planet's orbital position, in  # cm^(-3)
                mu    - mean molecular weight 
-               v_rel - Relative velocity between the stellar wind to the
-                       orbital velocity of the planet, in cm/s
+               v_rel - Relative velocity between the stellar wind to the orbital velocity of the planet, in cm/s
     """
     rho_sw  = mu * m_p * n_sw
     P_dyn_sw = rho_sw * v_rel**2
@@ -279,18 +308,16 @@ def get_P_th_sw(n_sw=1e7, T_e=2e6):
 
        OUTPUT: P_th_sw, in erg/cm3
 
-       INPUT : n_sw - number density of the stellar wind at the planet's
-                      orbital position, in  # cm^(-3)
+       INPUT : n_sw - number density of the stellar wind at the planet's orbital position, in  # cm^(-3)
                k_B  - Boltzmann's constant
-               T_e  - Temperature of the stellar wind ath the planet's
-                      position. 
+               T_e  - Temperature of the stellar wind ath the planet's position. 
     """
     P_th_sw = n_sw * k_B * T_e
 
     return P_th_sw
 
 def get_P_B_sw(B_sw=1.0):
-    """Computes the  pressure of the stellar wind at the orbital distance 
+    """Computes the magnetic pressure of the stellar wind at the orbital distance 
                of the planet, P_dyn_sw, in erg/cm3
 
        OUTPUT: 
@@ -303,6 +330,7 @@ def get_P_B_sw(B_sw=1.0):
     P_B_sw = B_sw**2 / (8 * np.pi)
 
     return P_B_sw
+
 
 def get_P_B_planet(B_planet = 1.0):
     """Computes the magnetic pressure of planet at the equator, P_Bp, in erg/cm3
