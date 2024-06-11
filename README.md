@@ -9,11 +9,9 @@ that grew too much, hence it is now split into several pieces of python code.
 
 ```
 ├── spi.yml     - yml file to create a python environment to run the code
-├── SPI.ipynb   - Jupyter notebook for the code - outdated
 ├── SPI.py      - Current version, in continuous development
-├── SPI.py.orig - original version of SPI.py.orig - to be removed eventually
-├── SPI_mdot.py      - Current version, in continuous development. Calculates emission as a function of the stellar Ṁ.
-├── SPI_Bp.py      - Current version, in continuous development. Calculates emission as a function of the magnetic field of the planet.
+├── SPI_mdot.py      - Current version, in continuous development. Calculates emission as a function of the stellar Ṁ. - Not used anymore
+├── SPI_Bp.py      - Current version, in continuous development. Calculates emission as a function of the magnetic field of the planet. - Not used anymore
 ```
 
 
@@ -40,26 +38,23 @@ conda env update --name spi --file spi.yml --prune'
 .
 ├── INPUT     - Contains input files (data tables to be fed into the code)
 ├── OUTPUT    - Contains output files 
-├── OUTPUT.old
-├── OUTPUT.veryold
-├── pics     - Folder containing pictures 
+├── pics      - Folder containing pictures 
 ├── README.md - This file
 ├── specific  - Folder containing Jupyter nb and code specific for some sources 
+├── output.py - module containing function for output (table and, eventually, graphs)
 ├── SPIworkflow - Folder containing the python package 
-    ──  __init__.py  - necessary for the folder to become a Python package
-    ── constants.py  - useful constants for the code
-    ── data.py       - Auxiliary function to read in data to feed modelling
-    ── SPIutils.py   - useful functions for SPI.py
-    ── <Other_files> - currently not used by the code
-└── testdir  - Folder with code to test functions, subroutines, etc.
+    ──  __init__.py  - File needed for the folder to become a Python package
+    ── constants.py  - File containing useful constants for the code
+    ── load_data.py  - File containing auxiliary functions to read in data to feed modelling
+    ── SPIutils.py   - File containing useful functions for SPI.py
+└── testdir          - Folder with code to test functions, subroutines, etc.
 ```
 
 The main piece of code is SPI.py.
 
 SPIworkflow is actually a Python package in itself. It requires at least
-the existence of the file ``__init__.py``. Eveything in that file becomes
+the existence of the file ``__init__.py``. Everything in that file becomes
 available once the package is imported. 
-
 
 
 ## Limitations 
@@ -70,16 +65,4 @@ effects on the wind are neglected.
 
 
 ## List of things to be developed/modified/etc. 
-
-Obtain the stellar wind number density at the base of the corona,
-``n_sw_base``, from an assumed/measured/estimated mass loss rate for the star.
-Currently, ``n_sw_base`` is read from __init__.py.
-
-Generate plots of Flux density as a function of the planetary magnetic field, for a given
-orbital distance (and the rest of the parameters being fixed).
-
-Generate plots of Flux density as a function of the density at the corona of
-the star, for a given orbital distance (and the rest of the parameters being
-fixed).
-
 
