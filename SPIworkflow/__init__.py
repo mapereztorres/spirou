@@ -1,8 +1,6 @@
 import numpy as np
 from SPIworkflow.constants import *
 
-freefree = True
-Z = 1 # to move to a more appropriate place
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -39,8 +37,8 @@ selection_criteria = False
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
 #STUDY = "D_ORB"
-STUDY = "M_DOT"
-#STUDY = "B_PL"
+#STUDY = "M_DOT"
+STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -61,7 +59,22 @@ B_PL_MIN = 0
 B_PL_MAX = 4 
 
 
+####################################################
+# Stellar wind FREE ABSORPTION of SPI radio emission
+####################################################
+
+### Consider free-free absorption (True => Yes; False => No)
+freefree = True
+
+# Ionization state (Z = 1 - fully ionized hydrogen)
+Z = 1 
+
+### NSTEPS_FF: number of points for the distance array
+NSTEPS_FF = 1000 
+
+#####################################################
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
+#####################################################
 
 #####################################
 # MAGNETIC FIELD SETUP
@@ -165,8 +178,6 @@ Ekin_max = 200
 ##
 which_beam_solid_angle = 'Jupiter-Io'
 #which_beam_solid_angle = 'Computed'
-
-
 
 
 #####################################
