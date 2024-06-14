@@ -28,7 +28,7 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
-
+import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
 
 
@@ -125,7 +125,6 @@ for indi in planet_array:
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
@@ -294,7 +293,34 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
-
+            
+            
+            if freefree == True:
+                absorption = []
+                for elem in M_star_dot_arr:
+                    mdot = np.array(elem); 
+                    nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
+                    inner_limit = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
+                    outer_limit = r_orb*500 #limit for integration of free-free absorption, in cm
+                    knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,inner_limit,outer_limit,10000)
+                    absorption.append(np.exp(-taunu))
+                    
+                absorption_factor = np.array(absorption)
+                print(absorption_factor)
+                print('Before free-free:', Flux_r_S_min[0])
+                Flux_r_S_min = Flux_r_S_min * absorption_factor
+                print('After free-free:', Flux_r_S_min[0])
+                print(Flux_r_S_min)
+                Flux_r_S_max = Flux_r_S_max * absorption_factor
+                Flux_r_S_ZL_min = Flux_r_S_ZL_min * absorption_factor
+                Flux_r_S_ZL_max = Flux_r_S_ZL_max * absorption_factor    
+                #plt.figure(figsize=(8,11))
+                #ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print('plotting?')
+                #plt.show()
+                #plt.savefig('absorption_vs_mdot.pdf')
+            
             """
             Moving parts of plotting outside the loop
             """
@@ -498,6 +524,9 @@ for indi in planet_array:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (PLOTOUT= True), or show them in
             # the terminal (PLOTOUT = False) 
+            if freefree == True:
+                outfile = outfile + '_freefree'
+            
             if PLOTOUT == True:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outfile + ".pdf")
