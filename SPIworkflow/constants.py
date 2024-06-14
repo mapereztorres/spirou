@@ -10,6 +10,8 @@ m_p = 1.6726219e-24             # proton mass, in g
 e   = 4.803204712570263e-10     # electron charge (esu)
 k_B = 1.380658e-16              # Boltzmann's constant (erg/K)
 m_h = 1.673534e-24              # Hydrogen mass, in g
+h = 6.6261e-27                  # Planck's constante, in cgs
+
 
 pc = pc2cm   = 3.0857e18        # 1 pc, in cm
 au      = 1.49597871e+13        # astonomical unit, in cm
