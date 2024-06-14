@@ -1,7 +1,8 @@
 import numpy as np
 from SPIworkflow.constants import *
 
-
+freefree = True
+Z = 1 # to move to a more appropriate place
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -9,7 +10,7 @@ from SPIworkflow.constants import *
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
 # which_planets
-which_planets = [20, 21]
+which_planets = [21]
 
 ###################################
 ### INPUT TABLE
@@ -57,7 +58,7 @@ M_DOT_MAX = 1e+1
 #
 STEP = 0.05
 B_PL_MIN = 0
-B_PL_MAX = 20 
+B_PL_MAX = 4 
 
 
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
@@ -150,7 +151,7 @@ alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
 #eps_min = 0.01; eps_max = 0.11
-eps_min = 0.002; eps_max = 0.02
+eps_min = 0.002; eps_max = 0.01
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
@@ -180,7 +181,10 @@ PLOTOUT = True
 DRAW_RMS = True
 # DRAW Little Earth?
 DRAW_EARTH = True
-LIMS_MA=True
-LIM_MA_LOW=10**(-2)
-LIM_MA_HIGH=1
+LIMS_MA = True
+LIM_MA_LOW = 10**(-2)
+LIM_MA_HIGH = 1
+FLUX_LIMS = True
+FLUX_LOW = 3*rms*10**(-1)
+FLUX_HIGH = 3*rms*10**2
 
