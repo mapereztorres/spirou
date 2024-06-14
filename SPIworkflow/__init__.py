@@ -1,8 +1,7 @@
 import numpy as np
 from SPIworkflow.constants import *
 
-freefree = True
-Z = 1 # to move to a more appropriate place
+
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -166,7 +165,11 @@ Ekin_max = 200
 which_beam_solid_angle = 'Jupiter-Io'
 #which_beam_solid_angle = 'Computed'
 
-
+#####################################
+# FREE-FREE ABSORPTION
+#####################################
+freefree = True # Apply free-free absorption to the emitting flux?
+Z = 1 # Ionization state (+1 for ionised hydrogen)
 
 
 #####################################
