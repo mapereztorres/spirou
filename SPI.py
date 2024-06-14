@@ -294,15 +294,16 @@ for indi in planet_array:
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
             
-            
+            ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             if freefree == True:
                 absorption = []
                 for elem in M_star_dot_arr:
                     mdot = np.array(elem); 
                     nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
-                    inner_limit = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
-                    outer_limit = r_orb*500 #limit for integration of free-free absorption, in cm
-                    knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,inner_limit,outer_limit,10000)
+                    R_ff_in  = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
+                    R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
+                    knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
+                            R_ff_out,NSTEPS_FF)
                     absorption.append(np.exp(-taunu))
                     
                 absorption_factor = np.array(absorption)
