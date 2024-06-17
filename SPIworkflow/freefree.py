@@ -8,13 +8,13 @@ import SPIworkflow.SPIutils as spi
 import numpy as np
 
 def get_gaunt(T,nu):
-"""
-   OUTPUT - g:  float - Gaunt factor
-   INPUT  - T:  float - Temperature of the wind,  in Kelvin
-          - nu: float - Observing frequency, in Hz
-   The Gaunt factor  is computed using Eq. X in fulanito et al. YYYY. 
-   It also takes into account the ionization state (Z - read from __init__.py)
-"""
+    """
+    OUTPUT - g:  float - Gaunt factor
+    INPUT  - T:  float - Temperature of the wind,  in Kelvin
+           - nu: float - Observing frequency, in Hz
+    The Gaunt factor  is computed using Eq. X in fulanito et al. YYYY. 
+    It also takes into account the ionization state (Z - read from __init__.py)
+    """
     g = 10.6 + 1.9 * np.log10(T) - 1.26 * np.log10(Z * nu)
     return g
 
