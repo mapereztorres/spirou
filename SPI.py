@@ -305,6 +305,7 @@ for indi in planet_array:
                     knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
                             R_ff_out,NSTEPS_FF)
                     absorption.append(np.exp(-taunu))
+                    #print(mdot,absorption)
                     
                 absorption_factor = np.array(absorption)
                 print(absorption_factor)
@@ -321,7 +322,7 @@ for indi in planet_array:
                 #print('plotting?')
                 #plt.show()
                 #plt.savefig('absorption_vs_mdot.pdf')
-            
+             
             """
             Moving parts of plotting outside the loop
             """
@@ -338,7 +339,6 @@ for indi in planet_array:
             
             ### Plot received flux density as a function of distance from the star
             ###
-            #matplotlib.rc_file_defaults()
             #plt.style.use(['bmh', '/home/torres/Dropbox/python/styles/paper.mplstyle'])
             
             ################################
@@ -527,7 +527,8 @@ for indi in planet_array:
             # the terminal (PLOTOUT = False) 
             if freefree == True:
                 outfile = outfile + '_freefree'
-            
+
+
             if PLOTOUT == True:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outfile + ".pdf")
@@ -538,6 +539,19 @@ for indi in planet_array:
             else:
                 plt.tight_layout()
                 plt.show()
+            
+            if freefree == True:
+                #outfile = outfile + '_freefree'
+                plt.figure(figsize=(8,11))
+                ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print(M_star_dot_arr)
+                ax.plot(np.log10(M_star_dot_arr), absorption_factor, color='k')
+                print('plotting?')
+                #plt.show()
+                plt.savefig(FOLDER + '/' + STUDY +'_absorption_vs_mdot.pdf')
+                plt.close()
+
 
             ###########################################################
             ################### Send OUTPUT to external text file/s
@@ -693,4 +707,5 @@ os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
 os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
 """
+
 
