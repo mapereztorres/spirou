@@ -115,7 +115,7 @@ if COMPUTE_ALL == True:
     planet_array = range(round(len(data)/1))
 else:
     planet_array = which_planets
-    
+print(planet_array)    
 for indi in planet_array:
     starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
 
@@ -302,9 +302,15 @@ for indi in planet_array:
                     nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
                     R_ff_in  = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
                     R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
-                    knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
+                    n_sw, knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
                             R_ff_out,NSTEPS_FF)
                     absorption.append(np.exp(-taunu))
+                    nu_plasma =  spi.plasma_freq(n_e = n_sw)
+                    if nu_ecm  < 10 * nu_plasma[0] :
+                        #print('nu_ecm much larger than nu_plasma')
+                        print('nu_ecm is NOT large enough compared to nu_plasma')
+                        print(nu_plasma/nu_ecm)
+    
                     #print(mdot,absorption)
                     
                 absorption_factor = np.array(absorption)
@@ -502,6 +508,35 @@ for indi in planet_array:
             else:
                 B_planet_ref = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
             
+            
+            if any(ind > 1 for ind in M_A):
+                print('This enters super-Afvénic regime')
+                M_A_superalfv_arr=np.where(M_A >1)
+                M_A_superalfv_ind=M_A_superalfv_arr[0]
+                M_A_superalfv_ind=M_A_superalfv_ind[0]
+                mdot_superalfv=M_star_dot_arr[M_A_superalfv_ind]
+                ax1.axvline(x = mdot_superalfv, color='r',lw=2)
+                ax1.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                ax2.axvline(x = mdot_superalfv, color='r',lw=2)
+                ax2.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+            #    ax2.axvline(x = 1, color='r',lw=2)
+            #M_A_superalfv  = M_A[M_A>1]
+            #mdot_superalfv=M_star_dot[M_A.index(M_A_superalfv)]
+            
+            #print(M_A_superalfv_arr) 
+            
+            
+            #print(M_A_superalfv_ind) 
+            #print(type(M_A_superalfv_ind))
+            
+            #print(M_star_dot_arr)
+            
+            #mdot_superalfv=np.where(M_star_dot == M_A_superalfv[0])
+            
+            #print(mdot_superalfv)
+            
+            
+            
             """
             xpos =xmax*0.8
             ypos_offset = (ymax-ymin)/8
@@ -540,16 +575,19 @@ for indi in planet_array:
                 plt.tight_layout()
                 plt.show()
             
-            if freefree == True:
+            if freefree == True and STUDY == 'M_DOT': #################
                 #outfile = outfile + '_freefree'
                 plt.figure(figsize=(8,11))
                 ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
                 #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
                 #print(M_star_dot_arr)
-                ax.plot(np.log10(M_star_dot_arr), absorption_factor, color='k')
+                ax.plot(M_star_dot_arr, absorption_factor, color='k')
+                ax.set_xscale('log')
+                ax.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                ax.set_ylabel(r"Fraction of transmitted flux")
                 print('plotting?')
                 #plt.show()
-                plt.savefig(FOLDER + '/' + STUDY +'_absorption_vs_mdot.pdf')
+                plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_")) +'_absorption_vs_mdot.pdf')
                 plt.close()
 
 
