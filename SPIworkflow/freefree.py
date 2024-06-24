@@ -35,11 +35,9 @@ def ff_absorption(M_star, nu, T, m_av, mdot, R_ff_in, R_ff_out, NSTEPS_FF):
     knu=3.692*10**8*(1-np.exp((-h*nu)/(k_B*T)))*Z**2*g*T**(-1/2)*nu**(-3)
     alphanu = knu * n_sw**2
     taunu=integral.trapezoid(alphanu,dist_absorption)
-    return knu,alphanu,taunu
-    
+    return n_sw, knu,alphanu,taunu
     
 
-    
 '''  
 nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
 
