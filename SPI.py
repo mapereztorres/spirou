@@ -28,7 +28,7 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
-
+import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
 
 
@@ -115,7 +115,7 @@ if COMPUTE_ALL == True:
     planet_array = range(round(len(data)/1))
 else:
     planet_array = which_planets
-    
+print(planet_array)    
 for indi in planet_array:
     starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
 
@@ -125,7 +125,6 @@ for indi in planet_array:
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
@@ -294,7 +293,42 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
-
+            
+            ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
+            if freefree == True:
+                absorption = []
+                for elem in M_star_dot_arr:
+                    mdot = np.array(elem); 
+                    nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
+                    R_ff_in  = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
+                    R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
+                    n_sw, knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
+                            R_ff_out,NSTEPS_FF)
+                    absorption.append(np.exp(-taunu))
+                    nu_plasma =  spi.plasma_freq(n_e = n_sw)
+                    if nu_ecm  < 10 * nu_plasma[0] :
+                        #print('nu_ecm much larger than nu_plasma')
+                        print('nu_ecm is NOT large enough compared to nu_plasma')
+                        print(nu_plasma/nu_ecm)
+    
+                    #print(mdot,absorption)
+                    
+                absorption_factor = np.array(absorption)
+                print(absorption_factor)
+                print('Before free-free:', Flux_r_S_min[0])
+                Flux_r_S_min = Flux_r_S_min * absorption_factor
+                print('After free-free:', Flux_r_S_min[0])
+                print(Flux_r_S_min)
+                Flux_r_S_max = Flux_r_S_max * absorption_factor
+                Flux_r_S_ZL_min = Flux_r_S_ZL_min * absorption_factor
+                Flux_r_S_ZL_max = Flux_r_S_ZL_max * absorption_factor    
+                #plt.figure(figsize=(8,11))
+                #ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print('plotting?')
+                #plt.show()
+                #plt.savefig('absorption_vs_mdot.pdf')
+             
             """
             Moving parts of plotting outside the loop
             """
@@ -311,7 +345,6 @@ for indi in planet_array:
             
             ### Plot received flux density as a function of distance from the star
             ###
-            #matplotlib.rc_file_defaults()
             #plt.style.use(['bmh', '/home/torres/Dropbox/python/styles/paper.mplstyle'])
             
             ################################
@@ -421,6 +454,9 @@ for indi in planet_array:
                 ax2.set_xscale('log') 
                 ax1.set_yscale('log')
                 ax2.set_yscale('log') 
+                ax1.set_xscale('log')
+                if LIMS_MA == True:
+                    ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
                 # Draw vertical line at nomimal M_star_dot value
                 ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
                 ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
@@ -472,6 +508,35 @@ for indi in planet_array:
             else:
                 B_planet_ref = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
             
+            
+            if any(ind > 1 for ind in M_A):
+                print('This enters super-Afvénic regime')
+                M_A_superalfv_arr=np.where(M_A >1)
+                M_A_superalfv_ind=M_A_superalfv_arr[0]
+                M_A_superalfv_ind=M_A_superalfv_ind[0]
+                mdot_superalfv=M_star_dot_arr[M_A_superalfv_ind]
+                ax1.axvline(x = mdot_superalfv, color='r',lw=2)
+                ax1.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                ax2.axvline(x = mdot_superalfv, color='r',lw=2)
+                ax2.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+            #    ax2.axvline(x = 1, color='r',lw=2)
+            #M_A_superalfv  = M_A[M_A>1]
+            #mdot_superalfv=M_star_dot[M_A.index(M_A_superalfv)]
+            
+            #print(M_A_superalfv_arr) 
+            
+            
+            #print(M_A_superalfv_ind) 
+            #print(type(M_A_superalfv_ind))
+            
+            #print(M_star_dot_arr)
+            
+            #mdot_superalfv=np.where(M_star_dot == M_A_superalfv[0])
+            
+            #print(mdot_superalfv)
+            
+            
+            
             """
             xpos =xmax*0.8
             ypos_offset = (ymax-ymin)/8
@@ -488,13 +553,17 @@ for indi in planet_array:
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
             else:
                 print(FOLDER + ' already exists.')
-            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
+            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'             
             if Bfield_geom_arr[ind]:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (PLOTOUT= True), or show them in
             # the terminal (PLOTOUT = False) 
+            if freefree == True:
+                outfile = outfile + '_freefree'
+
+
             if PLOTOUT == True:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outfile + ".pdf")
@@ -505,6 +574,22 @@ for indi in planet_array:
             else:
                 plt.tight_layout()
                 plt.show()
+            
+            if freefree == True and STUDY == 'M_DOT': #################
+                #outfile = outfile + '_freefree'
+                plt.figure(figsize=(8,11))
+                ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print(M_star_dot_arr)
+                ax.plot(M_star_dot_arr, absorption_factor, color='k')
+                ax.set_xscale('log')
+                ax.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                ax.set_ylabel(r"Fraction of transmitted flux")
+                print('plotting?')
+                #plt.show()
+                plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_")) +'_absorption_vs_mdot.pdf')
+                plt.close()
+
 
             ###########################################################
             ################### Send OUTPUT to external text file/s
@@ -660,4 +745,5 @@ os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
 os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
 """
+
 

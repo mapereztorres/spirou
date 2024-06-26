@@ -1,7 +1,6 @@
 import numpy as np
 from SPIworkflow.constants import *
 
-
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -9,7 +8,7 @@ from SPIworkflow.constants import *
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
 # which_planets
-which_planets = [20, 21]
+which_planets = [21]
 
 ###################################
 ### INPUT TABLE
@@ -37,9 +36,9 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-STUDY = "D_ORB"
+#STUDY = "D_ORB"
 #STUDY = "M_DOT"
-#STUDY = "B_PL"
+STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -57,10 +56,25 @@ M_DOT_MAX = 1e+1
 #
 STEP = 0.05
 B_PL_MIN = 0
-B_PL_MAX = 20 
+B_PL_MAX = 4 
 
 
+####################################################
+# Stellar wind FREE ABSORPTION of SPI radio emission
+####################################################
+
+### Consider free-free absorption (True => Yes; False => No)
+freefree = True
+
+# Ionization state (Z = 1 - fully ionized hydrogen)
+Z = 1 
+
+### NSTEPS_FF: number of points for the distance array
+NSTEPS_FF = 1000 
+
+#####################################################
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
+#####################################################
 
 #####################################
 # MAGNETIC FIELD SETUP
@@ -71,14 +85,14 @@ B_PL_MAX = 20
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-Bfield_geom_arr = [0]
+Bfield_geom_arr = [0,1]
 
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Computation of planetary magnetic field
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
@@ -150,7 +164,7 @@ alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
 #eps_min = 0.01; eps_max = 0.11
-eps_min = 0.002; eps_max = 0.02
+eps_min = 0.002; eps_max = 0.01
 
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
@@ -165,9 +179,6 @@ Ekin_max = 200
 which_beam_solid_angle = 'Jupiter-Io'
 #which_beam_solid_angle = 'Computed'
 
-
-
-
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
@@ -180,3 +191,10 @@ PLOTOUT = True
 DRAW_RMS = True
 # DRAW Little Earth?
 DRAW_EARTH = True
+LIMS_MA = True
+LIM_MA_LOW = 10**(-2)
+LIM_MA_HIGH = 1
+FLUX_LIMS = True
+FLUX_LOW = 3*rms*10**(-1)
+FLUX_HIGH = 3*rms*10**2
+
