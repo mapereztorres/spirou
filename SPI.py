@@ -190,7 +190,7 @@ for indi in planet_array:
     # Maximum plasma frequency at the base of the corona. If the ECM
     # freq is less than the plasma frequency, the emission is
     # completely absorbed 
-    nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
+    nu_plasma_corona = spi.plasma_freq(n_base_corona * X_e) # in Hz
 
     #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
     
@@ -302,10 +302,10 @@ for indi in planet_array:
                     nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
                     R_ff_in  = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
                     R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
-                    n_sw, knu,alphanu,taunu =  ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,mdot,R_ff_in,
+                    n_sw, knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,X_p,mdot,R_ff_in,
                             R_ff_out,NSTEPS_FF)
                     absorption.append(np.exp(-taunu))
-                    nu_plasma =  spi.plasma_freq(n_e = n_sw)
+                    nu_plasma =  spi.plasma_freq(n_e = n_sw * X_e)
                     if nu_ecm  < 10 * nu_plasma[0] :
                         #print('nu_ecm much larger than nu_plasma')
                         print('nu_ecm is NOT large enough compared to nu_plasma')
@@ -587,7 +587,8 @@ for indi in planet_array:
                 ax.set_ylabel(r"Fraction of transmitted flux")
                 print('plotting?')
                 #plt.show()
-                plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_")) +'_absorption_vs_mdot.pdf')
+                plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                        +'_absorption_vs_mdot'+'T_corona'+str(T_corona/1e6)+'MK.pdf')
                 plt.close()
 
 
