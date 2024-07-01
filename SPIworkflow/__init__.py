@@ -58,6 +58,9 @@ STEP = 0.05
 B_PL_MIN = 0
 B_PL_MAX = 4 
 
+##
+# Distance (from the centre of the star) where SPI emission takes place (in units of R_star)
+R_SPI = 1.1
 
 ####################################################
 # Stellar wind FREE ABSORPTION of SPI radio emission
@@ -69,8 +72,12 @@ freefree = True
 # Ionization state (Z = 1 - fully ionized hydrogen)
 Z = 1 
 
+# Distance to the observer, which can be considered where free-free absorption becomes negligible 
+
+R_ff_OBSERVER = 10000
+
 ### NSTEPS_FF: number of points for the distance array
-NSTEPS_FF = 1000 
+NSTEPS_FF = 1000
 
 #####################################################
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
