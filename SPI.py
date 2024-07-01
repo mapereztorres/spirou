@@ -304,9 +304,11 @@ for indi in planet_array:
 
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             alphamatrix=[]
+
             ####
             # We need to determine the 
             ####
+
             R_ff_in  = R_star * R_SPI #altitude over stellar surface where SPI takes place, in cm
             R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
             #R_ff_out = R_star * R_ff_OBSERVER #limit for integration of free-free absorption, in cm
@@ -340,6 +342,7 @@ for indi in planet_array:
                     print('alphanu entero')
                     print(alphanu)
                   
+
                     
                     if os.path.isfile('test.txt'):
                         os.system('rm test.txt')
@@ -354,6 +357,7 @@ for indi in planet_array:
                     #print(content)
                     alphamatrix.append(content)
                     
+
                 
                 ''' 
                 absorption_factor = np.array(absorption)
