@@ -9,7 +9,7 @@ class OutputWriter:
         Exoplanet, Rp, Mp, r_orb, P_orb, 
         loc_pl, M_star_dot_loc, n_base_corona, nu_plasma_corona, gyrofreq,
         Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-        Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff):
+        Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,STUDY):
 
         with open(self.outfileTXT, 'w') as f:
              f.write('# INPUT PARAMETERS:               ########\n') 
@@ -62,4 +62,5 @@ class OutputWriter:
              f.write('B_sw at r_orb: {0:.2e} \n'.format(B_sw[loc_pl][0]))
              f.write('Rmp at r_orb: {0:.2e} \n'.format(Rmp[loc_pl][0]/Rp))
              f.write('R_planet_eff at r_orb: {0:.2e} \n'.format(R_planet_eff[loc_pl][0]/Rp))
-
+             #f.write('value of  {0} where there is clear detection:  {1:.2e}\n'.format(STUDY,x_larger_rms))
+             f.write('value of '+STUDY+' where there is clear detection: '+x_larger_rms)
