@@ -18,7 +18,7 @@ def get_gaunt(T,nu):
     g = 10.6 + 1.9 * np.log10(T) - 1.26 * np.log10(Z * nu)
     return g
 
-def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF):
+def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF,R_star):
     '''
     mdot: stellar mass-loss rate, in units of the Sun mass-loss rate
     nu: frequency of observation, in Hz
@@ -30,6 +30,7 @@ def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF):
     '''
     
     dist_absorption = np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)
+    #dist_absorption = np.logspace(np.log10(R_ff_in),np.log10(R_ff_out),NSTEPS_FF)
     v_sound, r_sonic, v_sw = spi.v_stellar_wind(dist_absorption, M_star, T, m_av)
     n_sw = spi.n_wind(mdot, dist_absorption, v_sw, m_av) 
     n_p  = n_sw * X_p
@@ -38,7 +39,7 @@ def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF):
     knu=3.692*10**8*(1-np.exp((-h*nu)/(k_B*T)))*Z**2*g*T**(-1/2)*nu**(-3)
     alphanu = knu * n_e * n_p
     taunu=integral.trapezoid(alphanu,dist_absorption)
-    return n_sw, knu,alphanu,taunu
+    return v_sw,n_sw, knu,alphanu,taunu
     
 
 '''  
