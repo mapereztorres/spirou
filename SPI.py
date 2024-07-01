@@ -125,6 +125,7 @@ for indi in planet_array:
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+    #B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)           
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
@@ -279,7 +280,14 @@ for indi in planet_array:
 
             # The effective radius (in cm) is the radius of the magnetopause
             R_planet_eff = Rmp
-
+            # Find value of Bp where R_planet_eff where is larger than Rp
+            indices_R_planet_eff_larger_Rp = np.argwhere(R_planet_eff > Rp)
+            #print(indices_R_planet_eff_larger_Rp)
+            #index_R_planet_eff_larger_Rp = indices_R_planet_eff_larger_Rp[0]
+            if indices_R_planet_eff_larger_Rp.size > 0:
+                B_planet_eff_rad = B_planet_arr[indices_R_planet_eff_larger_Rp[0]]          
+                print('value of Bp where magnesphere is larger than Rp: ',B_planet_eff_rad)
+                 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
             
@@ -293,26 +301,61 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
-            
+
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
+            alphamatrix=[]
+            ####
+            # We need to determine the 
+            ####
+            R_ff_in  = R_star * R_SPI #altitude over stellar surface where SPI takes place, in cm
+            R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
+            #R_ff_out = R_star * R_ff_OBSERVER #limit for integration of free-free absorption, in cm
+            pdn=pd.DataFrame(columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF))
+            #print('pdn')
+            #print(pdn)
             if freefree == True:
                 absorption = []
                 for elem in M_star_dot_arr:
+                    
                     mdot = np.array(elem); 
                     nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
-                    R_ff_in  = R_star*1.1 #altitude over stellar surface where SPI takes place, in cm
-                    R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
-                    n_sw, knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,X_p,mdot,R_ff_in,
-                            R_ff_out,NSTEPS_FF)
+
+                    v_sw_ff,n_sw, knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,X_p,mdot,R_ff_in,
+                            R_ff_out,NSTEPS_FF,R_star)
                     absorption.append(np.exp(-taunu))
+                '''
                     nu_plasma =  spi.plasma_freq(n_e = n_sw * X_e)
                     if nu_ecm  < 10 * nu_plasma[0] :
                         #print('nu_ecm much larger than nu_plasma')
                         print('nu_ecm is NOT large enough compared to nu_plasma')
                         print(nu_plasma/nu_ecm)
-    
-                    #print(mdot,absorption)
                     
+                    #print(mdot,absorption)
+                    #alphamatrix.append(alphanu)
+                    
+                    print('alphanu')
+                    print(len(alphanu))
+                    print(type(alphanu))
+                    print(alphanu[0])
+                    print('alphanu entero')
+                    print(alphanu)
+                  
+                    
+                    if os.path.isfile('test.txt'):
+                        os.system('rm test.txt')
+                        
+                    #file = open("test.txt", "w+")
+                    content = str(alphanu)
+                    content=content.replace(" ", ",")
+                    content=content.replace("\n", "")
+                    content=content.replace("[", "")
+                    content=content.replace("]", "")
+                    #print('content')
+                    #print(content)
+                    alphamatrix.append(content)
+                    
+                
+                ''' 
                 absorption_factor = np.array(absorption)
                 print(absorption_factor)
                 print('Before free-free:', Flux_r_S_min[0])
@@ -328,6 +371,12 @@ for indi in planet_array:
                 #print('plotting?')
                 #plt.show()
                 #plt.savefig('absorption_vs_mdot.pdf')
+                
+                #M_star_dot_arr_debug = np.array([1.1,2.0,3.0])
+                M_star_dot_arr_debug = np.array([0.06])
+                print('DEBUG')
+
+
              
             """
             Moving parts of plotting outside the loop
@@ -387,7 +436,21 @@ for indi in planet_array:
             y_max = Flux_r_S_max # maximum flux (array)
             y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
             y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
-
+                        
+            indices_Flux_larger_rms = np.argwhere(Flux_r_S_ZL_min > 3*rms)
+            #print(indices_R_planet_eff_larger_Rp)
+            #index_R_planet_eff_larger_Rp = indices_R_planet_eff_larger_Rp[0]
+            ### Determine where there is a clear detection
+            if indices_Flux_larger_rms.size > 0:
+                x_larger_rms = x[indices_Flux_larger_rms[0]]
+                x_larger_rms=x_larger_rms[0]
+                x_larger_rms="{:.2f}".format(x_larger_rms)    
+                x_larger_rms=str(x_larger_rms)      
+                print('value of x where there is clear detection: ',x_larger_rms)
+            else:
+                x_larger_rms=np.nan
+                x_larger_rms=str(x_larger_rms)
+            
             #ax1.plot(x, M_A, color='k', lw=lw)
             #ax2.plot(x, y_min, lw=lw, color='orange', lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(x, y_max, lw=lw, color='orange')
@@ -553,7 +616,7 @@ for indi in planet_array:
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
             else:
                 print(FOLDER + ' already exists.')
-            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'             
+            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
             if Bfield_geom_arr[ind]:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
@@ -588,10 +651,52 @@ for indi in planet_array:
                 print('plotting?')
                 #plt.show()
                 plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
-                        +'_absorption_vs_mdot'+'T_corona'+str(T_corona/1e6)+'MK.pdf')
+                        +'_absorption_vs_mdot'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
                 plt.close()
 
+            
+            #print('alphamatrix')
+            #print(len(alphamatrix))
+            #print(type(alphamatrix))
+            #print(alphamatrix[0])
 
+            #print(alphamatrix)
+            '''
+            if os.path.isfile(outfile+'_alphamatrix.txt'):
+                os.system('rm '+outfile+'_alphamatrix.txt')
+            with open(outfile+'_alphamatrix.txt', 'w') as f:
+                for line in alphamatrix:
+                    f.write(f"{line}\n")
+            print('test dataframe')
+            
+            col_arr=[]
+            for line in alphamatrix:
+                myString = line
+                myList = myString.split(',')     
+                print(len(myList))
+                print(myString)
+                my_arr=np.array(myList)
+                my_arr = my_arr.transpose()
+                print(my_arr)
+                col_arr.append(my_arr)
+            
+            #print(type(M_star_dot_arr))
+            #print(type(np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)))
+            #pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
+            pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
+            pdn.insert(loc=0, column='mdot/distance', value=M_star_dot_arr)
+            pdn.set_index('mdot/distance',inplace=True)
+            #pdn.to_csv('test_col_arr.csv')
+            pdn.to_csv(outfile+'_alphamatrix.csv')
+            print(pdn.columns)
+            print(len(pdn))
+            #alpha_arr = np.array(alphamatrix)
+            #alpha_arr = alpha_arr.transpose()                                    
+            #print('alpha_arr')
+            #print(alpha_arr)
+            #pdn=pd.DataFrame(data=alpha_arr, index=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF), columns=M_star_dot_arr)
+            #print(pdn)
+            '''
             ###########################################################
             ################### Send OUTPUT to external text file/s
             ###########################################################
@@ -606,10 +711,12 @@ for indi in planet_array:
             print('M_star_dot_loc = ', M_star_dot_loc)
             print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
             print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
+            print('############################')
+            print('value of '+STUDY+' where there is clear detection: ',x_larger_rms)
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, gyrofreq, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
+                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,STUDY)
 
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
@@ -619,7 +726,7 @@ for indi in planet_array:
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
+            #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
             
