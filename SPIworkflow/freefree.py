@@ -29,8 +29,8 @@ def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF,R
     R_ff_out: Distance from stellar center where free-free absorption becomes negligible, in cm
     '''
     
-    dist_absorption = np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)
-    #dist_absorption = np.logspace(np.log10(R_ff_in),np.log10(R_ff_out),NSTEPS_FF)
+    #dist_absorption = np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)
+    dist_absorption = np.logspace(np.log10(R_ff_in),np.log10(R_ff_out),NSTEPS_FF)
     v_sound, r_sonic, v_sw = spi.v_stellar_wind(dist_absorption, M_star, T, m_av)
     n_sw = spi.n_wind(mdot, dist_absorption, v_sw, m_av) 
     n_p  = n_sw * X_p
