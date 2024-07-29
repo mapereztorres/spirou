@@ -9,7 +9,8 @@ class OutputWriter:
         Exoplanet, Rp, Mp, r_orb, P_orb, 
         loc_pl, M_star_dot_loc, n_base_corona, nu_plasma_corona, gyrofreq,
         Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-        Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,STUDY):
+        Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,
+        Omega_min, Omega_max,R_planet_eff_normalized):
 
         with open(self.outfileTXT, 'w') as f:
              f.write('# INPUT PARAMETERS:               ########\n') 
@@ -63,4 +64,8 @@ class OutputWriter:
              f.write('Rmp at r_orb: {0:.2e} \n'.format(Rmp[loc_pl][0]/Rp))
              f.write('R_planet_eff at r_orb: {0:.2e} \n'.format(R_planet_eff[loc_pl][0]/Rp))
              #f.write('value of  {0} where there is clear detection:  {1:.2e}\n'.format(STUDY,x_larger_rms))
-             f.write('value of '+STUDY+' where there is clear detection: '+x_larger_rms)
+             f.write('value of '+STUDY+' where there is clear detection: '+x_larger_rms+' \n')
+             f.write('value of '+STUDY+' where there is a clear NON-detection: '+x_smaller_rms+' \n')
+             f.write('minimum value of solid angle of the emission: {0:.2f} \n'.format(Omega_min))
+             f.write('maximum value of solid angle of the emission: {0:.2f} \n'.format(Omega_max))
+             f.write('Maximum magnetopause radius in planet units: {0:.2f} \n'.format(np.max(R_planet_eff_normalized)))
