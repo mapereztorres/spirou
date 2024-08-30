@@ -269,7 +269,8 @@ for indi in planet_array:
 
             # Stellar wind pressure, in erg/cm3
             P_sw, P_dyn_sw, P_th_sw, P_B_sw = spi.get_P_sw(n_sw_planet, v_rel, T_corona, B_sw, mu)
-
+            print('P_sw/P_B_sw')
+            print(P_sw/P_B_sw)
             #P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
             #P_th_sw  = spi.get_P_th_sw(n_sw_planet, T_corona)
             #P_B_sw   = spi.get_P_B_sw(B_sw)
@@ -427,13 +428,20 @@ for indi in planet_array:
                 x = B_planet_arr # (B_planet_arr array, in Gauss )
 
             if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
-                plt.figure(figsize=(8,11))
-                ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
-                ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
-                ax1.set_facecolor("white")	
+                if print_M_A == True:
+                    plt.figure(figsize=(8,11))
+                    ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
+                    ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
+                    ax1.plot(x, M_A, color='k', lw=lw)
+                    ax1.set_ylabel(r"$M_A$")
+                    ax1.set_facecolor("white")
+                else:
+                    plt.figure(figsize=(8,7.5))
+                    ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                    ax2.set_facecolor("white")             
+                    
                 ax2.set_facecolor("white")	
-                ax1.plot(x, M_A, color='k', lw=lw)
-                ax1.set_ylabel(r"$M_A$")
+                
             elif STUDY == 'B_PL':
                 plt.figure(figsize=(8,7.5))
                 ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
@@ -503,7 +511,7 @@ for indi in planet_array:
             #
             #ax2.fill_between(x, y_min_ZL, y_max_ZL, color="blue", alpha=0.7, label="Zarka/Lanza model")
             ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
-            ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="blue", alpha=0.7, label="No ff absorption")
+            ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.7, label="No ff absorption",hatch="X",edgecolor="blue")
             
             
             #ax2.plot(dvec/R_star,np.log10(Flux_r_S), lw=lw, label="Saur/Turnpenney model")
@@ -551,34 +559,46 @@ for indi in planet_array:
             """
 
             if STUDY == 'D_ORB':
-                ax1.set_yscale('log')
                 ax2.set_yscale('log') 
                 # Draw vertical line at nominal orbital separation of planet
-                ax1.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
-                ax2.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Distance / Stellar radius")
+                xnom = r_orb/R_star
+                xlabel=r"Distance / Stellar radius"
+                ax1.axvline(x = xnom, ls='--', color='k', lw=2)
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Distance / Stellar radius")
+                ax2.set_xlabel(xlabel,fontsize=20)
                 #ax11.set_xlabel("Orbital period [days]")
             elif STUDY == 'M_DOT':
                 ax2.set_xscale('log') 
-                ax1.set_yscale('log')
                 ax2.set_yscale('log') 
-                ax1.set_xscale('log')
-                if LIMS_MA == True:
-                    ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
-                # Draw vertical line at nomimal M_star_dot value
-                ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
-                ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                xnom = M_star_dot
+                xlabel = r"Mass Loss rate [$\dot{M}_\odot$]"
+
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                ax2.set_xlabel(xlabel,fontsize=20)
             elif STUDY == 'B_PL':
                 ax2.set_yscale('log'); 
+                xnom = B_planet_Sano
+                xlabel = r"Planetary magnetic field [Gauss]"
                 # Draw vertical line at the reference planetary magnetic field
-                ax2.axvline(x = B_planet_Sano, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Planetary magnetic field [Gauss]",fontsize=20)
-
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Planetary magnetic field [Gauss]",fontsize=20)
+                ax2.set_xlabel(xlabel,fontsize=20)
+            if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
+                if print_M_A == True:
+                    ax1.set_yscale('log')                
+                    # Draw vertical line at nomimal M_star_dot value
+                    ax1.axvline(x = xnom, ls='--', color='k', lw=2)
+                    if STUDY == 'M_DOT':
+                        ax1.set_xscale('log')
+                        if LIMS_MA == True:
+                            ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
+                
             ax2.set_ylabel(r"Flux density [mJy]")
             
             orange_patch = mpatches.Patch(color='orange', label='ff absorption')
-            blue_patch = mpatches.Patch(color='blue', label='No ff absorption')
+            blue_patch = mpatches.Patch(facecolor='none',label='No ff absorption',edgecolor="blue",linewidth = 0.1,hatch='\ ')
             
             if STUDY == "M_DOT":
                 ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
@@ -587,11 +607,11 @@ for indi in planet_array:
                 else:
                     ax2.text(1e-1, 0.9, r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
                 
-                ax2.text(1e-1, 1.5, r'T$_{cor} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                ax2.text(1e-1, 1.5, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
                 
             if STUDY == "B_PL":
                 ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
-                ax2.text(0, 4e-3, r'T$_{cor} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
             
             #ax2.set_title('E')
 
@@ -711,7 +731,7 @@ for indi in planet_array:
                 ax.set_xscale('log')
                 ax.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
                 ax.set_ylabel(r"Fraction of transmitted flux")
-                ax.text(1e-1, 0, r'T$_{cor} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 22)
+                ax.text(1e-1, 0, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 22)
                 ax.set_facecolor("white")	
                 print('plotting?')
                 #plt.show()
@@ -720,16 +740,24 @@ for indi in planet_array:
                 plt.close()
                 
             #### Plot effective radius variation
-            plt.figure(figsize=(8,11))
+            plt.figure(figsize=(8,7.5))
             ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
             ax.plot(x, R_planet_eff_normalized, color='k')
             ax.plot(x, Rmp/Rp, color='r')
-            ax.set_xlabel(STUDY,fontsize=20)
-            ax.set_ylabel(r"R_planet_eff_normalized")
+            #ax.set_xlabel(STUDY,fontsize=20)
+            ax.set_xlabel(xlabel,fontsize=20)
+            #ax.set_ylabel(r"R_planet_eff_normalized")
+            ax.set_ylabel(r"$R(R_{pl})$")
             ax.set_facecolor("white")
+            #ax.axhline(y = 1, ls='--', color='r', lw=2)
+            ax.axvline(x = xnom, ls='--', color='k', lw=2)
             #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))+'-effective_radius_variation-'+STUDY+'.pdf')
+            black_patch = mpatches.Patch(color='black', label='$R_{mp}$')
+            red_patch = mpatches.Patch(color='red', label='$R_{eff}$')
+            ax.legend(handles=[black_patch,red_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=1)
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-effective_radius_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+                        
             #print('alphamatrix')
             #print(len(alphamatrix))
             #print(type(alphamatrix))
