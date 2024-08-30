@@ -1,6 +1,6 @@
 import numpy as np
 from SPIworkflow.constants import *
-
+import run_param
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -37,8 +37,8 @@ selection_criteria = False
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
 #STUDY = "D_ORB"
-STUDY = "M_DOT"
-#STUDY = "B_PL"
+#STUDY = "M_DOT"
+STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -47,7 +47,7 @@ STUDY = "M_DOT"
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 100
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+1
+M_DOT_MAX = 1e+2
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -60,8 +60,8 @@ B_PL_MAX = 4
 
 ##
 # Distance (from the centre of the star) where SPI emission takes place (in units of R_star)
-R_SPI = 1.1
-
+#R_SPI = 1.068
+R_SPI = 1.0
 ####################################################
 # Stellar wind FREE ABSORPTION of SPI radio emission
 ####################################################
@@ -77,8 +77,8 @@ Z = 1
 R_ff_OBSERVER = 10000
 
 ### NSTEPS_FF: number of points for the distance array
-NSTEPS_FF = 1000
-
+#NSTEPS_FF = 1000000
+NSTEPS_FF = 10000
 #####################################################
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
 #####################################################
@@ -92,8 +92,8 @@ NSTEPS_FF = 1000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-Bfield_geom_arr = [0,1]
-
+#Bfield_geom_arr = [0,1]
+Bfield_geom_arr = [0] 
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
@@ -137,7 +137,7 @@ rms  = 0.030
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona = 1.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
@@ -183,12 +183,14 @@ Ekin_min = 20
 Ekin_max = 200
 
 ##
-which_beam_solid_angle = 'Jupiter-Io'
-#which_beam_solid_angle = 'Computed'
+#which_beam_solid_angle = 'Jupiter-Io'
+which_beam_solid_angle = 'Computed'
 
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
+#Plot graph for M_A
+print_M_A = True
 ## LINEWIDTH 
 LW = 3
 # PLOTOUT = True => plot graphs to external files
@@ -204,4 +206,5 @@ LIM_MA_HIGH = 1
 FLUX_LIMS = True
 FLUX_LOW = 3*rms*10**(-1)
 FLUX_HIGH = 3*rms*10**2
+
 
