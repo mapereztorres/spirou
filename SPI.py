@@ -319,6 +319,8 @@ for indi in planet_array:
             pdn=pd.DataFrame(columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF))
             #print('pdn')
             #print(pdn)
+            Flux_r_S_min_no_abs=Flux_r_S_min
+            Flux_r_S_max_no_abs=Flux_r_S_max
             if freefree == True:
                 print('Applying ff-absorption')
                 absorption = []
@@ -365,8 +367,6 @@ for indi in planet_array:
 
                 
                 ''' 
-                Flux_r_S_min_no_abs=Flux_r_S_min
-                Flux_r_S_max_no_abs=Flux_r_S_max
                 absorption_factor = np.array(absorption)
                 print(absorption_factor)
                 print('Before free-free:', Flux_r_S_min[0])
@@ -510,10 +510,11 @@ for indi in planet_array:
             # Fill with color for ZL and ST models
             #
             #ax2.fill_between(x, y_min_ZL, y_max_ZL, color="blue", alpha=0.7, label="Zarka/Lanza model")
-            ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
-            ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.7, label="No ff absorption",hatch="X",edgecolor="blue")
-            
-            
+            if freefree==True:
+                ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
+                ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.7, label="No ff absorption",hatch="X",edgecolor="blue")
+            else:
+                ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7)
             #ax2.plot(dvec/R_star,np.log10(Flux_r_S), lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(dvec/R_star,np.log10(Flux_r_S_ZL), lw=lw,label = "Zarka/Lanza model")
             #
@@ -599,19 +600,31 @@ for indi in planet_array:
             
             orange_patch = mpatches.Patch(color='orange', label='ff absorption')
             blue_patch = mpatches.Patch(facecolor='none',label='No ff absorption',edgecolor="blue",linewidth = 0.1,hatch='\ ')
+            if freefree==True:
+                if STUDY == "M_DOT":
+                    ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=0)
+                    if magnetized_pl_arr[ind1]:
+                        ax2.text(1e-1, 0.9, r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    else:
+                        ax2.text(1e-1, 0.9, r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    ax2.text(1e-1, 1.5, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                
+                if STUDY == "B_PL":
+                    ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
+                    ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+            else:
+                if STUDY == "M_DOT":
+                    
+                    if magnetized_pl_arr[ind1]:
+                        ax2.text(1e-1, 0.9, r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    else:
+                        ax2.text(1e-1, 0.9, r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    ax2.text(1e-1, 1.5, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                
+                if STUDY == "B_PL":
+                    
+                    ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
             
-            if STUDY == "M_DOT":
-                ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
-                if magnetized_pl_arr[ind1]:
-                    ax2.text(1e-1, 0.9, r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-                else:
-                    ax2.text(1e-1, 0.9, r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-                
-                ax2.text(1e-1, 1.5, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-                
-            if STUDY == "B_PL":
-                ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
-                ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
             
             #ax2.set_title('E')
 
@@ -665,13 +678,14 @@ for indi in planet_array:
                 ax1.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
                 ax2.axvline(x = mdot_superalfv, color='r',lw=2)
                 ax2.axvspan(mdot_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                print('mdot_superalfv: ',mdot_superalfv)
             #    ax2.axvline(x = 1, color='r',lw=2)
             #M_A_superalfv  = M_A[M_A>1]
             #mdot_superalfv=M_star_dot[M_A.index(M_A_superalfv)]
             
             #print(M_A_superalfv_arr) 
-            
-            
+            #ax2.axvspan(4.63, 26.80, facecolor='black', alpha=0.5)
+            #ax2.axvspan(1.82, 4, facecolor='r', alpha=0.5)
             #print(M_A_superalfv_ind) 
             #print(type(M_A_superalfv_ind))
             
@@ -754,14 +768,36 @@ for indi in planet_array:
             #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))+'-effective_radius_variation-'+STUDY+'.pdf')
             black_patch = mpatches.Patch(color='black', label='$R_{mp}$')
             red_patch = mpatches.Patch(color='red', label='$R_{eff}$')
-            ax.legend(handles=[black_patch,red_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=1)
+            ax.legend(handles=[black_patch,red_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-effective_radius_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
-                        
+            
+            li = [x,y_min.tolist(), y_max.tolist()]   
+            print(y_min) 
+            print(type(y_min))
+            print(li)     
+            print(type(li))
+            print(len(li))
+            
+              
+            #df = pd.DataFrame(data=li)
+            #df = df.assign(column_name=column_series)
+            #df.index = [STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK']
+            if freefree == True: 
+                print('saving text file')
+                print(x)
+                print(y_min)
+                df = pd.DataFrame(zip(x,y_min, y_max), columns=[STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK'])
+                df.to_csv(os.path.join(outfile + ".csv"))            
+                df2= pd.DataFrame(zip(x,absorption_factor),columns=[STUDY,'abs_factor_'+str(T_corona/1e6)+'MK'])
+                df2.to_csv(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                         +'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.csv')   
+            
             #print('alphamatrix')
             #print(len(alphamatrix))
             #print(type(alphamatrix))
             #print(alphamatrix[0])
+            #dfg
 
             #print(alphamatrix)
             '''
@@ -829,11 +865,11 @@ for indi in planet_array:
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
+            #print('mdot_superalfv: ',mdot_superalfv)
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
             #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
-            
             """ 
             # dipole_mag_pl_lists   = table_lists()
 
