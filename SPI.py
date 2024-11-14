@@ -30,7 +30,6 @@ from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
 import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
-import run_param
 
 # Create output directory for the results 
 # Return df_planets and df_no_planets
