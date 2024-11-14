@@ -11,7 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
-
+import matplotlib.patches as mpatches
 #matplotlib.rc_file_defaults()
 plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
@@ -28,9 +28,8 @@ from SPIworkflow.__init__ import *
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
 import SPIworkflow.SPIutils as spi
-
+import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
-
 
 # Create output directory for the results 
 # Return df_planets and df_no_planets
@@ -80,12 +79,16 @@ beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
 # Beam solid angle covered by the ECM emission, in sterradians
 if which_beam_solid_angle == 'Jupiter-Io':
    bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
-   Omega_min = bsa_Omega; Omega_max = bsa_Omega
-else:
+   Omega_min = bsa_Omega; Omega_max = bsa_Omega 
+elif which_beam_solid_angle == 'computed':
    # Get the minimum and maximum values of the beam solid angle for the cone of emission 
    Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
-
-
+   
+elif which_beam_solid_angle == 'fixed':
+   Omega_min=0.5
+   Omega_max=0.5
+#Omega_min=0.16
+#Omega_max=1.6
 ############## CHECK THAT THE DATA TABLE IS CORRECT
 print('Reading table: ', source_data)
 print(data)
@@ -115,7 +118,7 @@ if COMPUTE_ALL == True:
     planet_array = range(round(len(data)/1))
 else:
     planet_array = which_planets
-    
+print(planet_array)    
 for indi in planet_array:
     starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
 
@@ -124,8 +127,8 @@ for indi in planet_array:
         data['bfield_star(gauss)'][indi] = spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
         # Eventually include uncertainties in B _star
         data['e_bfield_star'][indi]='TBD'
-    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
-
+    B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
+    #B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)           
     data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
         M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
     M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
@@ -143,7 +146,7 @@ for indi in planet_array:
 
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
-    Delta_nu_cycl = 0.5 * gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
+    Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
     d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
 
@@ -191,7 +194,7 @@ for indi in planet_array:
     # Maximum plasma frequency at the base of the corona. If the ECM
     # freq is less than the plasma frequency, the emission is
     # completely absorbed 
-    nu_plasma_corona = spi.plasma_freq(n_base_corona) # in Hz
+    nu_plasma_corona = spi.plasma_freq(n_base_corona * X_e) # in Hz
 
     #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
     
@@ -269,7 +272,8 @@ for indi in planet_array:
 
             # Stellar wind pressure, in erg/cm3
             P_sw, P_dyn_sw, P_th_sw, P_B_sw = spi.get_P_sw(n_sw_planet, v_rel, T_corona, B_sw, mu)
-
+            print('P_sw/P_B_sw')
+            print(P_sw/P_B_sw)
             #P_dyn_sw = spi.get_P_dyn_sw(n_sw_planet, mu, v_rel) 
             #P_th_sw  = spi.get_P_th_sw(n_sw_planet, T_corona)
             #P_B_sw   = spi.get_P_B_sw(B_sw)
@@ -277,10 +281,20 @@ for indi in planet_array:
 
             # Radius of magnetopause, in cm
             Rmp = spi.get_Rmp(P_B_planet, P_dyn_sw, P_th_sw, P_B_sw) * Rp
-
+            #and in planet radius units
+            #Rmp_normalized=Rmp/Rp      
+    
             # The effective radius (in cm) is the radius of the magnetopause
             R_planet_eff = Rmp
-
+            R_planet_eff_normalized=R_planet_eff/Rp 
+            # Find value of Bp where R_planet_eff where is larger than Rp
+            indices_R_planet_eff_larger_Rp = np.argwhere(R_planet_eff > Rp)
+            #print(indices_R_planet_eff_larger_Rp)
+            #index_R_planet_eff_larger_Rp = indices_R_planet_eff_larger_Rp[0]
+            if indices_R_planet_eff_larger_Rp.size > 0:
+                B_planet_eff_rad = B_planet_arr[indices_R_planet_eff_larger_Rp[0]]          
+                print('value of Bp where magnesphere is larger than Rp: ',B_planet_eff_rad)
+                 
             R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rp
 
             
@@ -294,7 +308,95 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
+            Flux_r_S_inter, Flux_r_S_no, Flux_r_S_ZL_no, Flux_r_S_ZL_no = spi.get_Flux(Omega_min, Omega_max, 
+                                                          Delta_nu_cycl, d, S_poynt*10, S_poynt_ZL*10)
+            ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
+            alphamatrix=[]
 
+            ####
+            # We need to determine the 
+            ####
+
+            R_ff_in  = R_star * R_SPI #altitude over stellar surface where SPI takes place, in cm
+            #R_ff_out = r_orb*500 #limit for integration of free-free absorption, in cm
+            R_ff_out = R_star * R_ff_OBSERVER #limit for integration of free-free absorption, in cm
+            pdn=pd.DataFrame(columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF))
+            #print('pdn')
+            #print(pdn)
+            Flux_r_S_min_no_abs=Flux_r_S_min
+            Flux_r_S_max_no_abs=Flux_r_S_max
+            Flux_r_S_inter_no_abs=Flux_r_S_inter
+            if freefree == True:
+                print('Applying ff-absorption')
+                absorption = []
+                for elem in M_star_dot_arr:
+                    
+                    mdot = np.array(elem); 
+                    nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
+
+                    v_sw_ff,n_sw, knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,X_p,mdot,R_ff_in,
+                            R_ff_out,NSTEPS_FF,R_star)
+                    absorption.append(np.exp(-taunu))
+                '''
+                    nu_plasma =  spi.plasma_freq(n_e = n_sw * X_e)
+                    if nu_ecm  < 10 * nu_plasma[0] :
+                        #print('nu_ecm much larger than nu_plasma')
+                        print('nu_ecm is NOT large enough compared to nu_plasma')
+                        print(nu_plasma/nu_ecm)
+                    
+                    #print(mdot,absorption)
+                    #alphamatrix.append(alphanu)
+                    
+                    print('alphanu')
+                    print(len(alphanu))
+                    print(type(alphanu))
+                    print(alphanu[0])
+                    print('alphanu entero')
+                    print(alphanu)
+                  
+
+                    
+                    if os.path.isfile('test.txt'):
+                        os.system('rm test.txt')
+                        
+                    #file = open("test.txt", "w+")
+                    content = str(alphanu)
+                    content=content.replace(" ", ",")
+                    content=content.replace("\n", "")
+                    content=content.replace("[", "")
+                    content=content.replace("]", "")
+                    #print('content')
+                    #print(content)
+                    alphamatrix.append(content)
+                    
+
+                
+                ''' 
+                absorption_factor = np.array(absorption)
+                print(absorption_factor)
+                print('Before free-free:', Flux_r_S_min[0])
+                Flux_r_S_min = Flux_r_S_min * absorption_factor
+                print('After free-free:', Flux_r_S_min[0])
+                print(Flux_r_S_min)
+                Flux_r_S_max = Flux_r_S_max * absorption_factor
+                Flux_r_S_ZL_min = Flux_r_S_ZL_min * absorption_factor
+                Flux_r_S_ZL_max = Flux_r_S_ZL_max * absorption_factor    
+                
+                Flux_r_S_inter=Flux_r_S_inter* absorption_factor
+                #plt.figure(figsize=(8,11))
+                #ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print('plotting?')
+                #plt.show()
+                #plt.savefig('absorption_vs_mdot.pdf')
+                
+                #M_star_dot_arr_debug = np.array([1.1,2.0,3.0])
+                M_star_dot_arr_debug = np.array([0.06])
+                print('DEBUG')
+                #####
+
+
+             
             """
             Moving parts of plotting outside the loop
             """
@@ -311,7 +413,6 @@ for indi in planet_array:
             
             ### Plot received flux density as a function of distance from the star
             ###
-            #matplotlib.rc_file_defaults()
             #plt.style.use(['bmh', '/home/torres/Dropbox/python/styles/paper.mplstyle'])
             
             ################################
@@ -334,13 +435,20 @@ for indi in planet_array:
                 x = B_planet_arr # (B_planet_arr array, in Gauss )
 
             if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
-                plt.figure(figsize=(8,11))
-                ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
-                ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
-                ax1.set_facecolor("white")	
+                if print_M_A == True:
+                    plt.figure(figsize=(8,11))
+                    ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
+                    ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
+                    ax1.plot(x, M_A, color='k', lw=lw)
+                    ax1.set_ylabel(r"$M_A$")
+                    ax1.set_facecolor("white")
+                else:
+                    plt.figure(figsize=(8,7.5))
+                    ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                    ax2.set_facecolor("white")             
+                    
                 ax2.set_facecolor("white")	
-                ax1.plot(x, M_A, color='k', lw=lw)
-                ax1.set_ylabel(r"$M_A$")
+                
             elif STUDY == 'B_PL':
                 plt.figure(figsize=(8,7.5))
                 ax2 = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
@@ -352,19 +460,74 @@ for indi in planet_array:
             #y_max_ZL = np.log10(Flux_r_S_ZL_max) # maximum flux (array)
             y_min = Flux_r_S_min # minimum flux (array), Saur/Turnpenney model
             y_max = Flux_r_S_max # maximum flux (array)
+            y_inter = Flux_r_S_inter
             y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
             y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
-
+            #ax.set_ylim([1e-2, max(max(y_max),max(y_max_ZL))])   
+            #ax2.set_ylim([1e-2, 3]) 
+            #ax2.set_ylim([0.01*3*rms, 100*3*rms])  
+            ax2.set_ylim([ylimlow, ylimhigh])       
+            indices_Flux_larger_rms = np.argwhere(Flux_r_S_min > 3*rms)
+            indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max > 3*rms)
+            #print(indices_R_planet_eff_larger_Rp)
+            #index_R_planet_eff_larger_Rp = indices_R_planet_eff_larger_Rp[0]
+            ### Determine where there is a clear detection
+            if indices_Flux_larger_rms.size > 0:
+                x_larger_rms = x[indices_Flux_larger_rms[0]]
+                x_larger_rms=x_larger_rms[0]
+                x_larger_rms="{:.2f}".format(x_larger_rms)    
+                x_larger_rms=str(x_larger_rms)      
+                print(x_larger_rms)
+                
+                x_last_larger=x[indices_Flux_larger_rms[-1]]
+                x_last_larger=x_last_larger[0]
+                x_last_larger="{:.2f}".format(x_last_larger)    
+                x_last_larger=str(x_last_larger)
+                print(x_last_larger)
+                print('value of x where there is clear detection: ( ',x_larger_rms+' , '+x_last_larger+' )')
+                #x_larger_rms='( ',x_larger_rms+' , '+x_last_larger+' )'
+                x_larger_rms=x_larger_rms+' , '+x_last_larger
+            else:
+                x_larger_rms=np.nan
+                x_larger_rms=str(x_larger_rms)
+            
+            
+            if indices_Flux_smaller_rms.size > 0:
+                print(indices_Flux_smaller_rms)
+                x_smaller_rms = x[indices_Flux_smaller_rms[0]]
+                x_smaller_rms=x_smaller_rms[0]
+                x_smaller_rms="{:.2f}".format(x_smaller_rms)    
+                x_smaller_rms=str(x_smaller_rms)      
+                print(x_smaller_rms)
+                
+                x_last_smaller=x[indices_Flux_smaller_rms[-1]]
+                x_last_smaller=x_last_smaller[0]
+                x_last_smaller="{:.2f}".format(x_last_smaller)    
+                x_last_smaller=str(x_last_smaller)
+                print(x_last_smaller)
+                print('value of x where there is clear NON detection: ( ',x_smaller_rms+' , '+x_last_smaller+' )')
+                #x_larger_rms='( ',x_larger_rms+' , '+x_last_larger+' )'
+                x_smaller_rms=x_smaller_rms+' , '+x_last_smaller
+            else:
+                x_smaller_rms=np.nan
+                x_smaller_rms=str(x_smaller_rms)
             #ax1.plot(x, M_A, color='k', lw=lw)
             #ax2.plot(x, y_min, lw=lw, color='orange', lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(x, y_max, lw=lw, color='orange')
-            
+            #ax2.axvline(x =  57.44, ls='--', color='k', lw=2)
             # Fill with color for ZL and ST models
             #
-            ax2.fill_between(x, y_min_ZL, y_max_ZL, color="blue", alpha=0.7, label="Zarka/Lanza model")
-            ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="Saur/Turnpenney model")
-
-
+            #ax2.fill_between(x, y_min_ZL, y_max_ZL, color="blue", alpha=0.7, label="Zarka/Lanza model")
+            if freefree==True:
+                ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
+                #ax2.fill_between(x, y_min, y_inter,color="orange", alpha=0.7, label="ff absorption")
+                ax2.plot(x,y_inter,color='black',lw=2)
+                ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="blue")
+            else:
+                ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7)
+                ax2.plot(x,y_inter,color='black',lw=2)
+                #ax2.fill_between(x, y_min, y_inter,color="orange", alpha=0.7)
+                
             #ax2.plot(dvec/R_star,np.log10(Flux_r_S), lw=lw, label="Saur/Turnpenney model")
             #ax2.plot(dvec/R_star,np.log10(Flux_r_S_ZL), lw=lw,label = "Zarka/Lanza model")
             #
@@ -410,29 +573,96 @@ for indi in planet_array:
             """
 
             if STUDY == 'D_ORB':
-                ax1.set_yscale('log')
                 ax2.set_yscale('log') 
                 # Draw vertical line at nominal orbital separation of planet
-                ax1.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
-                ax2.axvline(x = r_orb/R_star, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Distance / Stellar radius")
+                xnom = r_orb/R_star
+                xlabel=r"Distance / Stellar radius"
+                if print_M_A == True:
+                    ax1.axvline(x = xnom, ls='--', color='k', lw=2)
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Distance / Stellar radius")
+                ax2.set_xlabel(xlabel,fontsize=20)
                 #ax11.set_xlabel("Orbital period [days]")
             elif STUDY == 'M_DOT':
                 ax2.set_xscale('log') 
-                ax1.set_yscale('log')
                 ax2.set_yscale('log') 
-                # Draw vertical line at nomimal M_star_dot value
-                ax1.axvline(x = M_star_dot, ls='--', color='k', lw=2)
-                ax2.axvline(x = M_star_dot, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                xnom = M_star_dot
+                xlabel = r"Mass Loss rate [$\dot{M}_\odot$]"
+
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                ax2.set_xlabel(xlabel,fontsize=20)
             elif STUDY == 'B_PL':
                 ax2.set_yscale('log'); 
+                xnom = B_planet_Sano
+                xlabel = r"Planetary magnetic field [Gauss]"
                 # Draw vertical line at the reference planetary magnetic field
-                ax2.axvline(x = B_planet_Sano, ls='--', color='k', lw=2)
-                ax2.set_xlabel(r"Planetary magnetic field [Gauss]",fontsize=20)
-
+                ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+                #ax2.set_xlabel(r"Planetary magnetic field [Gauss]",fontsize=20)
+                ax2.set_xlabel(xlabel,fontsize=20)
+            if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
+                if print_M_A == True:
+                    ax1.set_yscale('log')                
+                    # Draw vertical line at nomimal M_star_dot value
+                    ax1.axvline(x = xnom, ls='--', color='k', lw=2)
+                    if STUDY == 'M_DOT':
+                        ax1.set_xscale('log')
+                        if LIMS_MA == True:
+                            ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
+                
             ax2.set_ylabel(r"Flux density [mJy]")
+            
+            orange_patch = mpatches.Patch(color='orange', label='ff absorption')
+            blue_patch = mpatches.Patch(facecolor='none',label='No ff absorption',edgecolor="blue",linewidth = 0.1,hatch='\ ')
+            if freefree==True:
+                if STUDY == "M_DOT":
+                    ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=0)
+                    if magnetized_pl_arr[ind1]:
+                        ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    else:
+                        ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    pos_arg=2
+                    rot=20
+                    
+                if STUDY == "B_PL":
+                    ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
+                    ax2.text(0, 10**((np.log10(ylimlow)))*4, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    pos_arg=2
+                    rot=5
 
+            else:
+                if STUDY == "M_DOT":
+                    
+                    if magnetized_pl_arr[ind1]:
+                         #ax2.text(1e-1, 0.9, r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                        ax2.text(1e-1, 14.9, r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                        rot=5
+                    else:
+                        ax2.text(1e-1, 14.9, r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                        rot=9
+                    #ax2.text(1e-1, 1.5, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    ax2.text(1e-1, 6.9, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    pos_arg=2
+                    
+                
+                if STUDY == "B_PL":
+                    
+                    ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    pos_arg=2
+                    rot=5
+            #plt.rcParams['mathtext.fontset'] = 'custom'
+            #plt.rcParams['mathtext.bf'] = 'cm:bold'
+            
+            #ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'Ω='+'{:.2f}'.format(Omega_min)+' sr; '+r'β='+'{:.1f}'.format(eps_max*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+            #ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'Ω='+'{:.2f}'.format(Omega_max)+' sr; '+r'β='+'{:.1f}'.format(eps_min*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+            #ax2.set_title('E')
+            #ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.1f}'.format(eps_max*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+            #ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.1f}'.format(10**((np.log10(eps_max)+np.log10(eps_min))/2) *100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+            #ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.2f}'.format(eps_min*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+            ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.2f}'.format(eps_max),fontsize = 18,rotation=rot,fontweight='bold')
+            ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.3f}'.format(10**((np.log10(eps_max)+np.log10(eps_min))/2)),fontsize = 18,rotation=rot,fontweight='bold')
+            ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.4f}'.format(eps_min),fontsize = 18,rotation=rot,fontweight='bold')
             """
             #Draw also Alfven radial Mach number
             draw_M_A_radial = 0
@@ -472,6 +702,39 @@ for indi in planet_array:
             else:
                 B_planet_ref = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
             
+            print(M_A)
+            x_superalfv='nan'           
+            if any(ind > 1 for ind in M_A):
+                print('This enters super-Afvénic regime')
+                M_A_superalfv_arr=np.where(M_A >1)
+                M_A_superalfv_ind=M_A_superalfv_arr[0]
+                M_A_superalfv_ind=M_A_superalfv_ind[0]
+                #mdot_superalfv=M_star_dot_arr[M_A_superalfv_ind]
+                x_superalfv=x[M_A_superalfv_ind]
+                if print_M_A == True:
+                    ax1.axvline(x = x_superalfv, color='r',lw=2)
+                    ax1.axvspan(x_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                ax2.axvline(x = x_superalfv, color='r',lw=2)
+                ax2.axvspan(x_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                print('x_superalfv: ',x_superalfv)
+            #    ax2.axvline(x = 1, color='r',lw=2)
+            #M_A_superalfv  = M_A[M_A>1]
+            #mdot_superalfv=M_star_dot[M_A.index(M_A_superalfv)]
+            
+            #print(M_A_superalfv_arr) 
+            #ax2.axvspan(4.63, 26.80, facecolor='black', alpha=0.5)
+            #ax2.axvspan(1.82, 4, facecolor='r', alpha=0.5)
+            #print(M_A_superalfv_ind) 
+            #print(type(M_A_superalfv_ind))
+            
+            #print(M_star_dot_arr)
+            
+            #mdot_superalfv=np.where(M_star_dot == M_A_superalfv[0])
+            
+            #print(mdot_superalfv)
+            
+            
+            
             """
             xpos =xmax*0.8
             ypos_offset = (ymax-ymin)/8
@@ -488,13 +751,17 @@ for indi in planet_array:
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
             else:
                 print(FOLDER + ' already exists.')
-            common_string = str(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'             
+            common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
             if Bfield_geom_arr[ind]:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
             else:
                 outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
             # Variable to send output to files (PLOTOUT= True), or show them in
             # the terminal (PLOTOUT = False) 
+            if freefree == True:
+                outfile = outfile + '_freefree'
+
+
             if PLOTOUT == True:
                 plt.tight_layout()
                 outfilePDF = os.path.join(outfile + ".pdf")
@@ -505,7 +772,108 @@ for indi in planet_array:
             else:
                 plt.tight_layout()
                 plt.show()
+            
+            if freefree == True and STUDY == 'M_DOT': #################
+                #outfile = outfile + '_freefree'
+                plt.figure(figsize=(8,11))
+                ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+                #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
+                #print(M_star_dot_arr)
+                ax.plot(M_star_dot_arr, absorption_factor, color='k')
+                ax.set_xscale('log')
+                ax.set_xlabel(r"Mass Loss rate [$\dot{M}_\odot$]",fontsize=20)
+                ax.set_ylabel(r"Fraction of transmitted flux")
+                ax.text(1e-1, 0, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 22)
+                ax.set_facecolor("white")	
+                print('plotting?')
+                #plt.show()
+                plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                        +'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+                plt.close()
+                
+            #### Plot effective radius variation
+            plt.figure(figsize=(8,7.5))
+            ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
+            ax.plot(x, R_planet_eff_normalized, color='k')
+            ax.plot(x, Rmp/Rp, color='r')
+            #ax.set_xlabel(STUDY,fontsize=20)
+            ax.set_xlabel(xlabel,fontsize=20)
+            #ax.set_ylabel(r"R_planet_eff_normalized")
+            ax.set_ylabel(r"$R(R_{pl})$")
+            ax.set_facecolor("white")
+            #ax.axhline(y = 1, ls='--', color='r', lw=2)
+            ax.axvline(x = xnom, ls='--', color='k', lw=2)
+            #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))+'-effective_radius_variation-'+STUDY+'.pdf')
+            black_patch = mpatches.Patch(color='black', label='$R_{mp}$')
+            red_patch = mpatches.Patch(color='red', label='$R_{eff}$')
+            ax.legend(handles=[black_patch,red_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                        +'-effective_radius_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+            
+            li = [x,y_min.tolist(), y_max.tolist()]   
+            print(y_min) 
+            print(type(y_min))
+            print(li)     
+            print(type(li))
+            print(len(li))
+            
+              
+            #df = pd.DataFrame(data=li)
+            #df = df.assign(column_name=column_series)
+            #df.index = [STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK']
+            if freefree == True: 
+                print('saving text file')
+                print(x)
+                print(y_min)
+                df = pd.DataFrame(zip(x,y_min, y_max), columns=[STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK'])
+                df.to_csv(os.path.join(outfile + ".csv"))            
+                df2= pd.DataFrame(zip(x,absorption_factor),columns=[STUDY,'abs_factor_'+str(T_corona/1e6)+'MK'])
+                df2.to_csv(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                         +'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.csv')   
+            
+            #print('alphamatrix')
+            #print(len(alphamatrix))
+            #print(type(alphamatrix))
+            #print(alphamatrix[0])
+            #dfg
 
+            #print(alphamatrix)
+            '''
+            if os.path.isfile(outfile+'_alphamatrix.txt'):
+                os.system('rm '+outfile+'_alphamatrix.txt')
+            with open(outfile+'_alphamatrix.txt', 'w') as f:
+                for line in alphamatrix:
+                    f.write(f"{line}\n")
+            print('test dataframe')
+            
+            col_arr=[]
+            for line in alphamatrix:
+                myString = line
+                myList = myString.split(',')     
+                print(len(myList))
+                print(myString)
+                my_arr=np.array(myList)
+                my_arr = my_arr.transpose()
+                print(my_arr)
+                col_arr.append(my_arr)
+            
+            #print(type(M_star_dot_arr))
+            #print(type(np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)))
+            #pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
+            pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
+            pdn.insert(loc=0, column='mdot/distance', value=M_star_dot_arr)
+            pdn.set_index('mdot/distance',inplace=True)
+            #pdn.to_csv('test_col_arr.csv')
+            pdn.to_csv(outfile+'_alphamatrix.csv')
+            print(pdn.columns)
+            print(len(pdn))
+            #alpha_arr = np.array(alphamatrix)
+            #alpha_arr = alpha_arr.transpose()                                    
+            #print('alpha_arr')
+            #print(alpha_arr)
+            #pdn=pd.DataFrame(data=alpha_arr, index=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF), columns=M_star_dot_arr)
+            #print(pdn)
+            '''
             ###########################################################
             ################### Send OUTPUT to external text file/s
             ###########################################################
@@ -520,10 +888,13 @@ for indi in planet_array:
             print('M_star_dot_loc = ', M_star_dot_loc)
             print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
             print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
+            print('############################')
+            print(x_larger_rms)
+            print('value of '+STUDY+' where there is clear detection: ',x_larger_rms)
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, gyrofreq, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff)
+                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
 
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
@@ -532,11 +903,11 @@ for indi in planet_array:
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
+            #print('mdot_superalfv: ',mdot_superalfv)
             #print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[0], Flux_r_S_ZL_max[0])
-
+            #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
-            
             """ 
             # dipole_mag_pl_lists   = table_lists()
 
@@ -660,4 +1031,5 @@ os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
 os.system('python plot_out_table.py')
 os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
 """
+
 
