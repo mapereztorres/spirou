@@ -10,7 +10,7 @@ class OutputWriter:
         loc_pl, M_star_dot_loc, n_base_corona, nu_plasma_corona, gyrofreq,
         Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
         Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,
-        Omega_min, Omega_max,R_planet_eff_normalized):
+        Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv):
 
         with open(self.outfileTXT, 'w') as f:
              f.write('# INPUT PARAMETERS:               ########\n') 
@@ -69,3 +69,4 @@ class OutputWriter:
              f.write('minimum value of solid angle of the emission: {0:.2f} \n'.format(Omega_min))
              f.write('maximum value of solid angle of the emission: {0:.2f} \n'.format(Omega_max))
              f.write('Maximum magnetopause radius in planet units: {0:.2f} \n'.format(np.max(R_planet_eff_normalized)))
+             f.write('value of '+STUDY+' where the planet enters super-Alfvénic regime: '+ str(x_superalfv)+' \n')
