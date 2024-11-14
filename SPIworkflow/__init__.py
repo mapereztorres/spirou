@@ -8,8 +8,8 @@ import run_param
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
 # which_planets
-which_planets = [21]
-
+which_planets = [21] #gj486
+#which_planets=[52] #barnard
 ###################################
 ### INPUT TABLE
 ###################################
@@ -108,8 +108,8 @@ B_planet_law = 'Sano'
 #B_planet_law = 'None'
 
 # Default planetary magnetic field, in Tesla
-B_PLANET_DEFAULT = bfield_earth 
-
+B_PLANET_DEFAULT = bfield_earth/2
+#B_PLANET_DEFAULT=0.5*1e-4
 
 ###################################
 # OBSERVED PARAMETERS
@@ -119,7 +119,7 @@ B_PLANET_DEFAULT = bfield_earth
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
 rms  = 0.030
-
+#rms  = 0.0064
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
 
@@ -137,7 +137,7 @@ rms  = 0.030
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 1.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
@@ -171,26 +171,26 @@ alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
 #eps_min = 0.01; eps_max = 0.11
-eps_min = 0.002; eps_max = 0.01
-
+#eps_min = 0.002; eps_max = 0.01
+eps_min = 0.0001; eps_max = 0.01
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
 # Minimum and maximum kinetic energy of electrons emitting via ECM, in keV
 # Electrons are mildly relativistic, so 20 to 200 keV energies should be good values, 
 # but a choice from 10 to 511 keV (=m_e * c^2) should be also  OK. 
-Ekin_min = 20 
-Ekin_max = 200
+Ekin_min = 1 
+Ekin_max = 20
 
 ##
 #which_beam_solid_angle = 'Jupiter-Io'
-which_beam_solid_angle = 'Computed'
-
+#which_beam_solid_angle = 'Computed'
+which_beam_solid_angle = 'fixed'
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
 #Plot graph for M_A
-print_M_A = True
+print_M_A = False
 ## LINEWIDTH 
 LW = 3
 # PLOTOUT = True => plot graphs to external files
@@ -202,9 +202,10 @@ DRAW_RMS = True
 DRAW_EARTH = True
 LIMS_MA = True
 LIM_MA_LOW = 10**(-2)
-LIM_MA_HIGH = 1
+LIM_MA_HIGH = 10**(0)
 FLUX_LIMS = True
 FLUX_LOW = 3*rms*10**(-1)
 FLUX_HIGH = 3*rms*10**2
-
+ylimlow=10**-3
+ylimhigh=10**2
 
