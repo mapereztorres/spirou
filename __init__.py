@@ -8,8 +8,8 @@ from SPIworkflow.constants import *
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
 # which_planets
-which_planets = [21] #gj486
-#which_planets=[52] #barnard
+which_planets = [21]
+
 ###################################
 ### INPUT TABLE
 ###################################
@@ -37,8 +37,8 @@ selection_criteria = False
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
 #STUDY = "D_ORB"
-#STUDY = "M_DOT"
-STUDY = "B_PL"
+STUDY = "M_DOT"
+#STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -47,7 +47,7 @@ STUDY = "B_PL"
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 100
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+2
+M_DOT_MAX = 1e+1
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -60,8 +60,8 @@ B_PL_MAX = 4
 
 ##
 # Distance (from the centre of the star) where SPI emission takes place (in units of R_star)
-#R_SPI = 1.068
-R_SPI = 1.0
+R_SPI = 1.1
+
 ####################################################
 # Stellar wind FREE ABSORPTION of SPI radio emission
 ####################################################
@@ -77,8 +77,8 @@ Z = 1
 R_ff_OBSERVER = 10000
 
 ### NSTEPS_FF: number of points for the distance array
-#NSTEPS_FF = 1000000
-NSTEPS_FF = 10000
+NSTEPS_FF = 1000
+
 #####################################################
 ### SETTING UP VALUES TO PREDICT SPI RADIO EMISSION
 #####################################################
@@ -92,8 +92,8 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#Bfield_geom_arr = [0,1]
-Bfield_geom_arr = [0] 
+Bfield_geom_arr = [0,1]
+
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
@@ -108,8 +108,8 @@ B_planet_law = 'Sano'
 #B_planet_law = 'None'
 
 # Default planetary magnetic field, in Tesla
-B_PLANET_DEFAULT = bfield_earth/2
-#B_PLANET_DEFAULT=0.5*1e-4
+B_PLANET_DEFAULT = bfield_earth 
+
 
 ###################################
 # OBSERVED PARAMETERS
@@ -119,7 +119,7 @@ B_PLANET_DEFAULT = bfield_earth/2
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
 rms  = 0.030
-#rms  = 0.0064
+
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
 
@@ -137,7 +137,7 @@ rms  = 0.030
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
@@ -171,26 +171,24 @@ alpha = 1
 
 # Efficiency factor to convert Poynting flux into ECM radio emission.
 #eps_min = 0.01; eps_max = 0.11
-#eps_min = 0.002; eps_max = 0.01
-eps_min = 0.0001; eps_max = 0.01
+eps_min = 0.002; eps_max = 0.01
+
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
 # Minimum and maximum kinetic energy of electrons emitting via ECM, in keV
 # Electrons are mildly relativistic, so 20 to 200 keV energies should be good values, 
 # but a choice from 10 to 511 keV (=m_e * c^2) should be also  OK. 
-Ekin_min = 1 
-Ekin_max = 20
+Ekin_min = 20 
+Ekin_max = 200
 
 ##
-#which_beam_solid_angle = 'Jupiter-Io'
+which_beam_solid_angle = 'Jupiter-Io'
 #which_beam_solid_angle = 'Computed'
-which_beam_solid_angle = 'fixed'
+
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################
-#Plot graph for M_A
-print_M_A = False
 ## LINEWIDTH 
 LW = 3
 # PLOTOUT = True => plot graphs to external files
@@ -202,10 +200,8 @@ DRAW_RMS = True
 DRAW_EARTH = True
 LIMS_MA = True
 LIM_MA_LOW = 10**(-2)
-LIM_MA_HIGH = 10**(0)
+LIM_MA_HIGH = 1
 FLUX_LIMS = True
 FLUX_LOW = 3*rms*10**(-1)
 FLUX_HIGH = 3*rms*10**2
-ylimlow=10**-3
-ylimhigh=10**2
 
