@@ -1,6 +1,6 @@
 import numpy as np
 from SPIworkflow.constants import *
-import run_param
+
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
