@@ -346,40 +346,6 @@ def get_P_B_planet(B_planet = 1.0):
 
     return P_B_planet
 
-def R_magnetopause(B_planet = 2.0, P_dyn_sw = 1.0, P_th_sw=1.0, B_sw = 1.0):
-    """Returns the radius of the planetary magnetopause, in units of Rp
-
-    It's calculated as the radius that balances the pressure between the
-    stellar wind (ram, thermal, and magnetic) and the planet (magnetic)
-    pressure. Note that, in the equation below, the ram and thermal components
-    of the planetary pressure are neglected.
-
-    OUTPUT: R_mp - Radius of the planetary magnetopause, in cm
-
-    INPUT : B_planet - planetary magnetic field (dipole) at the poles, in Gauss
-            P_dyn_sw - dynamic pressure of the stellar wind at the orbital distance 
-                       of the planet, in erg/cm3
-            P_th_sw  - thermal pressure of the stellar wind at the orbital distance 
-                       of the planet, in erg/cm3
-            B_sw     - Stellar wind magnetic field, in Gauss
-    """
-    # Pressure of the planetary magnetic field at the equator 
-    P_B_planet_equator = (B_planet/2)**2 / (8*np.pi)
-
-    # Pressure of the stellar wind magnetic field (at the equator)
-    P_B_sw = B_sw**2 / (8 * np.pi)
-   
-    # Total pressure of the stellar wind 
-    P_sw = P_dyn_sw + P_th_sw + P_B_sw
-    
-    # Expression in Donati & Vidotto (2017).
-    #
-    # Similar to others in, e.g., Zarka (2007), Turnpenney+2018, etc., but in
-    # units of Rp
-    Rmp = 2**(1./3.) * (P_B_planet_equator / P_sw)**(1./6) 
-
-    return Rmp
-
 def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
     """Computes the radius of the planetary magnetopause, in units of planet radii
 
