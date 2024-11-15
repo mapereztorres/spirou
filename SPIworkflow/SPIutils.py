@@ -371,7 +371,8 @@ def get_Rmp(P_Bp=1.0, P_dyn_sw=1.0, P_th_sw=1.0, P_B_sw=1.0):
     
     # Expression in Donati & Vidotto (2017).
     # Similar to others in, e.g., Zarka (2007), Turnpenney+2018, etc.
-    Rmp = 2**(1./3.) * (P_planet / P_sw)**(1./6) 
+    # 
+    Rmp = K_MAGNETOPAUSE**(1./3.) * (P_planet / P_sw)**(1./6) 
 
     return Rmp
     
