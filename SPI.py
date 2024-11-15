@@ -298,8 +298,9 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
-            Flux_r_S_inter, Flux_r_S_no, Flux_r_S_ZL_no, Flux_r_S_ZL_no = spi.get_Flux(Omega_min, Omega_max, 
-                                                          Delta_nu_cycl, d, S_poynt*10, S_poynt_ZL*10)
+            # Compute flux density for an intermediate value of eps (in log scale)
+            Flux_r_S_inter = 10**((np.log10(Flux_r_S_max) + np.log10(Flux_r_S_min))/2)
+
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             alphamatrix=[]
 
