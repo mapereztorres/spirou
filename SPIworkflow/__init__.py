@@ -4,6 +4,11 @@ from SPIworkflow.constants import *
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
+#
+#WHICH_INPUT = 'file'
+WHICH_INPUT = 'table'
+INPUT_FILE  = 'test.py'
+
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
