@@ -187,7 +187,6 @@ Ekin_max = 20
 
 ## Beam solid angle of the ECM radio emission
 ## 
-#which_beam_solid_angle = 'Jupiter-Io'
 # OMEGA_JUPITER_IO below is the value obtained from DAM emission (single flux tube) 
 OMEGA_JUPITER_IO = 0.16  
 #which_beam_solid_angle = 'Computed'
