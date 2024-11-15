@@ -38,16 +38,6 @@ from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target,
 # 
 outdir, df_planets, df_no_noplanets = create_data_tables()
 
-# Read in the input data to estimate radio emission from SPI
-#from SPIworkflow.import_table import *
-#source_data = './INPUT/SPI-sources_planets_MASTER.csv'
-#source_data = './INPUT/SPI-sources-sample5.csv'
-#
-if selection_criteria == False:
-     data = get_spi_data(infile_data=source_data)
-else:
-     data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
-
 
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
@@ -79,54 +69,73 @@ beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
 # Beam solid angle covered by the ECM emission, in sterradians
 Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, beta_max)
 
-############## CHECK THAT THE DATA TABLE IS CORRECT
-print('Reading table: ', source_data)
-print(data)
+if WHICH_INPUT == 'table': 
+    # Read in the input data to estimate radio emission from SPI
+    #from SPIworkflow.import_table import *
+    #source_data = './INPUT/SPI-sources_planets_MASTER.csv'
+    #source_data = './INPUT/SPI-sources-sample5.csv'
+    #
+    if selection_criteria == False:
+        data = get_spi_data(infile_data=source_data)
+    else:
+        data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
 
-############## TABLE INITIALIZATION 
-# 
-# Create column for M_star_dot to fill it with values
-data['M_star_dot(M_sun_dot)']=''
-# If bfield_star(gauss) is missing, set it to np.nan
-data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
-# If p_rot is missing, set it to np.nan
-#data['p_rot(days)'].replace('', np.nan, inplace=True)
-# Remove targets without p_rot
-data.dropna(subset=['p_rot(days)'], inplace=True)
-# Do not use stars with P_rot smaller than 10 days
-data = data[data['p_rot(days)'] > 10.0]
-data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
-data.reset_index(inplace = True) # to prevent funny jumps in the indices
+    ############## CHECK THAT THE DATA TABLE IS CORRECT
+    print('Reading table: ', source_data)
+    print(data)
 
-############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
-print('All table planets')
-print(data['planet_name'])
+    ############## TABLE INITIALIZATION 
+    # 
+    # Create column for M_star_dot to fill it with values
+    data['M_star_dot(M_sun_dot)']=''
+    # If bfield_star(gauss) is missing, set it to np.nan
+    data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+    # If p_rot is missing, set it to np.nan
+    #data['p_rot(days)'].replace('', np.nan, inplace=True)
+    # Remove targets without p_rot
+    data.dropna(subset=['p_rot(days)'], inplace=True)
+    # Do not use stars with P_rot smaller than 10 days
+    data = data[data['p_rot(days)'] > 10.0]
+    data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
+    data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
-# Select the exoplanets for which to run the simulation
-# COMPUTE_ALL and which_planets are set up in __init__.py
-if COMPUTE_ALL == True:
-    planet_array = range(round(len(data)/1))
+    ############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
+    print('All table planets')
+    print(data['planet_name'])
+
+    # Select the exoplanets for which to run the simulation
+    # COMPUTE_ALL and which_planets are set up in __init__.py
+    if COMPUTE_ALL == True:
+        planet_array = range(round(len(data)/1))
+    else:
+        planet_array = which_planets
+    #print(planet_array)    
 else:
-    planet_array = which_planets
-#print(planet_array)    
+    planet_array = [0] 
+
 for indi in planet_array:
 # Read parameters from table/file
     if WHICH_INPUT == 'table':
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
-    else
-        from SPIworkflow.__init__ import *
+    else:
+        from INPUT.INDIVIDUAL_TARGETS.barnard import *
+        print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
+
 
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
-        data['bfield_star(gauss)'][indi] = spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
-        # Eventually include uncertainties in B _star
-        data['e_bfield_star'][indi]='TBD'
-    B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
-    #B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)           
-    data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi],
-        M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
-    M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+         B_star= spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
+         data['bfield_star(gauss)'][indi]=B_star
+         # Eventually include uncertainties in B _star
+         data['e_bfield_star'][indi]='TBD'
+    #B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
+    B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
     
+    if WHICH_INPUT == 'table':       
+        data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
+        M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+    else:
+        M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
 
     print('Exoplanet name: ', Exoplanet)
 
