@@ -53,7 +53,7 @@ legend.fontsize     : 18
 text.color      : k
 font.size       : 25 
 font.sans-serif : Arial
-font.serif      : Times New Roman
+#font.serif      : Times New Roman
 font.family     : serif
 
 mathtext.fontset : cm

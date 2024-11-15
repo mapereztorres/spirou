@@ -37,8 +37,8 @@ selection_criteria = False
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
 #STUDY = "D_ORB"
-#STUDY = "M_DOT"
-STUDY = "B_PL"
+STUDY = "M_DOT"
+#STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
