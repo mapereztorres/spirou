@@ -110,7 +110,11 @@ else:
     planet_array = which_planets
 #print(planet_array)    
 for indi in planet_array:
-    starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
+# Read parameters from table/file
+    if WHICH_INPUT == 'table':
+        starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
+    else
+        from SPIworkflow.__init__ import *
 
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
