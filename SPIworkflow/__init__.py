@@ -5,15 +5,16 @@ from SPIworkflow.constants import *
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #
-#WHICH_INPUT = 'file'
-WHICH_INPUT = 'table'
+WHICH_INPUT = 'file'
+#WHICH_INPUT = 'table'
 INPUT_FILE  = 'test.py'
 
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
 # which_planets
-which_planets = [21] #gj486
+#which_planets = [21] #gj486
+#which_planets = [0] 
 #which_planets=[52] #barnard
 ###################################
 ### INPUT TABLE
@@ -41,8 +42,8 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-STUDY = "D_ORB"
-#STUDY = "M_DOT"
+#STUDY = "D_ORB"
+STUDY = "M_DOT"
 #STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
@@ -50,9 +51,9 @@ STUDY = "D_ORB"
 # M_DOT_MIN, M_DOT_MAX: Minimum and maximum mass-loss rates to carry out the study of M_dot
 # In units of M_dot_sun 
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
-M_DOT_STRETCH = 100
+M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+2
+M_DOT_MAX = 1e+1
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -128,8 +129,8 @@ K_MAGNETOPAUSE = 2.0
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-rms  = 0.030
-#rms  = 0.0064
+#rms  = 0.030
+rms  = 0.0064
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
 
@@ -147,7 +148,7 @@ rms  = 0.030
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
@@ -184,8 +185,8 @@ alpha = 1
 # 2024 (HoE), where it is called "beta"
 # 
 #eps_min = 0.01; eps_max = 0.11
-#eps_min = 0.002; eps_max = 0.01
-eps_min = 0.0001; eps_max = 0.01
+eps_min = 0.002; eps_max = 0.01
+#eps_min = 0.0001; eps_max = 0.01
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
@@ -201,8 +202,9 @@ Ekin_max = 20
 OMEGA_JUPITER_IO = 0.16  
 #which_beam_solid_angle = 'Computed'
 which_beam_solid_angle = 'fixed'
-OMEGA_MIN = 0.5 
-OMEGA_MAX = OMEGA_MIN
+OMEGA_MIN = 0.16
+#OMEGA_MAX = OMEGA_MIN
+OMEGA_MAX = 1.6
 
 #####################################
 # PLOTTING AND WRITING SETUP
