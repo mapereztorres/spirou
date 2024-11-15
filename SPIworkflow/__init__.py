@@ -169,7 +169,10 @@ X_p = 0.5 # fraction of protons
 # We assume that the planet has a highly conductive atmosphere, i.e., alpha = 1
 alpha = 1
 
-# Efficiency factor to convert Poynting flux into ECM radio emission.
+# Efficiency factor in converting Poynting flux into ECM radio emission.
+# Be aware that eps (= eps_min and eps_max here) is not the "epsilon" in in Zarka 2018,
+# 2024 (HoE), where it is called "beta"
+# 
 #eps_min = 0.01; eps_max = 0.11
 #eps_min = 0.002; eps_max = 0.01
 eps_min = 0.0001; eps_max = 0.01
@@ -182,10 +185,15 @@ theta_M = np.pi/2
 Ekin_min = 1 
 Ekin_max = 20
 
-##
-#which_beam_solid_angle = 'Jupiter-Io'
+## Beam solid angle of the ECM radio emission
+## 
+# OMEGA_JUPITER_IO below is the value obtained from DAM emission (single flux tube) 
+OMEGA_JUPITER_IO = 0.16  
 #which_beam_solid_angle = 'Computed'
 which_beam_solid_angle = 'fixed'
+OMEGA_MIN = 0.5 
+OMEGA_MAX = OMEGA_MIN
+
 #####################################
 # PLOTTING AND WRITING SETUP
 #####################################

@@ -77,18 +77,8 @@ spiral_unmag_pl_lists = table_lists()
 beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
             
 # Beam solid angle covered by the ECM emission, in sterradians
-if which_beam_solid_angle == 'Jupiter-Io':
-   bsa_Omega = 1.6  # Value obtained from the DAM emission from Jupiter-Io 
-   Omega_min = bsa_Omega; Omega_max = bsa_Omega 
-elif which_beam_solid_angle == 'computed':
-   # Get the minimum and maximum values of the beam solid angle for the cone of emission 
-   Omega_min, Omega_max = spi.beam_solid_angle(beta_min, beta_max)
-   
-elif which_beam_solid_angle == 'fixed':
-   Omega_min=0.5
-   Omega_max=0.5
-#Omega_min=0.16
-#Omega_max=1.6
+Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, beta_max)
+
 ############## CHECK THAT THE DATA TABLE IS CORRECT
 print('Reading table: ', source_data)
 print(data)
@@ -308,8 +298,9 @@ for indi in planet_array:
             # in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
-            Flux_r_S_inter, Flux_r_S_no, Flux_r_S_ZL_no, Flux_r_S_ZL_no = spi.get_Flux(Omega_min, Omega_max, 
-                                                          Delta_nu_cycl, d, S_poynt*10, S_poynt_ZL*10)
+            # Compute flux density for an intermediate value of eps (in log scale)
+            Flux_r_S_inter = 10**((np.log10(Flux_r_S_max) + np.log10(Flux_r_S_min))/2)
+
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             alphamatrix=[]
 
