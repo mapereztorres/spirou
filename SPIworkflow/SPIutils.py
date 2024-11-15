@@ -498,7 +498,7 @@ def Mdot_star(R_star, M_star, Prot_star):
     Mdot = M_dot_sun_fit * (R_star/R_sun)**2 * (Omega_star/Omega_sun_fit)**a * (M_star/M_sun)**b
     return Mdot
 
-def beam_solid_angle(beta_min, beta_max):
+def beam_solid_angle(which_beam_solid_angle,beta_min, beta_max):
     """ Computes beam solid angle for the ECM emission cone 
         We assume an emission cone with half-opening angle theta and angular width d_theta.
         theta and d_theta are related to the speed of the electrons as 
@@ -520,10 +520,15 @@ def beam_solid_angle(beta_min, beta_max):
                 beta_min - minimum speed of electrons emitting via ECM, in units of the speed of light
                 beta_max - Maximum speed of electrons emitting via ECM, in units of the speed of light
     """
-    Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
-    Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
-    Omega_min = min(Omega_1, Omega_2)
-    Omega_max = max(Omega_1, Omega_2)
+    if which_beam_solid_angle == 'fixed':
+        Omega_min = OMEGA_MIN
+        Omega_max = OMEGA_MAX
+    elif which_beam_solid_angle == 'computed':
+        Omega_1 = 2*np.pi * (np.cos(np.arccos(beta_min) - beta_min/2) - np.cos(np.arccos(beta_min) + beta_min/2)) 
+        Omega_2 = 2*np.pi * (np.cos(np.arccos(beta_max) - beta_max/2) - np.cos(np.arccos(beta_max) + beta_max/2)) 
+        Omega_min = min(Omega_1, Omega_2)
+        Omega_max = max(Omega_1, Omega_2)
+
 
     return Omega_min, Omega_max
 
