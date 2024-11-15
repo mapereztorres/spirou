@@ -101,7 +101,7 @@ Bfield_geom_arr = [0]
 magnetized_pl_arr = [False, True]
 #magnetized_pl_arr = [True]
 
-# Computation of planetary magnetic field
+# Computation of planetary magnetic field 
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
 # B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
 B_planet_law = 'Sano'
@@ -110,6 +110,11 @@ B_planet_law = 'Sano'
 # Default planetary magnetic field, in Tesla
 B_PLANET_DEFAULT = bfield_earth/2
 #B_PLANET_DEFAULT=0.5*1e-4
+
+# K_MAGNETOPAUSE - factor by which the magnetopause currents enhance
+# the magnetospheric magnetic field at the magnetopause, which is a value
+# between 2 and 3. ADD REFERENCE
+K_MAGNETOPAUSE = 2.0
 
 ###################################
 # OBSERVED PARAMETERS
