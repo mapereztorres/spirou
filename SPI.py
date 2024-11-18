@@ -619,7 +619,6 @@ for indi in planet_array:
                     ax2.text(1e-1, 6.9, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
                     pos_arg=2
                     
-                
                 if STUDY == "B_PL":
                     
                     ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
@@ -692,23 +691,6 @@ for indi in planet_array:
                 ax2.axvline(x = x_superalfv, color='r',lw=2)
                 ax2.axvspan(x_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
                 print('x_superalfv: ',x_superalfv)
-            #    ax2.axvline(x = 1, color='r',lw=2)
-            #M_A_superalfv  = M_A[M_A>1]
-            #mdot_superalfv=M_star_dot[M_A.index(M_A_superalfv)]
-            
-            #print(M_A_superalfv_arr) 
-            #ax2.axvspan(4.63, 26.80, facecolor='black', alpha=0.5)
-            #ax2.axvspan(1.82, 4, facecolor='r', alpha=0.5)
-            #print(M_A_superalfv_ind) 
-            #print(type(M_A_superalfv_ind))
-            
-            #print(M_star_dot_arr)
-            
-            #mdot_superalfv=np.where(M_star_dot == M_A_superalfv[0])
-            
-            #print(mdot_superalfv)
-            
-            
             
             """
             xpos =xmax*0.8
@@ -809,52 +791,11 @@ for indi in planet_array:
                 df2.to_csv(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                          +'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.csv')   
             
-            #print('alphamatrix')
-            #print(len(alphamatrix))
-            #print(type(alphamatrix))
-            #print(alphamatrix[0])
-            #dfg
-
-            #print(alphamatrix)
-            '''
-            if os.path.isfile(outfile+'_alphamatrix.txt'):
-                os.system('rm '+outfile+'_alphamatrix.txt')
-            with open(outfile+'_alphamatrix.txt', 'w') as f:
-                for line in alphamatrix:
-                    f.write(f"{line}\n")
-            print('test dataframe')
+            ################################
+            # DIAGNOSTIC PLOTS
+            ################################
             
-            col_arr=[]
-            for line in alphamatrix:
-                myString = line
-                myList = myString.split(',')     
-                print(len(myList))
-                print(myString)
-                my_arr=np.array(myList)
-                my_arr = my_arr.transpose()
-                print(my_arr)
-                col_arr.append(my_arr)
-            
-            #print(type(M_star_dot_arr))
-            #print(type(np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)))
-            #pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
-            pdn=pd.DataFrame(data=col_arr,columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)/10**8)
-            pdn.insert(loc=0, column='mdot/distance', value=M_star_dot_arr)
-            pdn.set_index('mdot/distance',inplace=True)
-            #pdn.to_csv('test_col_arr.csv')
-            pdn.to_csv(outfile+'_alphamatrix.csv')
-            print(pdn.columns)
-            print(len(pdn))
-            #alpha_arr = np.array(alphamatrix)
-            #alpha_arr = alpha_arr.transpose()                                    
-            #print('alpha_arr')
-            #print(alpha_arr)
-            #pdn=pd.DataFrame(data=alpha_arr, index=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF), columns=M_star_dot_arr)
-            #print(pdn)
-            '''
-            #DIAGNOSTIC PLOTS
-            
-            #VELOCITIES
+            # Diagostic plots for VELOCITIES
             
             plt.figure(figsize=(8,7.5))
             plt.yscale('log')
@@ -874,13 +815,8 @@ for indi in planet_array:
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-velocities_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
                      
-            #MAGNETIC FIELDS
+            # Diagnostic plots for MAGNETIC FIELDS
                         
-            print('MAGNETIC FIELDS')            
-            print(B_planet_arr)
-            print(B_r)
-            print(B_phi*100000)
-            print(B_sw)
             plt.figure(figsize=(8,7.5))
             plt.yscale('log')
             plt.xscale('log')
@@ -899,7 +835,8 @@ for indi in planet_array:
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-magnetic_field_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
                       
-            #PRESSURE
+            # Diagnostic plots for PRESSURE
+
             plt.figure(figsize=(8,7.5))
             plt.yscale('log')
             plt.xscale('log')
@@ -920,23 +857,9 @@ for indi in planet_array:
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-pressure_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
         
-        
-        
-        
-        
-        
-        
-        
-            
-            #plt.figure(figsize=(8,7.5))
-            fig, (ax1, ax2,ax3) = plt.subplots(3, 1)
+            ## All diagnostic plots together 
 
-            #plt.yscale('log')
-            #plt.xscale('log')
-            #ax2 = plt.subplot2grid((3,1),(1,0),rowspan=1,colspan=1)
-            #ax2 = plt.subplot2grid((3,1),(2,0),rowspan=2,colspan=1)
-            #ax3 = plt.subplot2grid((3,1),(3,0),rowspan=3,colspan=1)
-            
+            fig, (ax1, ax2,ax3) = plt.subplots(3, 1)
             ax1.plot(x, v_orb/1e5*np.ones(len(x)), color='r', ls=(0, (1, 2)))
             ax1.plot(x, v_rel/1e5*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             ax1.plot(x, v_alf/1e5*np.ones(len(x)), color='g', ls=(0, (1, 2)))
@@ -949,8 +872,6 @@ for indi in planet_array:
             ax1.set_yscale('log')          
             ax1.legend(handles=[black_patch,red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
   
-
-
             ax2.plot(x, B_planet_arr*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', ls=(0, (1, 2)))
             ax2.plot(x, B_phi*np.ones(len(x)), color='g', ls=(0, (1, 2)))
@@ -962,7 +883,6 @@ for indi in planet_array:
             ax2.set_xscale('log')
             ax2.set_yscale('log')            
             ax2.legend(handles=[black_patch,red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            
             
             ax3.plot(x, P_sw*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             ax3.plot(x, P_dyn_sw*np.ones(len(x)), color='r', ls=(0, (1, 2)))
@@ -982,8 +902,6 @@ for indi in planet_array:
             fig.set_figheight(20)
             plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
                         +'-diagnostic_plots-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
-            
-            
             
             ###########################################################
             ################### Send OUTPUT to external text file/s
@@ -1019,128 +937,3 @@ for indi in planet_array:
             #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
-            """ 
-            # dipole_mag_pl_lists   = table_lists()
-
-            #output_table=pd.copy(data)
-            #output=output[['planet_name','star_name','d_star(pc)','mass_star(m_sun)','radius_star(r_sun)',
-            print(Bfield_geom_arr[ind],magnetized_pl_arr[ind1])
-
-            if ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1]==True)):  
-                dipole_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
-                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
-                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
-                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
-                )
-            
-            elif ((Bfield_geom_arr[ind]==0) and (magnetized_pl_arr[ind1] == False)):  
-                dipole_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
-                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
-                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
-                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
-                )
-
-            elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == True)):  
-                spiral_mag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
-                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
-                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
-                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
-                )
-
-            elif ((Bfield_geom_arr[ind] == 1) and (magnetized_pl_arr[ind1] == False)):  
-                spiral_unmag_pl_lists.add_values(Exoplanet,starname,"{:.2f}".format(d/pc),"{:.3f}".format(M_star/M_sun),"{:.3f}".format(R_star/R_sun),"{:.3f}".format(P_rot_star/day),"{:.2f}".format(B_star),"{0:.3f}".format(r_orb/au),
-                    "{0:.3f}".format(P_orb),"{0:.3f}".format(eccentricity),"{0:.3f}".format((1-eccentricity)*r_orb/au),"{0:.3f}".format((1+eccentricity)*r_orb/au),"{:.2f}".format(Mp/M_earth),"{:.2f}".format(Rp/R_earth),
-                    "{:.2e}".format(T_corona),"{:.2e}".format(M_star_dot),"{:.2e}".format(nu_plasma_corona/1e6),"{:.2e}".format(gyrofreq/1e6),"{:.2e}".format(rho_sw_planet[loc_pl][0]),"{:.2e}".format(B_planet_arr[loc_pl][0]),
-                    "{:.2f}".format(B_sw[loc_pl][0]),"{:.2e}".format(v_alf[loc_pl][0]),"{:.2e}".format(M_A[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_min[loc_pl][0]),"{:.2e}".format(Flux_r_S_ZL_max[loc_pl][0]),
-                    "{:.2e}".format(P_B_planet[loc_pl][0]),"{:.2e}".format(P_dyn_sw[loc_pl][0]),"{:.2e}".format(P_th_sw[loc_pl][0]),"{:.2e}".format(P_B_sw[loc_pl][0]),"{:.2e}".format(Rmp[loc_pl][0]/Rp)
-                )
-
-                """
-
-"""
-# dictionaries of lists 
-dipole_mag_pl_dict = {'planet_name': dipole_mag_pl_lists.planet_name_list, 'star_name': dipole_mag_pl_lists.star_name_list, 'd_star(pc)': dipole_mag_pl_lists.d_star_list,
-              'mass_star(m_sun)':dipole_mag_pl_lists.mass_star_list, 'radius_star(r_sun)': dipole_mag_pl_lists.radius_star_list, 
-              'p_rot(days)': dipole_mag_pl_lists.p_rot_list, 'bfield_star(gauss)': dipole_mag_pl_lists.bfield_star_list, 'a(au)':dipole_mag_pl_lists.a_list,
-              'p_orb(days)':dipole_mag_pl_lists.p_orb_list,'eccentricity':dipole_mag_pl_lists.eccentricity_list,'q':dipole_mag_pl_lists.q_list,'Q':dipole_mag_pl_lists.Q_list,
-              'mass_planet(m_earth)':dipole_mag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': dipole_mag_pl_lists.radius_planet_list,
-              'T_cor(K)':dipole_mag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':dipole_mag_pl_lists.m_dot_list, 'nu_pl':dipole_mag_pl_lists.nu_pl_list,
-              'nu_cycl':dipole_mag_pl_lists.nu_cycl_list,'rho_pl':dipole_mag_pl_lists.rho_pl_list,'B_pl':dipole_mag_pl_lists.B_pl_list,'B_sw':dipole_mag_pl_lists.B_sw_list,'v_alf':dipole_mag_pl_lists.v_alf_list,
-              'M_A':dipole_mag_pl_lists.M_A_list,'Flux_r_S_ZL_min':dipole_mag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':dipole_mag_pl_lists.Flux_r_S_ZL_max_list,
-              'P_Bpl':dipole_mag_pl_lists.P_Bpl_list,'P_dyn':dipole_mag_pl_lists.P_dyn_list,'P_th':dipole_mag_pl_lists.P_th_list,'P_Bsw':dipole_mag_pl_lists.P_Bsw_list,'Rmp':dipole_mag_pl_lists.Rmp_list
-}      
-
-dipole_mag_pl = pd.DataFrame(dipole_mag_pl_dict)
-
-            
-dipole_unmag_pl_dict = {'planet_name': dipole_unmag_pl_lists.planet_name_list, 'star_name': dipole_unmag_pl_lists.star_name_list, 'd_star(pc)': dipole_unmag_pl_lists.d_star_list,
-              'mass_star(m_sun)':dipole_unmag_pl_lists.mass_star_list, 'radius_star(r_sun)': dipole_unmag_pl_lists.radius_star_list, 
-              'p_rot(days)': dipole_unmag_pl_lists.p_rot_list, 'bfield_star(gauss)': dipole_unmag_pl_lists.bfield_star_list, 'a(au)':dipole_unmag_pl_lists.a_list,
-              'p_orb(days)':dipole_unmag_pl_lists.p_orb_list,'eccentricity':dipole_unmag_pl_lists.eccentricity_list,'q':dipole_unmag_pl_lists.q_list,'Q':dipole_unmag_pl_lists.Q_list,
-              'mass_planet(m_earth)':dipole_unmag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': dipole_unmag_pl_lists.radius_planet_list,
-              'T_cor(K)':dipole_unmag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':dipole_unmag_pl_lists.m_dot_list, 'nu_pl':dipole_unmag_pl_lists.nu_pl_list,
-              'nu_cycl':dipole_unmag_pl_lists.nu_cycl_list,'rho_pl':dipole_unmag_pl_lists.rho_pl_list,'B_pl':dipole_unmag_pl_lists.B_pl_list,'B_sw':dipole_unmag_pl_lists.B_sw_list,'v_alf':dipole_unmag_pl_lists.v_alf_list,
-              'M_A':dipole_unmag_pl_lists.M_A_list,'Flux_r_S_ZL_min':dipole_unmag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':dipole_unmag_pl_lists.Flux_r_S_ZL_max_list,
-              'P_Bpl':dipole_unmag_pl_lists.P_Bpl_list,'P_dyn':dipole_unmag_pl_lists.P_dyn_list,'P_th':dipole_unmag_pl_lists.P_th_list,'P_Bsw':dipole_unmag_pl_lists.P_Bsw_list,'Rmp':dipole_unmag_pl_lists.Rmp_list
-}      
-
-dipole_unmag_pl = pd.DataFrame(dipole_unmag_pl_dict)
-
-spiral_mag_pl_dict = {'planet_name': spiral_mag_pl_lists.planet_name_list, 'star_name': spiral_mag_pl_lists.star_name_list, 'd_star(pc)': spiral_mag_pl_lists.d_star_list,
-              'mass_star(m_sun)':spiral_mag_pl_lists.mass_star_list, 'radius_star(r_sun)': spiral_mag_pl_lists.radius_star_list, 
-              'p_rot(days)': spiral_mag_pl_lists.p_rot_list, 'bfield_star(gauss)': spiral_mag_pl_lists.bfield_star_list, 'a(au)':spiral_mag_pl_lists.a_list,
-              'p_orb(days)':spiral_mag_pl_lists.p_orb_list,'eccentricity':spiral_mag_pl_lists.eccentricity_list,'q':spiral_mag_pl_lists.q_list,'Q':spiral_mag_pl_lists.Q_list,
-              'mass_planet(m_earth)':spiral_mag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': spiral_mag_pl_lists.radius_planet_list,
-              'T_cor(K)':spiral_mag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':spiral_mag_pl_lists.m_dot_list, 'nu_pl':spiral_mag_pl_lists.nu_pl_list,
-              'nu_cycl':spiral_mag_pl_lists.nu_cycl_list,'rho_pl':spiral_mag_pl_lists.rho_pl_list,'B_pl':spiral_mag_pl_lists.B_pl_list,'B_sw':spiral_mag_pl_lists.B_sw_list,'v_alf':spiral_mag_pl_lists.v_alf_list,
-              'M_A':spiral_mag_pl_lists.M_A_list,'Flux_r_S_ZL_min':spiral_mag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':spiral_mag_pl_lists.Flux_r_S_ZL_max_list,
-              'P_Bpl':spiral_mag_pl_lists.P_Bpl_list,'P_dyn':spiral_mag_pl_lists.P_dyn_list,'P_th':spiral_mag_pl_lists.P_th_list,'P_Bsw':spiral_mag_pl_lists.P_Bsw_list,'Rmp':spiral_mag_pl_lists.Rmp_list
-}      
-
-spiral_mag_pl = pd.DataFrame(spiral_mag_pl_dict)
-
-            
-spiral_unmag_pl_dict = {'planet_name': spiral_unmag_pl_lists.planet_name_list, 'star_name': spiral_unmag_pl_lists.star_name_list, 'd_star(pc)': spiral_unmag_pl_lists.d_star_list,
-              'mass_star(m_sun)':spiral_unmag_pl_lists.mass_star_list, 'radius_star(r_sun)': spiral_unmag_pl_lists.radius_star_list, 
-              'p_rot(days)': spiral_unmag_pl_lists.p_rot_list, 'bfield_star(gauss)': spiral_unmag_pl_lists.bfield_star_list, 'a(au)':spiral_unmag_pl_lists.a_list,
-              'p_orb(days)':spiral_unmag_pl_lists.p_orb_list,'eccentricity':spiral_unmag_pl_lists.eccentricity_list,'q':spiral_unmag_pl_lists.q_list,'Q':spiral_unmag_pl_lists.Q_list,
-              'mass_planet(m_earth)':spiral_unmag_pl_lists.mass_planet_list, 'radius_planet(r_earth)': spiral_unmag_pl_lists.radius_planet_list,
-              'T_cor(K)':spiral_unmag_pl_lists.T_cor_list, 'mass_loss_rate(solar)':spiral_unmag_pl_lists.m_dot_list, 'nu_pl':spiral_unmag_pl_lists.nu_pl_list,
-              'nu_cycl':spiral_unmag_pl_lists.nu_cycl_list,'rho_pl':spiral_unmag_pl_lists.rho_pl_list,'B_pl':spiral_unmag_pl_lists.B_pl_list,'B_sw':spiral_unmag_pl_lists.B_sw_list,'v_alf':spiral_unmag_pl_lists.v_alf_list,
-              'M_A':spiral_unmag_pl_lists.M_A_list,'Flux_r_S_ZL_min':spiral_unmag_pl_lists.Flux_r_S_ZL_min_list, 'Flux_r_S_ZL_max':spiral_unmag_pl_lists.Flux_r_S_ZL_max_list,
-              'P_Bpl':spiral_unmag_pl_lists.P_Bpl_list,'P_dyn':spiral_unmag_pl_lists.P_dyn_list,'P_th':spiral_unmag_pl_lists.P_th_list,'P_Bsw':spiral_unmag_pl_lists.P_Bsw_list,'Rmp':spiral_unmag_pl_lists.Rmp_list
-}      
-
-spiral_unmag_pl = pd.DataFrame(spiral_unmag_pl_dict)
-
-
-
-
-
-# Generate table with useful SPI parameters to generate various plots
-# and generate plots from data in out_table.csv
-dipole_mag_pl.to_csv('OUTPUT/dipole_mag_pl.csv')
-os.system('cp ./OUTPUT/dipole_mag_pl.csv ./OUTPUT/out_table.csv')
-os.system('python plot_out_table.py')
-os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/dipole_mag_pl.pdf')
-
-dipole_unmag_pl.to_csv('OUTPUT/dipole_unmag_pl.csv')
-os.system('cp ./OUTPUT/dipole_unmag_pl.csv ./OUTPUT/out_table.csv')
-os.system('python plot_out_table.py')
-os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/dipole_unmag_pl.pdf')
-
-spiral_mag_pl.to_csv('OUTPUT/spiral_mag_pl.csv')
-os.system('cp ./OUTPUT/spiral_mag_pl.csv ./OUTPUT/out_table.csv')
-os.system('python plot_out_table.py')
-os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_mag_pl.pdf')
-
-spiral_unmag_pl.to_csv('OUTPUT/spiral_unmag_pl.csv')
-os.system('cp ./OUTPUT/spiral_unmag_pl.csv ./OUTPUT/out_table.csv')
-os.system('python plot_out_table.py')
-os.system('mv ./OUTPUT/out_table.pdf ./OUTPUT/spiral_unmag_pl.pdf')
-"""
-
-
