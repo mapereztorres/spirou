@@ -78,8 +78,8 @@ def beta_keV(E_kin=511):
 
 def Rp_Zeng(Mp = 1.0):
     """ Computes the planet radius using the mass-radius relationship in 
-        in Zeng et al. (PNAS, 2019): 
-        https://www.pnas.org/content/116/20/9723
+        Zeng+2016 (ApJ). https://iopscience.iop.org/article/10.3847/0004-637X/819/2/127
+        See also Zeng et al. (PNAS, 2019): https://www.pnas.org/content/116/20/9723
         R [R_earth] = f * (M/M_earth)^(1/3.7)  (for rocky planets, f=1.)
         
         OUTPUT: Rp - planet radius, in units of Earth radius 
