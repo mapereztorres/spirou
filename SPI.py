@@ -130,7 +130,8 @@ for indi in planet_array:
          data['e_bfield_star'][indi]='TBD'
     #B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
     B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
-    
+    nu_ecm = 2.8e6 * B_star # cyclotron freq, in Hz
+
     if WHICH_INPUT == 'table':       
         data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
         M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
@@ -330,63 +331,32 @@ for indi in planet_array:
             Flux_r_S_min_no_abs=Flux_r_S_min
             Flux_r_S_max_no_abs=Flux_r_S_max
             Flux_r_S_inter_no_abs=Flux_r_S_inter
+
+            # Compute flux density, taking into account free-free absorption
             if freefree == True:
                 print('Applying ff-absorption')
+                # Generate empty list to be filled with absorption values
                 absorption = []
                 for elem in M_star_dot_arr:
-                    
-                    mdot = np.array(elem); 
-                    nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
+                    # mdot - one-element array from each value of M_star_dot_arr
+                    M_dot = np.array(elem) 
 
-                    v_sw_ff,n_sw, knu,alphanu,taunu = ff.ff_absorption(M_star,nu_ecm,T_corona,m_av,X_p,mdot,R_ff_in,
-                            R_ff_out,NSTEPS_FF,R_star)
-                    absorption.append(np.exp(-taunu))
-                '''
-                    nu_plasma =  spi.plasma_freq(n_e = n_sw * X_e)
-                    if nu_ecm  < 10 * nu_plasma[0] :
-                        #print('nu_ecm much larger than nu_plasma')
-                        print('nu_ecm is NOT large enough compared to nu_plasma')
-                        print(nu_plasma/nu_ecm)
-                    
-                    #print(mdot,absorption)
-                    #alphamatrix.append(alphanu)
-                    
-                    print('alphanu')
-                    print(len(alphanu))
-                    print(type(alphanu))
-                    print(alphanu[0])
-                    print('alphanu entero')
-                    print(alphanu)
-                  
+                    #Compute optical depth for f-f absorption (tau_nu)
+                    tau_nu, kappa_nu, alpha_nu = ff.ff_absorption(M_star, nu_ecm, T_corona, m_av, X_p, M_dot, R_ff_in, R_ff_out, NSTEPS_FF)
+                    absorption.append(np.exp(-tau_nu))
 
-                    
-                    if os.path.isfile('test.txt'):
-                        os.system('rm test.txt')
-                        
-                    #file = open("test.txt", "w+")
-                    content = str(alphanu)
-                    content=content.replace(" ", ",")
-                    content=content.replace("\n", "")
-                    content=content.replace("[", "")
-                    content=content.replace("]", "")
-                    #print('content')
-                    #print(content)
-                    alphamatrix.append(content)
-                    
-
-                
-                ''' 
+                # Convert list into numpy array
                 absorption_factor = np.array(absorption)
+
                 #print(absorption_factor)
-                print('Before free-free:', Flux_r_S_min[0])
-                Flux_r_S_min = Flux_r_S_min * absorption_factor
-                print('After free-free:', Flux_r_S_min[0])
+                #print('Before free-free:', Flux_r_S_min[0])
+                Flux_r_S_min    *= absorption_factor
+                #print('After free-free:', Flux_r_S_min[0])
                 #print(Flux_r_S_min)
-                Flux_r_S_max = Flux_r_S_max * absorption_factor
-                Flux_r_S_ZL_min = Flux_r_S_ZL_min * absorption_factor
-                Flux_r_S_ZL_max = Flux_r_S_ZL_max * absorption_factor    
-                
-                Flux_r_S_inter=Flux_r_S_inter* absorption_factor
+                Flux_r_S_max    *= absorption_factor
+                Flux_r_S_ZL_min *= absorption_factor
+                Flux_r_S_ZL_max *= absorption_factor    
+                Flux_r_S_inter  *= absorption_factor
                 #plt.figure(figsize=(8,11))
                 #ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
                 #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
@@ -395,8 +365,8 @@ for indi in planet_array:
                 #plt.savefig('absorption_vs_mdot.pdf')
                 
                 #M_star_dot_arr_debug = np.array([1.1,2.0,3.0])
-                M_star_dot_arr_debug = np.array([0.06])
-                print('DEBUG')
+                #M_star_dot_arr_debug = np.array([0.06])
+                #print('DEBUG')
                 #####
 
 

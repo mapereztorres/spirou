@@ -20,57 +20,52 @@ def get_gaunt(T,nu):
     g = 10.6 + 1.90 * np.log10(T) - 1.26 * np.log10(Z * nu)
     return g
 
-def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF,R_star):
+def ff_absorption(M_star, nu_ecm, T_wind, m_av, X_p, M_dot, R_ff_in, R_ff_out, NSTEPS_FF):
     '''
-    OUTPUT - v_sw
-             n_sw 
-             knu
-             alphanu
-             taunu
+    Computes the optical depth, taunu, of free-free absorption at a given frequency, nu_ecm
+    It uses the expression for the effective linear absorption coefficient, as given in
+    Cox (2000), with a slight modification of the nomenclature. 
+
+    OUTPUT - tau_nu   - Optical depth of free-free absoption
+             kappa_nu - effective linear absorption coefficient 
+             alpha_nu - kappa_nu / (ne * np)
     INPUT: 
-    nu: frequency of observation, in Hz
-    T: temperature of the corona, which would be constant for an isothermal wind, in K
-    m_av - average particle mass of the stellar wind (in gr)    
-    X_p  - Fraction of protons
-    mdot: stellar mass-loss rate, in units of the Sun mass-loss rate
-    R_ff_in: Distance from stellar center where SPI emission takes place, in cm (>= 1.0)
-    R_ff_out: Distance from stellar center where free-free absorption becomes negligible, in cm
+
+    M_star - Star mass, in grams
+    nu_ecm - Electron cyclotron frequency, in Hz
+    T_wind - Temperature of the wind, in K (equal to T_corona for an isoth wind)
+    m_av   - average particle mass of the stellar wind, in gr    
+    X_p    - Fraction of protons
+    M_dot   - stellar mass-loss rate, in units of the Sun mass-loss rate
+    R_ff_in- Distance (from stellar center) where SPI emission takes place, in cm (>= 1.0)
+    R_ff_out- Distance from stellar center where free-free absorption becomes negligible, in cm
+    NSTEPS_FF - Number of steps for the computation of free-free absorption 
+
+    Other parameters: 
+    Z - ionisation state
+    h - Planck constant
+    k_B - Boltzmann constant
     '''
-    
     #dist_absorption = np.linspace(R_ff_in, R_ff_out, NSTEPS_FF)
-    dist_absorption = np.logspace(np.log10(R_ff_in),np.log10(R_ff_out),NSTEPS_FF)
-    v_sound, r_sonic, v_sw = spi.v_stellar_wind(dist_absorption, M_star, T, m_av)
-    n_sw = spi.n_wind(mdot, dist_absorption, v_sw, m_av) 
+    # Logarithmic spacing is better if R_ff_out >> R_ff_in
+    dist_absorption = np.logspace(np.log10(R_ff_in), np.log10(R_ff_out), NSTEPS_FF)
+
+    v_sound, r_sonic, v_sw = spi.v_stellar_wind(dist_absorption, M_star, T_wind, m_av)
+
+    # Computing densities n_p and n_e to estimate kappa_nu
+    n_sw = spi.n_wind(M_dot, dist_absorption, v_sw, m_av) 
     n_p  = n_sw * X_p
     n_e  = n_sw * (1 - X_p)
-    g = get_gaunt(T, nu)
-    knu=3.692*10**8*(1-np.exp((-h*nu)/(k_B*T)))*Z**2*g*T**(-1/2)*nu**(-3)
-    alphanu = knu * n_e * n_p
-    taunu=integral.trapezoid(alphanu,dist_absorption)
-    return v_sw,n_sw, knu,alphanu,taunu
-    
 
-'''  
-nu_ecm = B_star * 2.8e6 # cyclotron freq, in Hz
+    # Gaunt factor
+    g = get_gaunt(T_wind, nu_ecm)
 
-# Generate an array of distances ranging from where the SPI emission takes place above the stellar surface to where the free-free absorption would become irrelevant
-Nsteps=10000
-altitude = 1.5 #altitude over stellar surface where SPI takes place, in R/R_star units
-outerlimit = r_orb*500 #limit for integration of free-free absorption, in cm
-#*1.495978707*10**13
-dist_absorption = np.linspace(data['radius_star(r_sun)'][indi]*6.957*10**10*altitude, outerlimit, Nsteps)
+    alpha_nu = 3.692 * 10**8 * (1 - np.exp((-h * nu_ecm)/(k_B * T_wind))) * Z**2 * g * T_wind**(-1/2) * nu_ecm**(-3)
 
-X_e, mu, m_av = spi.wind_composition(X_p = 0.5)
-v_sound, r_sonic, v_sw = spi.v_stellar_wind(dist_absorption, M_star, T_corona, m_av)
-# Plasma number density at distance (R/R_star)
-g = get_gaunt(T_corona,nu_ecm)
+    # Effective linear absorption coefficient
+    kappa_nu = alpha_nu * n_e * n_p
 
-#for mdot in M_star_dot_arr:
-n_sw = spi.n_wind(mdot, dist_absorption, v_sw, m_av) 
-nu_plasma = spi.plasma_freq(np.max(n_sw))
-knu,alphanu,taunu = get_taunu(nu_ecm,T_corona,g,dist_absorption,n_sw)
-#absorption factor
-absor = np.exp(-taunu)
-'''
+    # Optical depth
+    tau_nu = integral.trapezoid(kappa_nu, dist_absorption)
 
-
+    return tau_nu, kappa_nu, alpha_nu
