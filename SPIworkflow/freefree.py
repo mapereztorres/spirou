@@ -9,22 +9,30 @@ import numpy as np
 
 def get_gaunt(T,nu):
     """
+    Computes the Gaunt factor in the radio regime, using the expressions in references
+    19 and 21 in Cox (2000). 
+
     OUTPUT - g:  float - Gaunt factor
     INPUT  - T:  float - Temperature of the wind,  in Kelvin
            - nu: float - Observing frequency, in Hz
-    The Gaunt factor  is computed using Eq. X in fulanito et al. YYYY. 
     It also takes into account the ionization state (Z - read from __init__.py)
     """
-    g = 10.6 + 1.9 * np.log10(T) - 1.26 * np.log10(Z * nu)
+    g = 10.6 + 1.90 * np.log10(T) - 1.26 * np.log10(Z * nu)
     return g
 
 def ff_absorption(M_star, nu, T, m_av, X_p, mdot, R_ff_in, R_ff_out, NSTEPS_FF,R_star):
     '''
-    mdot: stellar mass-loss rate, in units of the Sun mass-loss rate
+    OUTPUT - v_sw
+             n_sw 
+             knu
+             alphanu
+             taunu
+    INPUT: 
     nu: frequency of observation, in Hz
     T: temperature of the corona, which would be constant for an isothermal wind, in K
     m_av - average particle mass of the stellar wind (in gr)    
     X_p  - Fraction of protons
+    mdot: stellar mass-loss rate, in units of the Sun mass-loss rate
     R_ff_in: Distance from stellar center where SPI emission takes place, in cm (>= 1.0)
     R_ff_out: Distance from stellar center where free-free absorption becomes negligible, in cm
     '''
