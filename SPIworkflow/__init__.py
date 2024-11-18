@@ -42,9 +42,9 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-#STUDY = "D_ORB"
+STUDY = "D_ORB"
 #STUDY = "M_DOT"
-STUDY = "B_PL"
+#STUDY = "B_PL"
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -90,7 +90,7 @@ NSTEPS_FF = 10000
 #####################################################
 
 #####################################
-# MAGNETIC FIELD SETUP
+# STELLAR MAGNETIC FIELD SETUP
 #####################################
 # Setting the stellar magnetic field geometry and the value of the 
 # intensity of the planetary magnetic field
@@ -100,13 +100,23 @@ NSTEPS_FF = 10000
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
 #Bfield_geom_arr = [0,1]
 Bfield_geom_arr = [0] 
+
+# MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
+# (in degrees). Fixed to zero for simplicity. 
+MAGN_OBLIQ = 0.
+ 
+#####################################
+# PLANET MAGNETIC FIELD SETUP
+#####################################
+
 # magnetized_pl_arr is a [False,True] array
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-magnetized_pl_arr = [False, True]
-#magnetized_pl_arr = [True]
+#magnetized_pl_arr = [False, True]
+magnetized_pl_arr = [True]
 
+# Setting the stellar magnetic field geometry and the value of the 
 # Computation of planetary magnetic field 
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
 # B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
