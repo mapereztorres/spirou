@@ -36,7 +36,7 @@ from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target,
 # Create CARMENES tables for targets 
 # with planets only, and with no planets, unless those already exist
 # 
-outdir, df_planets, df_no_noplanets = create_data_tables()
+#outdir, df_planets, df_no_noplanets = create_data_tables()
 
 
 # Setting the stellar magnetic field geometry and the value of the 
