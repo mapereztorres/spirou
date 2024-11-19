@@ -31,6 +31,8 @@ import SPIworkflow.SPIutils as spi
 import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
 
+import importlib
+
 # Create output directory for the results 
 # Return df_planets and df_no_planets
 # Create CARMENES tables for targets 
@@ -118,7 +120,10 @@ for indi in planet_array:
     if WHICH_INPUT == 'table':
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
     else:
-        from INPUT.INDIVIDUAL_TARGETS.proxima_b import *
+        file_name = 'INPUT.INDIVIDUAL_TARGETS.'+INPUT_PLANET
+        imported_parameters = importlib.import_module(file_name)
+        globals().update({k: v for k, v in imported_parameters.__dict__.items() if not k.startswith('__')})
+        
         print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
 
 
@@ -796,7 +801,7 @@ for indi in planet_array:
             ################################
             # DIAGNOSTIC PLOTS
             ################################
-            
+            '''
             # Diagostic plots for VELOCITIES
             
             plt.figure(figsize=(8,7.5))
@@ -858,7 +863,7 @@ for indi in planet_array:
             ax.legend(handles=[black_patch,red_patch,green_patch,blue_patch,magenta_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
             #            +'-pressure_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
-        
+            '''
             ## All diagnostic plots together 
 
             fig, (ax1, ax2,ax3,ax4) = plt.subplots(4, 1, sharex=True)
@@ -925,7 +930,11 @@ for indi in planet_array:
             ax2.axvline(x = xnom, ls='--', color='k', lw=2)
             ax3.axvline(x = xnom, ls='--', color='k', lw=2)
             ax4.axvline(x = xnom, ls='--', color='k', lw=2)
-            
+                        
+            if STUDY == "D_ORB":
+                ax4.set_xlim([2,x[-1]])
+            if M_A[-1]>1:
+                ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   
             ax4.set_xlabel(xlabel,fontsize=20)
             fig.set_figwidth(8)
             fig.set_figheight(20)
