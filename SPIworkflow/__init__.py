@@ -47,8 +47,8 @@ STUDY = "D_ORB"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
-#D_ORB_LIM = np.nan
-D_ORB_LIM = 1000.
+D_ORB_LIM = np.nan
+#D_ORB_LIM = 1000.
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -117,8 +117,8 @@ MAGN_OBLIQ = 0.
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Setting the stellar magnetic field geometry and the value of the 
 # Computation of planetary magnetic field 
