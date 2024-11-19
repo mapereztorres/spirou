@@ -46,6 +46,10 @@ STUDY = "D_ORB"
 #STUDY = "M_DOT"
 #STUDY = "B_PL"
 
+# STUDY = "D_ORB" SETUP
+#D_ORB_LIM = np.nan
+D_ORB_LIM = 1000.
+
 #  STUDY = 'M_DOT' SETUP
 #
 # M_DOT_MIN, M_DOT_MAX: Minimum and maximum mass-loss rates to carry out the study of M_dot
@@ -231,11 +235,11 @@ DRAW_RMS = True
 # DRAW Little Earth?
 DRAW_EARTH = True
 LIMS_MA = True
-LIM_MA_LOW = 10**(-2)
-LIM_MA_HIGH = 10**(0)
+LIM_MA_LOW = 1e-2
+LIM_MA_HIGH = 1e0
 FLUX_LIMS = True
-FLUX_LOW = 3*rms*10**(-1)
-FLUX_HIGH = 3*rms*10**2
-ylimlow=10**-3
-ylimhigh=10**2
+FLUX_LOW = 3*rms * 1e-1
+FLUX_HIGH = 3*rms * 1e2
+ylimlow=1e-7
+ylimhigh=1e2
 
