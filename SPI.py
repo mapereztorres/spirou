@@ -163,7 +163,8 @@ for indi in planet_array:
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
     Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
-    d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    # Max. orbital distance, in units of R_star
+    d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
     # Nsteps defines the size of the array
@@ -876,7 +877,7 @@ for indi in planet_array:
             ax1.plot(x, v_alf/1e5*np.ones(len(x)), color='g', linestyle='dashdot')
             ax1.plot(x, v_sw/1e5*np.ones(len(x)), color='b', linestyle='dashed')
             ax1.plot(x, v_rel/1e5*np.ones(len(x)), color='k', linestyle='solid')
-            ax1.plot(x, v_sound/1e5*np.ones(len(x)), color='orange', linestyle=(0,(1,5)))
+            ax1.plot(x, v_sound/1e5*np.ones(len(x)), color='orange', linestyle=(0,(1,3.5)))
             red_patch = mpatches.Patch(color='red', label='$v_{orb}$')
             black_patch = mpatches.Patch(color='black', label='$v_{rel}$')
             green_patch = mpatches.Patch(color='green', label='$v_{alf}$')
@@ -890,14 +891,16 @@ for indi in planet_array:
             ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
             ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')
             ax2.plot(x, B_sw*np.ones(len(x)), color='b', linestyle='solid')
+            ax2.plot(x, B_sw*np.ones(len(x))*np.sqrt(geom_f), color='k', linestyle='dashed')
             #ax2.plot(x, B_planet_arr*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             #black_patch = mpatches.Patch(color='black', label='B_planet')
             red_patch = mpatches.Patch(color='red', label='B_r')
             green_patch = mpatches.Patch(color='green', label='B_phi')
             blue_patch = mpatches.Patch(color='blue', label='B_tot')
+            black_patch = mpatches.Patch(color='black', label='B_perp')
             ax2.set_xscale('log')
             ax2.set_yscale('log')            
-            ax2.legend(handles=[red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             
             ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
             ax3.set_xscale('log')
@@ -906,7 +909,7 @@ for indi in planet_array:
             
             ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
             ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
-            ax4.plot(x, P_th_sw*np.ones(len(x)), color='g', linestyle=(0,(1,5)))
+            ax4.plot(x, P_th_sw*np.ones(len(x)), color='g', linestyle=(0,(1,3.5)))
                       
             #ax4.plot(x, P_sw*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             #ax4.plot(x, P_B_planet*np.ones(len(x)), color='magenta', ls=(0, (1, 2)))
