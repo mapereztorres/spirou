@@ -162,7 +162,7 @@ rms  = 0.0064
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona_default = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)

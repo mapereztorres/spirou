@@ -120,6 +120,7 @@ for indi in planet_array:
     if WHICH_INPUT == 'table': # read from table (for multiple targets)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         M_star_dot = np.nan
+        T_corona = np.nan
     else:   # Read from <FILE>.py (for individual target)
         file_name = 'INPUT.INDIVIDUAL_TARGETS.' + INPUT_PLANET
         # import all parameters into a single variable
@@ -148,6 +149,11 @@ for indi in planet_array:
             M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
         else:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
+    
+    #  Check whether M_star_dot is read from input table/file
+    if np.isnan(T_corona):
+        T_corona = T_corona_default
+     
 
     print('Exoplanet name: ', Exoplanet)
 
@@ -900,7 +906,7 @@ for indi in planet_array:
             black_patch = mpatches.Patch(color='black', label='B_perp')
             ax2.set_xscale('log')
             ax2.set_yscale('log')            
-            ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             
             ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
             ax3.set_xscale('log')
@@ -921,7 +927,7 @@ for indi in planet_array:
             magenta_patch = mpatches.Patch(color='magenta', label='P_B_planet')             
             ax4.set_xscale('log')
             ax4.set_yscale('log')  
-            ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
  
             ax1.set_ylabel(r"$v [km$ $s^{-1}] $")
             ax2.set_ylabel(r"$B_{sw}$ $[G]$")
