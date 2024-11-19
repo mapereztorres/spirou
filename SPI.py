@@ -118,7 +118,7 @@ for indi in planet_array:
     if WHICH_INPUT == 'table':
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
     else:
-        from INPUT.INDIVIDUAL_TARGETS.barnard import *
+        from INPUT.INDIVIDUAL_TARGETS.proxima_b import *
         print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
 
 
@@ -687,9 +687,9 @@ for indi in planet_array:
                 x_superalfv=x[M_A_superalfv_ind]
                 if print_M_A == True:
                     ax1.axvline(x = x_superalfv, color='r',lw=2)
-                    ax1.axvspan(x_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                    ax1.axvspan(x_superalfv, x[-1], facecolor='r', alpha=0.5)
                 ax2.axvline(x = x_superalfv, color='r',lw=2)
-                ax2.axvspan(x_superalfv, M_DOT_MAX, facecolor='r', alpha=0.5)
+                ax2.axvspan(x_superalfv, x[-1], facecolor='r', alpha=0.5)
                 print('x_superalfv: ',x_superalfv)
             
             """
@@ -874,7 +874,7 @@ for indi in planet_array:
             ax1.set_xscale('log')
             ax1.set_yscale('log')          
             ax1.legend(handles=[blue_patch,red_patch,black_patch,orange_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-  
+            
             
             ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
             ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')
@@ -889,7 +889,8 @@ for indi in planet_array:
             ax2.legend(handles=[red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             
             ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
-
+            ax3.set_xscale('log')
+            ax3.set_yscale('log')
             
             
             ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
@@ -917,6 +918,11 @@ for indi in planet_array:
             ax2.set_facecolor("white")
             ax3.set_facecolor("white")
             ax4.set_facecolor("white")
+            
+            ax1.axvline(x = xnom, ls='--', color='k', lw=2)
+            ax2.axvline(x = xnom, ls='--', color='k', lw=2)
+            ax3.axvline(x = xnom, ls='--', color='k', lw=2)
+            ax4.axvline(x = xnom, ls='--', color='k', lw=2)
             
             ax4.set_xlabel(xlabel,fontsize=20)
             fig.set_figwidth(8)
