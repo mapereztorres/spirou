@@ -118,7 +118,7 @@ for indi in planet_array:
     if WHICH_INPUT == 'table':
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
     else:
-        from INPUT.INDIVIDUAL_TARGETS.barnard import *
+        from INPUT.INDIVIDUAL_TARGETS.proxima_b import *
         print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
 
 
@@ -131,6 +131,8 @@ for indi in planet_array:
     #B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
     B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
     nu_ecm = 2.8e6 * B_star # cyclotron freq, in Hz
+
+    #  Check whether M_star_dot is read from input table/file
     if np.isnan(M_star_dot):
         if WHICH_INPUT == 'table':       
             data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
