@@ -7,8 +7,8 @@ from SPIworkflow.constants import *
 #
 WHICH_INPUT = 'file'
 #WHICH_INPUT = 'table'
-INPUT_FILE  = 'test.py'
-
+#INPUT_FILE  = 'test.py'
+INPUT_PLANET = 'proxima_b'
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
