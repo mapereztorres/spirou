@@ -119,6 +119,7 @@ for indi in planet_array:
 # Read parameters from table/file
     if WHICH_INPUT == 'table': # read from table (for multiple targets)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
+        M_star_dot = np.nan
     else:   # Read from <FILE>.py (for individual target)
         file_name = 'INPUT.INDIVIDUAL_TARGETS.' + INPUT_PLANET
         # import all parameters into a single variable
