@@ -98,8 +98,8 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#Bfield_geom_arr = [0,1]
-Bfield_geom_arr = [0] 
+Bfield_geom_arr = [0,1]
+#Bfield_geom_arr = [0] 
 
 # MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
 # (in degrees). Fixed to zero for simplicity. 
