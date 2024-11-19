@@ -81,6 +81,25 @@ def beta_keV(E_kin=511):
     beta = np.sqrt(1 - (1 + E_kin/E_0)**(-2)) 
     return beta
 
+def Rp_Mueller(Mp = 1.0):
+    """ Computes the planet radius using the mass-radius relationship in 
+        Mueller+2019 (A&A, 2024): https://www.aanda.org/10.1051/0004-6361/202348690
+        
+        OUTPUT: Rp - planet radius, in units of Earth radius 
+        INPUT:  Mp - planet mass, in units of Earth mass
+    """
+    if Mp <= 0:
+        raise ValueError("Planet mass (Mp) must be a positive value.")
+    
+    if Mp < 4.37:
+        Rp = 1.02 * Mp**0.27
+    elif 4.37 <= Mp < 127:
+        Rp = 0.56 * Mp**0.67
+    else:
+        Rp = 18.6 * Mp**(-0.06)
+
+    return Rp
+
 def Rp_Zeng(Mp = 1.0):
     """ Computes the planet radius using the mass-radius relationship in 
         Zeng+2016 (ApJ). https://iopscience.iop.org/article/10.3847/0004-637X/819/2/127
