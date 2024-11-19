@@ -812,8 +812,8 @@ for indi in planet_array:
             plt.yscale('log')
             plt.xscale('log')            
             ax.legend(handles=[black_patch,red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
-                        +'-velocities_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+            #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+            #            +'-velocities_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
                      
             # Diagnostic plots for MAGNETIC FIELDS
                         
@@ -832,8 +832,8 @@ for indi in planet_array:
             plt.yscale('log')
             plt.xscale('log')            
             ax.legend(handles=[black_patch,red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
-                        +'-magnetic_field_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+            #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+            #            +'-magnetic_field_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
                       
             # Diagnostic plots for PRESSURE
 
@@ -854,8 +854,8 @@ for indi in planet_array:
             plt.yscale('log')
             plt.xscale('log')            
             ax.legend(handles=[black_patch,red_patch,green_patch,blue_patch,magenta_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
-                        +'-pressure_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+            #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+            #            +'-pressure_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
         
             ## All diagnostic plots together 
 
@@ -927,9 +927,15 @@ for indi in planet_array:
             ax4.set_xlabel(xlabel,fontsize=20)
             fig.set_figwidth(8)
             fig.set_figheight(20)
-            plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
-                        +'-diagnostic_plots-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
-            
+            #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+            #            +'-diagnostic_plots-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+            diagnostic_string = "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf' 
+            if Bfield_geom_arr[ind]:
+                out_diagnos = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Open-Bstar" + diagnostic_string 
+            else:
+                out_diagnos = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Closed-Bstar" + diagnostic_string 
+            plt.savefig(out_diagnos)
+
             ###########################################################
             ################### Send OUTPUT to external text file/s
             ###########################################################
