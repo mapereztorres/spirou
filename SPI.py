@@ -224,7 +224,7 @@ for indi in planet_array:
     # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
     # 
     v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
-    v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
+    angle_v_rel = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
     
     # n_sw_planet - Number density of the wind at orbital distance to the planet. 
     # If the stellar plasma is assumed to be isothermal, then 
@@ -248,7 +248,9 @@ for indi in planet_array:
             else:
                 print("\nClosed dipolar magnetic field geometry")
            
-            B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
+            # get magnetic field components
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
+                    v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
