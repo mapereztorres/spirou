@@ -10,7 +10,22 @@ from scipy.special import lambertw
 
 # FUNCTION DEFINITIONS 
 
-def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle):
+def get_velocity_comps(M_star, d_orb, P_rot_star):
+    """ 
+    OUTPUT: v_orb - Orbital/Keplerian speed of planet (array), in cm/s
+            v_corot -  Corotation speeds (array), in cm/s
+            Omega_star - Angular rotation velocity of the star (float), in s^(-1)
+    INPUT:  M_star - Star mass (float), in gr
+            d_orb  - orbital distances (array), in cm
+            P_rot_star - Rotation period of star (float), in sec
+    """
+    v_orb = (G * M_star / d_orb)**0.5 
+    Omega_star = 2.0*np.pi / P_rot_star 
+    v_corot = d_orb * Omega_star 
+
+    return v_orb, v_corot, Omega_star
+ 
+def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
     """Computes the radial, azimuthal components of the stellar wind magnetic field for
     an open (Parker spiral) and a closed (dipolar) magnetic field topologies of the host
     star.
@@ -34,16 +49,17 @@ def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_ang
         #       equator
         # B_phi - Azimuthal component of the dipole magnetic field 
         # B_sw - Total stellar wind B-field at planet orbital distance
+        # MAGN_OBLIQ - Angle between the rotation axis and magnetic axis of the star
         B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(MAGN_OBLIQ * np.pi/180) 
         B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(MAGN_OBLIQ * np.pi/180) 
         B_sw  = np.sqrt(B_r**2 + B_phi**2) 
         
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
-    B_ang = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
+    angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
 
     # Angle between the stellar wind magnetic field and the impinging plasma velocity
     # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
-    theta = np.absolute(B_ang - v_rel_angle) 
+    theta = np.absolute(angle_B - angle_v_rel) 
 
     geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
     if open_field:
@@ -52,7 +68,7 @@ def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, v_rel_ang
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
 
-    return B_r, B_phi, B_sw, B_ang, theta, geom_f
+    return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
 def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)

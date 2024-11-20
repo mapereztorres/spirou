@@ -7,8 +7,8 @@ from SPIworkflow.constants import *
 #
 WHICH_INPUT = 'file'
 #WHICH_INPUT = 'table'
-INPUT_FILE  = 'test.py'
-
+#INPUT_FILE  = 'test.py'
+INPUT_PLANET = 'proxima_b'
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
@@ -45,6 +45,10 @@ selection_criteria = False
 STUDY = "D_ORB"
 #STUDY = "M_DOT"
 #STUDY = "B_PL"
+
+# STUDY = "D_ORB" SETUP
+D_ORB_LIM = np.nan
+#D_ORB_LIM = 1000.
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -98,8 +102,8 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-Bfield_geom_arr = [0,1]
-#Bfield_geom_arr = [0] 
+#Bfield_geom_arr = [0,1]
+Bfield_geom_arr = [0] 
 
 # MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
 # (in degrees). Fixed to zero for simplicity. 
@@ -158,7 +162,7 @@ rms  = 0.0064
 # "isothermality" of stellar plasma 
 
 # Base density using the empirical law from Peres+2004 (ApJ)
-T_corona = 2.0e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+T_corona_default = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
 
 # Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
 # Solar Type stars)
@@ -231,11 +235,11 @@ DRAW_RMS = True
 # DRAW Little Earth?
 DRAW_EARTH = True
 LIMS_MA = True
-LIM_MA_LOW = 10**(-2)
-LIM_MA_HIGH = 10**(0)
+LIM_MA_LOW = 1e-2
+LIM_MA_HIGH = 1e0
 FLUX_LIMS = True
-FLUX_LOW = 3*rms*10**(-1)
-FLUX_HIGH = 3*rms*10**2
-ylimlow=10**-3
-ylimhigh=10**2
+FLUX_LOW = 3*rms * 1e-1
+FLUX_HIGH = 3*rms * 1e2
+ylimlow=1e-7
+ylimhigh=1e2
 

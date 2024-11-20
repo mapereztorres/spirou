@@ -31,6 +31,8 @@ import SPIworkflow.SPIutils as spi
 import SPIworkflow.freefree as ff
 from SPIworkflow.load_data import get_spi_data, create_data_tables, load_target, table_lists
 
+import importlib
+
 # Create output directory for the results 
 # Return df_planets and df_no_planets
 # Create CARMENES tables for targets 
@@ -115,11 +117,19 @@ else:
 
 for indi in planet_array:
 # Read parameters from table/file
-    if WHICH_INPUT == 'table':
+    if WHICH_INPUT == 'table': # read from table (for multiple targets)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
-    else:
-        from INPUT.INDIVIDUAL_TARGETS.proxima_b import *
-        print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
+        M_star_dot = np.nan
+        T_corona = np.nan
+    else:   # Read from <FILE>.py (for individual target)
+        file_name = 'INPUT.INDIVIDUAL_TARGETS.' + INPUT_PLANET
+        # import all parameters into a single variable
+        imported_parameters = importlib.import_module(file_name) 
+
+        # convert imported_parameters into global variables
+        globals().update({k: v for k, v in imported_parameters.__dict__.items() if not k.startswith('__')})
+        
+        print(starname, d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
 
 
     # Fill B_star column if empty. Uses original units from table
@@ -132,27 +142,29 @@ for indi in planet_array:
     B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
     nu_ecm = 2.8e6 * B_star # cyclotron freq, in Hz
 
-    if WHICH_INPUT == 'table':       
-        data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
-        M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
-    else:
-        M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
+    #  Check whether M_star_dot is read from input table/file
+    if np.isnan(M_star_dot):
+        if WHICH_INPUT == 'table':       
+            data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
+            M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+        else:
+            M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
+    
+    #  Check whether M_star_dot is read from input table/file
+    if np.isnan(T_corona):
+        T_corona = T_corona_default
+     
 
     print('Exoplanet name: ', Exoplanet)
 
     ###############################################
 
-   
-    # Common properties for star and planet
-    # 
-    M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
-    Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
-
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
     Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
-    d_orb_max = r_orb/R_star  + 10 # Max. orbital distance, in units of R_star
+    # Max. orbital distance, in units of R_star
+    d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
 
     #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
     # Nsteps defines the size of the array
@@ -174,11 +186,11 @@ for indi in planet_array:
         d_orb = np.array([r_orb])
         M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
 
-    #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
-    #print(len(d_orb))
-    v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
-    print('type of Omega_star: ', type(Omega_star))
-    v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+    #v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
+    #v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+    # get array of orbital and corotation speeds (v_orb and v_corot) and Omega_star
+    # (float)
+    v_orb, v_corot, Omega_star = spi.get_velocity_comps(M_star, d_orb, P_rot_star) 
 
     # Angular speed of the planet, in s^(-1). NOte that it's an array
     Omega_planet =  v_orb / d_orb 
@@ -206,7 +218,7 @@ for indi in planet_array:
     # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
     # 
     v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
-    v_rel_angle = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
+    angle_v_rel = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
     
     # n_sw_planet - Number density of the wind at orbital distance to the planet. 
     # If the stellar plasma is assumed to be isothermal, then 
@@ -230,7 +242,9 @@ for indi in planet_array:
             else:
                 print("\nClosed dipolar magnetic field geometry")
            
-            B_r, B_phi, B_sw, B_ang, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot, v_sw, v_rel_angle)
+            # get magnetic field components
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
+                    v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
@@ -398,7 +412,7 @@ for indi in planet_array:
             #
             #period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
             period_mark = np.array([1, 10, 30, 60, 100, 200, 500, 1000, 2000])
-            d_orb_mark = (period_mark/yr)**(2/3) * M_star_msun**(1/3) * (au/R_star)
+            d_orb_mark = (period_mark/yr)**(2/3) * (M_star/M_sun)**(1/3) * (au/R_star)
 
             # Plotting is different, depending on the "STUDY" case
             if STUDY == 'D_ORB':
@@ -794,7 +808,7 @@ for indi in planet_array:
             ################################
             # DIAGNOSTIC PLOTS
             ################################
-            
+            '''
             # Diagostic plots for VELOCITIES
             
             plt.figure(figsize=(8,7.5))
@@ -856,7 +870,7 @@ for indi in planet_array:
             ax.legend(handles=[black_patch,red_patch,green_patch,blue_patch,magenta_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             #plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
             #            +'-pressure_variation-'+STUDY+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
-        
+            '''
             ## All diagnostic plots together 
 
             fig, (ax1, ax2,ax3,ax4) = plt.subplots(4, 1, sharex=True)
@@ -865,7 +879,7 @@ for indi in planet_array:
             ax1.plot(x, v_alf/1e5*np.ones(len(x)), color='g', linestyle='dashdot')
             ax1.plot(x, v_sw/1e5*np.ones(len(x)), color='b', linestyle='dashed')
             ax1.plot(x, v_rel/1e5*np.ones(len(x)), color='k', linestyle='solid')
-            ax1.plot(x, v_sound/1e5*np.ones(len(x)), color='orange', linestyle=(0,(1,5)))
+            ax1.plot(x, v_sound/1e5*np.ones(len(x)), color='orange', linestyle=(0,(1,3.5)))
             red_patch = mpatches.Patch(color='red', label='$v_{orb}$')
             black_patch = mpatches.Patch(color='black', label='$v_{rel}$')
             green_patch = mpatches.Patch(color='green', label='$v_{alf}$')
@@ -879,14 +893,16 @@ for indi in planet_array:
             ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
             ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')
             ax2.plot(x, B_sw*np.ones(len(x)), color='b', linestyle='solid')
+            ax2.plot(x, B_sw*np.ones(len(x))*np.sqrt(geom_f), color='k', linestyle='dashed')
             #ax2.plot(x, B_planet_arr*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             #black_patch = mpatches.Patch(color='black', label='B_planet')
             red_patch = mpatches.Patch(color='red', label='B_r')
             green_patch = mpatches.Patch(color='green', label='B_phi')
             blue_patch = mpatches.Patch(color='blue', label='B_tot')
+            black_patch = mpatches.Patch(color='black', label='B_perp')
             ax2.set_xscale('log')
             ax2.set_yscale('log')            
-            ax2.legend(handles=[red_patch,green_patch,blue_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
             
             ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
             ax3.set_xscale('log')
@@ -895,7 +911,7 @@ for indi in planet_array:
             
             ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
             ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
-            ax4.plot(x, P_th_sw*np.ones(len(x)), color='g', linestyle=(0,(1,5)))
+            ax4.plot(x, P_th_sw*np.ones(len(x)), color='g', linestyle=(0,(1,3.5)))
                       
             #ax4.plot(x, P_sw*np.ones(len(x)), color='k', ls=(0, (1, 2)))
             #ax4.plot(x, P_B_planet*np.ones(len(x)), color='magenta', ls=(0, (1, 2)))
@@ -907,7 +923,7 @@ for indi in planet_array:
             magenta_patch = mpatches.Patch(color='magenta', label='P_B_planet')             
             ax4.set_xscale('log')
             ax4.set_yscale('log')  
-            ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+            ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
  
             ax1.set_ylabel(r"$v [km$ $s^{-1}] $")
             ax2.set_ylabel(r"$B_{sw}$ $[G]$")
@@ -923,7 +939,11 @@ for indi in planet_array:
             ax2.axvline(x = xnom, ls='--', color='k', lw=2)
             ax3.axvline(x = xnom, ls='--', color='k', lw=2)
             ax4.axvline(x = xnom, ls='--', color='k', lw=2)
-            
+                        
+            if STUDY == "D_ORB":
+                ax4.set_xlim([2,x[-1]])
+            if M_A[-1]>1:
+                ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   
             ax4.set_xlabel(xlabel,fontsize=20)
             fig.set_figwidth(8)
             fig.set_figheight(20)
