@@ -159,12 +159,6 @@ for indi in planet_array:
 
     ###############################################
 
-   
-    # Common properties for star and planet
-    # 
-    M_star_msun = M_star / M_sun # Stellar mass in units of solar mass
-    Omega_star = 2.0*np.pi / P_rot_star # Angular rotation velocity of the star
-
     # Electron gyrofrequency and ECM bandwidth 
     gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
     Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
@@ -192,11 +186,11 @@ for indi in planet_array:
         d_orb = np.array([r_orb])
         M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
 
-    #d_orb = np.linspace(1.02, 210, Nsteps) * R_star # Array of (orbital) distances to the star
-    #print(len(d_orb))
-    v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
-    print('type of Omega_star: ', type(Omega_star))
-    v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+    #v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
+    #v_corot = d_orb * Omega_star # Corotation speed (cm/s)
+    # get array of orbital and corotation speeds (v_orb and v_corot) and Omega_star
+    # (float)
+    v_orb, v_corot, Omega_star = spi.get_velocity_comps(M_star, d_orb, P_rot_star) 
 
     # Angular speed of the planet, in s^(-1). NOte that it's an array
     Omega_planet =  v_orb / d_orb 
@@ -418,7 +412,7 @@ for indi in planet_array:
             #
             #period_mark = np.array([1, 10, 20, 40, 80, 100, 120, 140, 160,])
             period_mark = np.array([1, 10, 30, 60, 100, 200, 500, 1000, 2000])
-            d_orb_mark = (period_mark/yr)**(2/3) * M_star_msun**(1/3) * (au/R_star)
+            d_orb_mark = (period_mark/yr)**(2/3) * (M_star/M_sun)**(1/3) * (au/R_star)
 
             # Plotting is different, depending on the "STUDY" case
             if STUDY == 'D_ORB':
