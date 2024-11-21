@@ -324,8 +324,10 @@ for indi in planet_array:
             # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
             # Zarka/Lanza (Flux_r_S_ZL...)
             # in erg/s/Hz/cm2
-            Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
-                                                          Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
+            #Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max = spi.get_Flux(Omega_min, Omega_max, 
+            #                                              Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
+            Flux_r_S_min, Flux_r_S_max =  spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt)
+            Flux_r_S_ZL_min, Flux_r_S_ZL_max =  spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt_ZL)
             # Compute flux density for an intermediate value of eps (in log scale)
             Flux_r_S_inter = 10**((np.log10(Flux_r_S_max) + np.log10(Flux_r_S_min))/2)
             
@@ -334,7 +336,7 @@ for indi in planet_array:
             
             S_reconnect, P_d, P_d_mks = spi.get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5)
             
-            Flux_reconnect_min, Flux_reconnect_max = spi.new_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_reconnect)
+            Flux_reconnect_min, Flux_reconnect_max = spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_reconnect)
             Flux_reconnect_inter = 10**((np.log10(Flux_reconnect_max) + np.log10(Flux_reconnect_min))/2)
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             alphamatrix=[]
