@@ -556,6 +556,28 @@ def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f):
     
     return S_poynt, S_poynt_ZL
 
+def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
+        """
+        OUTPUT: 
+            S_reconnect - Poynting flux (array), in cgs
+            P_d_mks     - Dissipated power (array), in SI units (Watt)
+        """
+        P_d_mks = gamma * np.pi/mu_0_mks * B_sw * (R_planet_eff/1e2)**2 * (v_rel/1e2)
+        P_d     = P_d_mks * 1e7 # in cgs units 
+        S_reconnect = P_d/0.2
+        
+        return S_reconnect, P_d, P_d_mks
+
+def new_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
+    dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
+    Flux_min = S_poynt * dilution_factor_min
+    Flux_min *= 1e26 # Flux density, in mJy
+    Flux_max = S_poynt * dilution_factor_max
+    Flux_max *= 1e26 # Flux density, in mJy
+    
+    return Flux_min, Flux_max
+    
 def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_ZL):
     """ Computes the minimum and maximum expected flux densities to be received at
         Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
