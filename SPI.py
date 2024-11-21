@@ -328,7 +328,14 @@ for indi in planet_array:
                                                           Delta_nu_cycl, d, S_poynt, S_poynt_ZL)
             # Compute flux density for an intermediate value of eps (in log scale)
             Flux_r_S_inter = 10**((np.log10(Flux_r_S_max) + np.log10(Flux_r_S_min))/2)
-
+            
+            
+            # Get reconnection fluxes
+            
+            S_reconnect, P_d, P_d_mks = spi.get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5)
+            
+            Flux_reconnect_min, Flux_reconnect_max = spi.new_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_reconnect)
+            Flux_reconnect_inter = 10**((np.log10(Flux_reconnect_max) + np.log10(Flux_reconnect_min))/2)
             ### COMPUTATION OF FREE-FREE Absorption by the stellar wind 
             alphamatrix=[]
 
@@ -345,6 +352,10 @@ for indi in planet_array:
             Flux_r_S_min_no_abs=Flux_r_S_min
             Flux_r_S_max_no_abs=Flux_r_S_max
             Flux_r_S_inter_no_abs=Flux_r_S_inter
+            
+            Flux_reconnect_min_no_abs = Flux_reconnect_min
+            Flux_reconnect_max_no_abs = Flux_reconnect_max
+            Flux_reconnect_inter_no_abs = Flux_reconnect_inter
 
             # Compute flux density, taking into account free-free absorption
             if freefree == True:
@@ -371,6 +382,9 @@ for indi in planet_array:
                 Flux_r_S_ZL_min *= absorption_factor
                 Flux_r_S_ZL_max *= absorption_factor    
                 Flux_r_S_inter  *= absorption_factor
+                Flux_reconnect_min *= absorption_factor
+                Flux_reconnect_max *= absorption_factor
+                Flux_reconnect_inter *= absorption_factor
                 #plt.figure(figsize=(8,11))
                 #ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
                 #ax.plot(np.log(M_star_dot_arr), absorption_factor, color='k')
@@ -449,6 +463,9 @@ for indi in planet_array:
             y_min = Flux_r_S_min # minimum flux (array), Saur/Turnpenney model
             y_max = Flux_r_S_max # maximum flux (array)
             y_inter = Flux_r_S_inter
+            y_min_reconnect = Flux_reconnect_min
+            y_max_reconnect = Flux_reconnect_max
+            y_inter_reconnect = Flux_reconnect_inter
             y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
             y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
             #ax.set_ylim([1e-2, max(max(y_max),max(y_max_ZL))])   
@@ -508,11 +525,14 @@ for indi in planet_array:
             #ax2.fill_between(x, y_min_ZL, y_max_ZL, color="blue", alpha=0.7, label="Zarka/Lanza model")
             if freefree==True:
                 ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
+                ax2.fill_between(x, y_min_reconnect, y_max_reconnect,color="blue", alpha=0.7, label="ff absorption")
                 #ax2.fill_between(x, y_min, y_inter,color="orange", alpha=0.7, label="ff absorption")
                 ax2.plot(x,y_inter,color='black',lw=2)
-                ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="blue")
+                ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="orange")
+                ax2.fill_between(x, Flux_reconnect_min_no_abs, Flux_reconnect_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="blue")
             else:
                 ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7)
+                ax2.fill_between(x, y_min_reconnect, y_max_reconnect,color="blue", alpha=0.7)
                 ax2.plot(x,y_inter,color='black',lw=2)
                 #ax2.fill_between(x, y_min, y_inter,color="orange", alpha=0.7)
                 
@@ -990,3 +1010,4 @@ for indi in planet_array:
             #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
+            print(y_min_reconnect[0],y_min[0])
