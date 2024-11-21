@@ -1010,4 +1010,3 @@ for indi in planet_array:
             #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
-            print(y_min_reconnect[0],y_min[0])
