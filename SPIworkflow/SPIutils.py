@@ -561,8 +561,9 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
         OUTPUT: 
             S_reconnect - Poynting flux (array), in cgs
             P_d_mks     - Dissipated power (array), in SI units (Watt)
+            P_d         - Dissipated power (array), in cgs units (erg/s)
         """
-        P_d_mks = gamma * np.pi/mu_0_mks * B_sw * (R_planet_eff/1e2)**2 * (v_rel/1e2)
+        P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_planet_eff/1e2)**2 * (v_rel/1e2)
         P_d     = P_d_mks * 1e7 # in cgs units 
         S_reconnect = P_d/0.2
         
