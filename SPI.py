@@ -1,5 +1,5 @@
-# # Star-planet Interaction (model)
-# ## Sub-Alfvenic flux for both a Parker spiral magnetic field configuration and a closed dipolar field configuration
+## Star-planet Interaction (model)
+## Sub-Alfvenic flux for both a Parker spiral magnetic field configuration and a closed dipolar field configuration
 
 
 # import statements
@@ -17,7 +17,7 @@ plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
 from output import OutputWriter
 
-### Getting parameters to predict SPI radio emission
+## Getting parameters to predict SPI radio emission
 #
 # Observing parameters: Observin frequency, assumed rms noise, Delta_nu
 # Stellar parameters: T_corona, n_base_corona, B_field, Isothermality of plasma
@@ -38,23 +38,13 @@ import importlib
 # Create CARMENES tables for targets 
 # with planets only, and with no planets, unless those already exist
 # 
-#outdir, df_planets, df_no_noplanets = create_data_tables()
+# outdir, df_planets, df_no_noplanets = create_data_tables()
 
 
-# Setting the stellar magnetic field geometry and the value of the 
-# intensity of the planetary magnetic field
-# 
-# Stellar magnetic field geometry
-# The convention is that Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#                        Bfield_geom_arr = 0 - closed dipolar geometry
-#Bfield_geom_arr = [0]
 
-# magnetized_pl_arr is like a False/True array, magfield_planet is the modulus of the magnetic field
-#magnetized_pl_arr= [0]
-#Bfield_pl = 0.5
-
-#Call many empty lists to be used later in out_table
-#all_lists = table_lists()
+# Call empty lists to be used later in out_table
+# all_lists = table_lists()
+# XXXX - DOCUMENT BETTER
 dipole_mag_pl_lists   = table_lists()
 dipole_unmag_pl_lists = table_lists()
 spiral_mag_pl_lists   = table_lists()
@@ -71,31 +61,35 @@ beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
 # Beam solid angle covered by the ECM emission, in sterradians
 Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, beta_max)
 
+# Read in the input data to estimate radio emission from SPI
+# WHICH_INPUT is defined in __init_.py
 if WHICH_INPUT == 'table': 
     # Read in the input data to estimate radio emission from SPI
-    #from SPIworkflow.import_table import *
     #source_data = './INPUT/SPI-sources_planets_MASTER.csv'
     #source_data = './INPUT/SPI-sources-sample5.csv'
     #
-    if selection_criteria == False:
+    if SELECTION_CRITERIA == False:
         data = get_spi_data(infile_data=source_data)
     else:
         data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
 
     ############## CHECK THAT THE DATA TABLE IS CORRECT
     print('Reading table: ', source_data)
-    print(data)
+    #print(data)
 
     ############## TABLE INITIALIZATION 
     # 
     # Create column for M_star_dot to fill it with values
     data['M_star_dot(M_sun_dot)']=''
+
     # If bfield_star(gauss) is missing, set it to np.nan
     data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+
     # If p_rot is missing, set it to np.nan
     #data['p_rot(days)'].replace('', np.nan, inplace=True)
     # Remove targets without p_rot
     data.dropna(subset=['p_rot(days)'], inplace=True)
+
     # Do not use stars with P_rot smaller than 10 days
     data = data[data['p_rot(days)'] > 10.0]
     data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
@@ -166,10 +160,14 @@ for indi in planet_array:
     # Max. orbital distance, in units of R_star
     d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
 
-    #d_orb = np.linspace(1.002, 10, Nsteps) * R_star # Array of (orbital) distances to the star
+    # The type of STUDY (D_ORB, M_DOT or B_PL) is set up in __init__.py 
+    # and tells us whether the computaion is done 
+    # as a function of the planetary orbital distance: STUDY = "D_ORB"
+    # as a function of the stellar mass loss rate    : STUDY = "M_DOT"
+    # as a function of the planetary magnetic field  : STUDY = "B_PL"
+    # 
     # Nsteps defines the size of the array
-    # NOTE: Consider renaming M_star_dot_arr (and maybe d_orb also)  in the STUDY  cases
-    # below.
+    #
     if STUDY == "D_ORB":
         print('You asked to carry out a study of radio emission vs orbital separation: STUDY == "D_ORB" ')
         Nsteps = int(2*d_orb_max)
@@ -186,13 +184,10 @@ for indi in planet_array:
         d_orb = np.array([r_orb])
         M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
 
-    #v_orb = (G * M_star/d_orb)**0.5 # Orbital (Keplerian) speed of planet as f(distance to star), in cm/s
-    #v_corot = d_orb * Omega_star # Corotation speed (cm/s)
-    # get array of orbital and corotation speeds (v_orb and v_corot) and Omega_star
-    # (float)
+    # get array of orbital and corotation speeds (v_orb and v_corot) and Omega_star (float)
     v_orb, v_corot, Omega_star = spi.get_velocity_comps(M_star, d_orb, P_rot_star) 
 
-    # Angular speed of the planet, in s^(-1). NOte that it's an array
+    # Angular speed of the planet, in s^(-1). Note that it's an array
     Omega_planet =  v_orb / d_orb 
 
     # Get wind composition, from the fraction of protons
@@ -201,26 +196,24 @@ for indi in planet_array:
     # Compute stellar wind velocity at each value of d_orb
     v_sound, r_sonic, v_sw = spi.v_stellar_wind(d_orb, M_star, T_corona, m_av)
 
-    v_sw_base = v_sw[0]    # Stellar wind velocity at the closest distance to the star
+    # Stellar wind velocity at the closest distance to the star, in cm/s
+    v_sw_base = v_sw[0]    
      
-
-    # Plasma number density at base of the corona
+    # Plasma number density at base of the corona, in cm^(-3)
     n_base_corona = spi.n_wind(M_star_dot_arr, R_star, v_sw_base, m_av) 
 
-    # Maximum plasma frequency at the base of the corona. If the ECM
-    # freq is less than the plasma frequency, the emission is
-    # completely absorbed 
-    nu_plasma_corona = spi.plasma_freq(n_base_corona * X_e) # in Hz
+    # Maximum plasma frequency at the base of the corona, in Hz. If the ECM
+    # freq is less than the plasma frequency, the emission is completely absorbed 
+    nu_plasma_corona = spi.plasma_freq(n_base_corona * X_e) 
 
-    #print("V_sound = {0:.3f} km/s; V_sw at the base = {1:.3f} km/s".format(vsound/1e5, v_sw_base/1e5))    
-    
-    # Eq. 23 of Turnpenney+18 - Second term of RHS 
+    # Relative speed between stellar wind and obstacle
+    # Angle between radial vector and relative velocity
+    # From Eq. 23 of Turnpenney+18 - Second term of RHS 
     # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
-    # 
-    v_rel = np.sqrt(v_orb**2 + v_sw**2) # Relative speed between stellar wind and obstacle
-    angle_v_rel = np.arctan(v_orb/v_sw) # Angle between radial vector and relative velocity
+    v_rel = np.sqrt(v_orb**2 + v_sw**2)  # in cm/s
+    angle_v_rel = np.arctan(v_orb/v_sw)  # in radians
     
-    # n_sw_planet - Number density of the wind at orbital distance to the planet. 
+    # Compute n_sw_planet, the number density of the wind at the orbital distance to the planet. 
     # If the stellar plasma is assumed to be isothermal, then 
     # the density falls down as ~ R^(-2) * v_sw^(-1).
     # Alternatively, we fix the density at the distance of the planet from the host star.
@@ -351,6 +344,8 @@ for indi in planet_array:
             pdn=pd.DataFrame(columns=np.linspace(R_ff_in, R_ff_out, NSTEPS_FF))
             #print('pdn')
             #print(pdn)
+
+            # Unabsorbed flux density
             Flux_r_S_min_no_abs=Flux_r_S_min
             Flux_r_S_max_no_abs=Flux_r_S_max
             Flux_r_S_inter_no_abs=Flux_r_S_inter
