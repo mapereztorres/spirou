@@ -738,87 +738,11 @@ for indi in planet_array:
             # DIAGNOSTIC PLOTS
             ################################
 
-            ## All diagnostic plots together 
 
-            fig, (ax1, ax2,ax3,ax4) = plt.subplots(4, 1, sharex=True)
-            fig.subplots_adjust(hspace=0)
-            ax1.plot(x, v_orb/1e5*np.ones(len(x)), color='r', linestyle='dotted')
-            ax1.plot(x, v_alf/1e5*np.ones(len(x)), color='g', linestyle='dashdot')
-            ax1.plot(x, v_sw/1e5*np.ones(len(x)), color='b', linestyle='dashed')
-            ax1.plot(x, v_rel/1e5*np.ones(len(x)), color='k', linestyle='solid')
-            ax1.plot(x, v_sound/1e5*np.ones(len(x)), color='orange', linestyle=(0,(1,3.5)))
-            red_patch = mpatches.Patch(color='red', label='$v_{orb}$')
-            black_patch = mpatches.Patch(color='black', label='$v_{rel}$')
-            green_patch = mpatches.Patch(color='green', label='$v_{alf}$')
-            blue_patch = mpatches.Patch(color='blue', label='$v_{sw}$')
-            orange_patch = mpatches.Patch(color='orange', label='$v_{sound}$')
-            ax1.set_xscale('log')
-            ax1.set_yscale('log')          
-            ax1.legend(handles=[blue_patch,red_patch,black_patch,orange_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            
-            
-            ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
-            ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')
-            ax2.plot(x, B_sw*np.ones(len(x)), color='b', linestyle='solid')
-            ax2.plot(x, B_sw*np.ones(len(x))*np.sqrt(geom_f), color='k', linestyle='dashed')
-            red_patch = mpatches.Patch(color='red', label='B_r')
-            green_patch = mpatches.Patch(color='green', label='B_phi')
-            blue_patch = mpatches.Patch(color='blue', label='B_tot')
-            black_patch = mpatches.Patch(color='black', label='B_perp')
-            ax2.set_xscale('log')
-            ax2.set_yscale('log')            
-            ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-            
-            ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
-            ax3.set_xscale('log')
-            ax3.set_yscale('log')
-            
-            
-            ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
-            ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
-            ax4.plot(x, P_th_sw*np.ones(len(x)), color='g', linestyle=(0,(1,3.5)))
-            # LPM - CHECK IF USEFUL
-            #ax4.plot(x, P_sw*np.ones(len(x)), color='k', ls=(0, (1, 2)))
-            #ax4.plot(x, P_B_planet*np.ones(len(x)), color='magenta', ls=(0, (1, 2)))
-            
-            black_patch = mpatches.Patch(color='black', label='P_sw')
-            red_patch = mpatches.Patch(color='red', label='P_dyn_sw')
-            green_patch = mpatches.Patch(color='green', label='P_th_sw')
-            blue_patch = mpatches.Patch(color='blue', label='P_B_sw')
-            magenta_patch = mpatches.Patch(color='magenta', label='P_B_planet')             
-            ax4.set_xscale('log')
-            ax4.set_yscale('log')  
-            ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
- 
-            ax1.set_ylabel(r"$v [km$ $s^{-1}] $")
-            ax2.set_ylabel(r"$B_{sw}$ $[G]$")
-            ax3.set_ylabel(r"$M_A$")
-            ax4.set_ylabel(r"$P [erg$ $cm^{-3}] $")
-                        
-            ax1.set_facecolor("white")
-            ax2.set_facecolor("white")
-            ax3.set_facecolor("white")
-            ax4.set_facecolor("white")
-            
-            ax1.axvline(x = xnom, ls='--', color='k', lw=2)
-            ax2.axvline(x = xnom, ls='--', color='k', lw=2)
-            ax3.axvline(x = xnom, ls='--', color='k', lw=2)
-            ax4.axvline(x = xnom, ls='--', color='k', lw=2)
-                        
-            if STUDY == "D_ORB":
-                ax4.set_xlim([2,x[-1]])
-            if M_A[-1]>1:
-                ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   
-            ax4.set_xlabel(xlabel,fontsize=20)
-            fig.set_figwidth(8)
-            fig.set_figheight(20)
-            diagnostic_string = "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf' 
-            if Bfield_geom_arr[ind]:
-                out_diagnos = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Open-Bstar" + diagnostic_string 
-            else:
-                out_diagnos = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Closed-Bstar" + diagnostic_string 
-            plt.savefig(out_diagnos)
-
+            filename = 'plotting/plot_diagnostic_plots.py'
+            with open(filename) as file:
+                exec(file.read())
+    
             ###########################################################
             ################### Send OUTPUT to external text file/s
             ###########################################################
