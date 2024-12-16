@@ -496,6 +496,25 @@ for indi in planet_array:
                 ax2.axvline(x = xnom, ls='--', color='k', lw=2)
                 ax2.set_xlabel(xlabel,fontsize=20)
                 #ax11.set_xlabel("Orbital period [days]")
+                ax1 = ax2.twiny()
+                #new_tick_locations=np.array([2.34,4.12,6.74])
+                ax1.set_xlim(ax2.get_xlim())
+                #ax1.set_xticks(new_tick_locations)
+                #ax1.set_xticklabels(np.round(np.array([2.34,4.12,6.74]), 2))
+                #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2))
+                #(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
+                #ax1.set_xticks(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
+                ax1.set_xlabel(r"Orbital period (days)")
+                #ax1.set_xticks(spi.Kepler_r(M_star/M_sun,np.array([1,5,10]))*au/R_star)
+                #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
+                #ax1.set_xticks(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
+                #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2))
+                ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
+                distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
+                ax1.set_xticks(distances_rv_signals)
+                ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
+                ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
+                ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
             elif STUDY == 'M_DOT':
                 ax2.set_xscale('log') 
                 ax2.set_yscale('log') 
@@ -523,6 +542,7 @@ for indi in planet_array:
                 
             ax2.set_ylabel(r"Flux density [mJy]")
             
+            '''
             orange_patch = mpatches.Patch(color='orange', label='ff absorption')
             blue_patch = mpatches.Patch(facecolor='none',label='No ff absorption',edgecolor="blue",linewidth = 0.1,hatch='\ ')
             if freefree==True:
@@ -559,6 +579,26 @@ for indi in planet_array:
                     ax2.text(0, 4e-3, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
                     pos_arg=2
                     rot=5
+            '''
+            orange_patch = mpatches.Patch(color='orange', label='Afvén wing')
+            blue_patch = mpatches.Patch(facecolor='blue',label='Reconnection')
+
+            if STUDY == "D_ORB":
+                    ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    label_location='lower left'               
+            
+            elif STUDY == "M_DOT":
+                    if magnetized_pl_arr[ind1]:
+                        #ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                        ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    else:
+                        #ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                        ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+                    ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+                    label_location='upper left'   
+                    
+                     
+            ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=0)            
             #plt.rcParams['mathtext.fontset'] = 'custom'
             #plt.rcParams['mathtext.bf'] = 'cm:bold'
             
@@ -808,6 +848,10 @@ for indi in planet_array:
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
             print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
+            print(spi.Kepler_r(M_star/M_sun,P_orb))
+            print(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74])))
+            print(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
+            print(str(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2)))
             #print(B_planet_Sano)
             #### TEMPORARY TABLE
             ####################
