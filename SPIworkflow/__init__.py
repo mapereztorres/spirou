@@ -8,7 +8,11 @@ from SPIworkflow.constants import *
 WHICH_INPUT = 'file'
 #WHICH_INPUT = 'table'
 #INPUT_FILE  = 'test.py'
-INPUT_PLANET = 'proxima_b'
+#INPUT_PLANET = 'k2155b'
+#INPUT_PLANET = 'HD238090b'
+#INPUT_PLANET = 'HD_99492_b'
+#INPUT_PLANET = 'trappist1b_turnpenney'
+INPUT_PLANET = 'barnard'
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = False
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
@@ -42,8 +46,8 @@ selection_criteria = False
 #  STUDY == 'M_DOT' - Predicted flux as a function of star mass-loss rate
 #  STUDY == 'B_PL'  - Predicted flux as a function of planetary magnetic field
 #######################################################################
-STUDY = "D_ORB"
-#STUDY = "M_DOT"
+#STUDY = "D_ORB"
+STUDY = "M_DOT"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
@@ -57,7 +61,7 @@ D_ORB_LIM = np.nan
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+1
+M_DOT_MAX = 2e+0
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -77,7 +81,7 @@ R_SPI = 1.0
 ####################################################
 
 ### Consider free-free absorption (True => Yes; False => No)
-freefree = True
+freefree = False
 
 # Ionization state (Z = 1 - fully ionized hydrogen)
 Z = 1 
@@ -117,18 +121,18 @@ MAGN_OBLIQ = 0.
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Setting the stellar magnetic field geometry and the value of the 
 # Computation of planetary magnetic field 
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
 # B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
-B_planet_law = 'Sano'
-#B_planet_law = 'None'
+#B_planet_law = 'Sano'
+B_planet_law = 'None'
 
 # Default planetary magnetic field, in Tesla
-B_PLANET_DEFAULT = bfield_earth/2
+B_PLANET_DEFAULT = bfield_earth
 #B_PLANET_DEFAULT=0.5*1e-4
 
 # K_MAGNETOPAUSE - factor by which the magnetopause currents enhance
@@ -143,8 +147,8 @@ K_MAGNETOPAUSE = 2.0
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-#rms  = 0.030
-rms  = 0.0064
+rms  = 0.013564
+#rms  = 0.0064
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
 
@@ -199,8 +203,8 @@ alpha = 1
 # 2024 (HoE), where it is called "beta"
 # 
 #eps_min = 0.01; eps_max = 0.11
-eps_min = 0.002; eps_max = 0.01
-#eps_min = 0.0001; eps_max = 0.01
+#eps_min = 0.002; eps_max = 0.01
+eps_min = 0.001; eps_max = 0.01
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 theta_M = np.pi/2
 
@@ -240,6 +244,6 @@ LIM_MA_HIGH = 1e0
 FLUX_LIMS = True
 FLUX_LOW = 3*rms * 1e-1
 FLUX_HIGH = 3*rms * 1e2
-ylimlow=1e-7
+ylimlow=1e-3
 ylimhigh=1e2
 
