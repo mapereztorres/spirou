@@ -33,7 +33,7 @@ if EXOPLANETS == True:
 else:
     source_data = './INPUT/SPI-NO-planets.csv'
 
-selection_criteria = False
+SELECTION_CRITERIA = False
 
 
 #####################################################
