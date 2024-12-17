@@ -388,7 +388,15 @@ for indi in planet_array:
             ###########################################################################
             ####                  PLOTTING                                         ####
             ###########################################################################
-            
+            # Create OUTPUT folder if it doesn't exist
+            FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
+            if not(os.path.isdir(FOLDER)):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
+            else:
+                print(FOLDER + ' already exists.')
+                
+                
+            ### Plot received flux density as a function of distance from the star
             filename = 'plotting/plot_flux_density.py'
             with open(filename) as file:
                 exec(file.read())            
@@ -420,6 +428,7 @@ for indi in planet_array:
             #df = pd.DataFrame(data=li)
             #df = df.assign(column_name=column_series)
             #df.index = [STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK']
+            
             if freefree == True: 
                 df = pd.DataFrame(zip(x,y_min, y_max), columns=[STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK'])
                 df.to_csv(os.path.join(outfile + ".csv"))            
