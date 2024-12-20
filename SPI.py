@@ -75,23 +75,21 @@ if WHICH_INPUT == 'table':
 
     ############## CHECK THAT THE DATA TABLE IS CORRECT
     print('Reading table: ', source_data)
-    #print(data)
+    print(data)
 
     ############## TABLE INITIALIZATION 
     # 
     # Create column for M_star_dot to fill it with values
     data['M_star_dot(M_sun_dot)']=''
-
     # If bfield_star(gauss) is missing, set it to np.nan
     data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
-
     # If p_rot is missing, set it to np.nan
     #data['p_rot(days)'].replace('', np.nan, inplace=True)
     # Remove targets without p_rot
     data.dropna(subset=['p_rot(days)'], inplace=True)
 
     # Do not use stars with P_rot smaller than 10 days
-    data = data[data['p_rot(days)'] > 10.0]
+    #data = data[data['p_rot(days)'] > 10.0]
     data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
     data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
@@ -108,13 +106,16 @@ if WHICH_INPUT == 'table':
     #print(planet_array)    
 else:
     planet_array = [0] 
-
+print(data)
+#print(Data2)
 for indi in planet_array:
 # Read parameters from table/file
     if WHICH_INPUT == 'table': # read from table (for multiple targets)
+        #starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
-        M_star_dot = np.nan
-        T_corona = np.nan
+        print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
+        T_corona = data['T_corona(MK)'][indi]*1e6
+        M_star_dot = data['mdot(mdot_sun)'][indi]
     else:   # Read from <FILE>.py (for individual target)
         file_name = 'INPUT.INDIVIDUAL_TARGETS.' + INPUT_PLANET
         # import all parameters into a single variable
@@ -145,10 +146,12 @@ for indi in planet_array:
     if np.isnan(M_star_dot):
         if WHICH_INPUT == 'table':       
             data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
-            M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+            #M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
+            M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
         else:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
-    
+        print('M_star_dot: ',M_star_dot)
+        print(type(M_star_dot))    
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(T_corona):
         T_corona = T_corona_default
