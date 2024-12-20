@@ -5,20 +5,20 @@ from SPIworkflow.constants import *
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #
-WHICH_INPUT = 'file'
-#WHICH_INPUT = 'table'
+#WHICH_INPUT = 'file'
+WHICH_INPUT = 'table'
 #INPUT_FILE  = 'test.py'
 #INPUT_PLANET = 'k2155b'
 #INPUT_PLANET = 'HD238090b'
 #INPUT_PLANET = 'HD_99492_b'
-#INPUT_PLANET = 'trappist1b_turnpenney'
-INPUT_PLANET = 'barnard'
+INPUT_PLANET = 'trappist1b_turnpenney'
+#INPUT_PLANET = 'barnard'
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
-COMPUTE_ALL = False
+COMPUTE_ALL = True
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
-# which_planets
+#which_planets
 #which_planets = [21] #gj486
-#which_planets = [0] 
+which_planets = [0] 
 #which_planets=[52] #barnard
 ###################################
 ### INPUT TABLE
@@ -35,6 +35,7 @@ else:
 
 SELECTION_CRITERIA = False
 
+source_data = './INPUT/spirou_table.csv'
 
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
@@ -61,7 +62,7 @@ D_ORB_LIM = np.nan
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 2e+0
+M_DOT_MAX = 2e+1
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -147,7 +148,8 @@ K_MAGNETOPAUSE = 2.0
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-rms  = 0.013564
+#rms  = 0.013564
+rms=0.015
 #rms  = 0.0064
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
