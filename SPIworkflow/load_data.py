@@ -71,12 +71,16 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
             "ra(hms)","dec(dms)", "ra(deg)", "dec(deg)", 
             "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)",
             "radius_planet(r_earth)", "mass_planet(m_earth)", "p_orb(days)", "a(au)" ]]
-    else: 
+    elif infile_data =='./INPUT/SPI-targets.csv' or infile_data =='./INPUT/SPI-NO-planets.csv': 
         df2 = df[["planet_name", "star_name",  
             "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
             "e_bfield_star", "radius_planet(r_earth)", "mass_planet(m_earth)",
             "mass_sini", "p_orb(days)", "a(au)" ,"eccentricity"]]
-
+    else:
+        df2 = df[["planet_name", "star_name",  
+            "d_star(pc)", "radius_star(r_sun)", "mass_star(m_sun)", "p_rot(days)", "bfield_star(gauss)", 
+            "radius_planet(r_earth)", "mass_planet(m_earth)",
+            "p_orb(days)", "a(au)","T_corona(MK)","mdot(mdot_sun)","eccentricity"]]
     #
     #df2.to_csv(r'./INPUT/SPI-sources.csv', index=True, header=True)
 
@@ -105,8 +109,8 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
     #data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
     #        p_orb_mask_max & bfield_mask_min & bfield_mask_max &
     #        declination_mask_min & declination_mask_max]
-    data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
-            p_orb_mask_max & bfield_mask_min & bfield_mask_max]
+    data = df2#[distance_mask_min & distance_mask_max & p_orb_mask_min &
+    #        p_orb_mask_max & bfield_mask_min & bfield_mask_max]
 
 
     # Create column with cyclotron freq, in GHz
@@ -201,7 +205,7 @@ def load_target(data, indi):
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
 
     # Read info for planets in table
-    if source_data == './INPUT/SPI-targets.csv':
+    if source_data == './INPUT/SPI-targets.csv' or source_data == './INPUT/spirou_table.csv':
         # Planet - 
         Exoplanet = data['planet_name'][indi]
         Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
