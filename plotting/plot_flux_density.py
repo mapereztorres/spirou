@@ -111,8 +111,10 @@ if STUDY == 'D_ORB':
         ax1.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
+    ax2.set_xlim(0,d_orb_max)
     #ax11.set_xlabel("Orbital period [days]")
     ax1 = ax2.twiny()
+    
     #new_tick_locations=np.array([2.34,4.12,6.74])
     ax1.set_xlim(ax2.get_xlim())
     #ax1.set_xticks(new_tick_locations)
@@ -125,12 +127,31 @@ if STUDY == 'D_ORB':
     #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
     #ax1.set_xticks(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
     #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2))
-    ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
-    distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
-    ax1.set_xticks(distances_rv_signals)
-    ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
-    ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
-    ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
+    #ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
+    #distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
+    #ax1.set_xticks(distances_rv_signals)
+    #ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
+    #ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
+    #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
+    xtickslocs = ax1.get_xticks()
+    ax1.set_xticks([])
+    print('xtickslocs :', xtickslocs)
+    new_tick_locations=xtickslocs[1:-1]
+    #xtickslocs_periods = spi.Kepler_P(M_star/M_sun,xtickslocs*R_star/au)
+    #ax1.set_xticks(xtickslocs)
+    #ax1.set_xlabel(np.round(xtickslocs_periods, 2))
+    def tick_function(X):
+        V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
+        return ["%.2f" % z for z in V]
+    ax1.set_xticks(new_tick_locations)
+    ax1.set_xticklabels(tick_function(new_tick_locations))
+    #ax3.yaxis.set_ticks(ax1.get_yticks())
+    
+    #print(type(xtickslocs))
+    #print(type(xtickslocs_periods))
+    #print('xtickslocs :', xtickslocs)
+    #print('xtickslocs period:', xtickslocs_periods)
+    #ymin, _ = ax.get_ylim()
 elif STUDY == 'M_DOT':
     ax2.set_xscale('log') 
     ax2.set_yscale('log') 
@@ -157,7 +178,9 @@ if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
                 ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
     
 ax2.set_ylabel(r"Flux density [mJy]")
-
+ax3 = ax2.twinx()
+ax3.tick_params(left=False, labelleft=False, top=False, labeltop=False,
+                   right=True, labelright=False, bottom=False, labelbottom=False)
 '''
 orange_patch = mpatches.Patch(color='orange', label='ff absorption')
 blue_patch = mpatches.Patch(facecolor='none',label='No ff absorption',edgecolor="blue",linewidth = 0.1,hatch='\ ')
@@ -209,7 +232,7 @@ elif STUDY == "M_DOT":
             ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         else:
             #ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-            ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         label_location='upper left'   
         
@@ -273,10 +296,10 @@ if any(ind > 1 for ind in M_A):
     #mdot_superalfv=M_star_dot_arr[M_A_superalfv_ind]
     x_superalfv=x[M_A_superalfv_ind]
     if print_M_A == True:
-        ax1.axvline(x = x_superalfv, color='r',lw=2)
-        ax1.axvspan(x_superalfv, x[-1], facecolor='r', alpha=0.5)
-    ax2.axvline(x = x_superalfv, color='r',lw=2)
-    ax2.axvspan(x_superalfv, x[-1], facecolor='r', alpha=0.5)
+        ax1.axvline(x = x_superalfv, color='grey',lw=2)
+        ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
+    ax2.axvline(x = x_superalfv, color='grey',lw=2)
+    ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     print('x_superalfv: ',x_superalfv)
 
 
