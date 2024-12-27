@@ -30,7 +30,7 @@ $ conda activate spirou
 To deactivate an active environment, use 
 
 ```
-$ conda deactivate`
+$ conda deactivate
 ```
 
 In case you need to update the evnironment, run 
