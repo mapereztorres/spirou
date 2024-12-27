@@ -58,7 +58,7 @@ y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
 y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
 ax2.set_ylim([ylimlow, ylimhigh])       
 indices_Flux_larger_rms = np.argwhere(Flux_r_S_min > 3*rms)
-indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max > 3*rms)
+indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max < 3*rms)
 if indices_Flux_larger_rms.size > 0:
     x_larger_rms = x[indices_Flux_larger_rms[0]]
     x_larger_rms=x_larger_rms[0]
@@ -69,7 +69,7 @@ if indices_Flux_larger_rms.size > 0:
     x_last_larger=x_last_larger[0]
     x_last_larger="{:.2f}".format(x_last_larger)    
     x_last_larger=str(x_last_larger)
-    print('value of x where there is clear detection: ( ',x_larger_rms+' , '+x_last_larger+' )')
+    print('value of x where there is clear detection for the Alfvén Wing model: ( ',x_larger_rms+' , '+x_last_larger+' )')
     x_larger_rms=x_larger_rms+' , '+x_last_larger
 else:
     x_larger_rms=np.nan
@@ -86,7 +86,7 @@ if indices_Flux_smaller_rms.size > 0:
     x_last_smaller=x_last_smaller[0]
     x_last_smaller="{:.2f}".format(x_last_smaller)    
     x_last_smaller=str(x_last_smaller)
-    print('value of x where there is clear NON detection: ( ',x_smaller_rms+' , '+x_last_smaller+' )')
+    print('value of x where there is clear NON detection for the Alfvén Wing model: ( ',x_smaller_rms+' , '+x_last_smaller+' )')
     x_smaller_rms=x_smaller_rms+' , '+x_last_smaller
 else:
     x_smaller_rms=np.nan
@@ -236,7 +236,11 @@ elif STUDY == "M_DOT":
         ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         label_location='upper left'   
         
-         
+elif STUDY == "B_PL":  
+    ax2.text(B_PL_MAX*0.7, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    ax2.text(B_PL_MAX*0.7, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    label_location='upper left'   
+       
 ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=0)            
 #plt.rcParams['mathtext.fontset'] = 'custom'
 #plt.rcParams['mathtext.bf'] = 'cm:bold'
@@ -278,18 +282,19 @@ if (DRAW_EARTH == True) and (STUDY == 'D_ORB'):
 # To this end, first find out the position of the planet in the distance array
 d_diff = np.abs((d_orb - r_orb) / R_star)
 loc_pl = np.where(d_diff == d_diff.min())
-print('Position in d_orb array where the planet is located', loc_pl)
+if STUDY == 'D_ORB':
+    print('Position in d_orb array where the planet is located', loc_pl)
 
 # Print in the graph the value of the planetary magnetic field, in units of bfield_earth
 if STUDY == 'B_PL':
-    B_planet_ref = round(float(B_planet_Sano /(bfield_earth * Tesla2Gauss) ), 2) 
+    B_planet_ref = round(float(B_planet_Sano[0] /(bfield_earth * Tesla2Gauss) ), 2) 
 else:
-    B_planet_ref = round(float(B_planet_arr[loc_pl] / (bfield_earth*Tesla2Gauss) ), 2) 
-
+    B_planet_ref = round(float(B_planet_arr[loc_pl][0] / (bfield_earth*Tesla2Gauss) ), 2) 
+    print(type((B_planet_arr[loc_pl][0])))
 #print(M_A)
 x_superalfv='nan'           
 if any(ind > 1 for ind in M_A):
-    print('This enters super-Afvénic regime')
+    print('The planet enters super-Afvénic regime')
     M_A_superalfv_arr=np.where(M_A >1)
     M_A_superalfv_ind=M_A_superalfv_arr[0]
     M_A_superalfv_ind=M_A_superalfv_ind[0]

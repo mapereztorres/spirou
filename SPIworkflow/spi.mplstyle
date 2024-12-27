@@ -4,7 +4,7 @@ figure.subplot.left  : 0.17
 figure.subplot.right : 0.97
 figure.subplot.bottom: 0.15
 figure.subplot.top   : 0.97
-figure.facelor   : 'white'
+figure.facecolor   : 'white'
 
 # Axes
 axes.linewidth : 3

@@ -109,7 +109,7 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
     #data = df2[distance_mask_min & distance_mask_max & p_orb_mask_min &
     #        p_orb_mask_max & bfield_mask_min & bfield_mask_max &
     #        declination_mask_min & declination_mask_max]
-    data = df2#[distance_mask_min & distance_mask_max & p_orb_mask_min &
+    data = df2.copy()#[distance_mask_min & distance_mask_max & p_orb_mask_min &
     #        p_orb_mask_max & bfield_mask_min & bfield_mask_max]
 
 
@@ -117,13 +117,14 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
     # It gives a SetWarningCopy message, but it's seems to work fine.
     #
     #data['freq_cycl(ghz)'] = data.loc[:,('bfield_star(gauss)')]*2.8e-3
-    data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
+    #data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
+    data.loc['freq_cycl(ghz)'] = df2['bfield_star(gauss)']*2.8e-3
 
     data.reset_index(inplace=True)
 
-
     # Generate also latex_table? out_latex==True => Return. It will truncate 
     if out_latex==True:
+        open('./OUTPUT/latex_table.tex', 'a').close()
         with open('./OUTPUT/latex_table.tex', 'w') as tf:
             tf.write(data.to_latex(index=False))
         #print(data.to_latex(index=False))

@@ -50,7 +50,8 @@ dipole_unmag_pl_lists = table_lists()
 spiral_mag_pl_lists   = table_lists()
 spiral_unmag_pl_lists = table_lists()
 
-
+if not os.path.exists('./OUTPUT'):
+    os.makedirs('./OUTPUT')
 #################################################################
 ################## GENERAL EMISSION PARAMETERS  #################
 #################################################################
@@ -82,7 +83,9 @@ if WHICH_INPUT == 'table':
     # Create column for M_star_dot to fill it with values
     data['M_star_dot(M_sun_dot)']=''
     # If bfield_star(gauss) is missing, set it to np.nan
-    data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+    #data['bfield_star(gauss)'].replace('', np.nan, inplace=True)
+    data.replace({'bfield_star(gauss)': ''}, {'bfield_star(gauss)': np.nan}, inplace=True)
+
     # If p_rot is missing, set it to np.nan
     #data['p_rot(days)'].replace('', np.nan, inplace=True)
     # Remove targets without p_rot
@@ -90,7 +93,8 @@ if WHICH_INPUT == 'table':
 
     # Do not use stars with P_rot smaller than 10 days
     #data = data[data['p_rot(days)'] > 10.0]
-    data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
+    #data['radius_planet(r_earth)'].replace('', np.nan, inplace=True)
+    data.replace({'radius_planet(r_earth)': ''}, {'radius_planet(r_earth)': np.nan}, inplace=True)
     data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
     ############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
@@ -113,7 +117,7 @@ for indi in planet_array:
     if WHICH_INPUT == 'table': # read from table (for multiple targets)
         #starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
-        print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
+        #print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
         T_corona = data['T_corona(MK)'][indi]*1e6
         M_star_dot = data['mdot(mdot_sun)'][indi]
     else:   # Read from <FILE>.py (for individual target)
@@ -464,7 +468,11 @@ for indi in planet_array:
             print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
             print('############################')
             #print(x_larger_rms)
-            print('value of '+STUDY+' where there is clear detection: ',x_larger_rms)
+            if x_larger_rms is np.nan or 'nan':
+                print('NO value of '+STUDY+' where there is clear detection for the Alfvén Wing model')
+            else:
+                print('value of '+STUDY+' where there is clear detection for the Alfvén Wing model: ',x_larger_rms)
+                
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
