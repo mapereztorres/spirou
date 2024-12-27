@@ -1,6 +1,6 @@
 # SPIROU
 
-`S'tar-`P'lanet `I'nteraction and `R'adio `O'bservations `U'nited
+**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited
 
 Code to predict the radio emission from star-planet (Sub-Alfvénic) interaction
 via the electron-cyclotron mechanism.  
