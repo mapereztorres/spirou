@@ -44,8 +44,7 @@ conda env update --name spirou --file spirou.yml --prune
 
 ```
 ├── INPUT     - Contains input files (data tables to be fed into the code)
-├── OUTPUT    - Contains output files (it's created at the first run of the
-code)
+├── OUTPUT    - Contains output files (created at first run of code)
 ├── pics      - Folder containing pictures 
 ├── README.md - This file
 ├── output.py - module containing function for output table 
