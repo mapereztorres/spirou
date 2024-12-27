@@ -14,27 +14,35 @@ via the electron-cyclotron mechanism.
 ```
 
 
-'''
 First, create the conda spirou environment:
+ 
+```
+conda env create -f spirou.yml 
+```
 
-`conda env create -f spirou.yml' 
+This will create the conda environment `spirou`. 
+To activate this environment, use 
 
-This will create the conda environment `spirou'. 
+```
+$ conda activate spirou
+```
 
-To activate this environment, use `$ conda activate spirou'
+To deactivate an active environment, use 
 
-To deactivate an active environment, use `$ conda deactivate' 
+```
+$ conda deactivate`
+```
 
 In case you need to update the evnironment, run 
 
-`conda activate spirou
-conda env update --name spirou --file spirou.yml --prune'
-'''
+```
+conda activate spirou 
+conda env update --name spirou --file spirou.yml --prune
+```
 
 ## Directories
 
 ```
-.
 ├── INPUT     - Contains input files (data tables to be fed into the code)
 ├── OUTPUT    - Contains output files (it's created at the first run of the
 code)
@@ -48,7 +56,7 @@ code)
     ── SPIutils.py   - File containing many useful functions for spirou.py
 ```
 
-SPIworkflow is actually a Python package in itself. It requires at least
-the existence of the file ``__init__.py``. Everything in that file becomes
+SPIworkflow is actually a Python package in itself. It requires at least the
+existence of the file ``__init__.py``. Everything in that file becomes
 available once the package is imported. 
 
