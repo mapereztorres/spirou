@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import SPIworkflow.SPIutils as spi
-from SPIworkflow.__init__ import *
+from setup import *
 from SPIworkflow.constants import *
 
 
