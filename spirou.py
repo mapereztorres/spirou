@@ -21,9 +21,9 @@ from output import OutputWriter
 #
 # Observing parameters: Observin frequency, assumed rms noise, Delta_nu
 # Stellar parameters: T_corona, n_base_corona, B_field, Isothermality of plasma
-# Geometry of the sub-Alfvénic interaction: ALPHA_SPI, theta_M
+# Geometry of the sub-Alfvénic interaction: ALPHA_SPI, THETA_M
 #
-from SPIworkflow.__init__ import *
+from setup import *
 
 # Import useful constants and functions to be used in the code
 from SPIworkflow.constants import *
@@ -57,13 +57,13 @@ if not os.path.exists('./OUTPUT'):
 #################################################################
 
 # Compute min and max speed of electrons emitting via ECM, in units of the speed of light 
-beta_min = spi.beta_keV(Ekin_min);  beta_max = spi.beta_keV(Ekin_max)
+beta_min = spi.beta_keV(EKIN_MIN);  beta_max = spi.beta_keV(EKIN_MAX)
             
 # Beam solid angle covered by the ECM emission, in sterradians
 Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, beta_max)
 
 # Read in the input data to estimate radio emission from SPI
-# WHICH_INPUT is defined in __init_.py
+# WHICH_INPUT is defined in setup.py
 if WHICH_INPUT == 'table': 
     # Read in the input data to estimate radio emission from SPI
     data = get_spi_data(infile_data = './INPUT/table.csv')
@@ -160,7 +160,7 @@ for indi in planet_array:
     # Max. orbital distance, in units of R_star
     d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
 
-    # The type of STUDY (D_ORB, M_DOT or B_PL) is set up in __init__.py 
+    # The type of STUDY (D_ORB, M_DOT or B_PL) is set up in setup.py 
     # and tells us whether the computaion is done 
     # as a function of the planetary orbital distance: STUDY = "D_ORB"
     # as a function of the stellar mass loss rate    : STUDY = "M_DOT"
@@ -221,7 +221,7 @@ for indi in planet_array:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
         n_sw_planet = spi.n_wind(M_star_dot_arr, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
     else:
-        # WARNING: This (arbitrary) value of 1e4 for n_sw_planet to be set up in __init__.py
+        # WARNING: This (arbitrary) value of 1e4 for n_sw_planet to be set up in setup.py
         #n_sw_planet = np.ones(len(d_orb)) * 1e4  
         n_sw_planet = np.ones(Nsteps) * 1e4  
 
@@ -270,7 +270,7 @@ for indi in planet_array:
             
             # Effective radius of the obstacle, in cm
             # Case 1. À la Saur+2013. 
-            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw)
+            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw)
 
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
