@@ -29,7 +29,7 @@ elif STUDY == 'B_PL':
     x = B_planet_arr # (B_planet_arr array, in Gauss )
 
 if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
-    if print_M_A == True:
+    if PLOT_M_A == True:
         plt.figure(figsize=(8,11))
         ax1 = plt.subplot2grid((3,1),(0,0),rowspan=1,colspan=1)
         ax2 = plt.subplot2grid((3,1),(1,0),rowspan=2,colspan=1)
@@ -56,7 +56,7 @@ y_max_reconnect = Flux_reconnect_max
 y_inter_reconnect = Flux_reconnect_inter
 y_min_Z = Flux_r_S_Z_min # minimum flux (array), Zarka model
 y_max_Z = Flux_r_S_Z_max # maximum flux (array)
-ax2.set_ylim([ylimlow, ylimhigh])       
+ax2.set_ylim([YLIMLOW, YLIMHIGH])       
 indices_Flux_larger_rms = np.argwhere(Flux_r_S_min > 3*RMS)
 indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max < 3*RMS)
 if indices_Flux_larger_rms.size > 0:
@@ -107,7 +107,7 @@ if STUDY == 'D_ORB':
     # Draw vertical line at nominal orbital separation of planet
     xnom = r_orb/R_star
     xlabel=r"Distance / Stellar radius"
-    if print_M_A == True:
+    if PLOT_M_A == True:
         ax1.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
@@ -168,7 +168,7 @@ elif STUDY == 'B_PL':
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
 if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
-    if print_M_A == True:
+    if PLOT_M_A == True:
         ax1.set_yscale('log')                
         # Draw vertical line at the nomimal value of the x-axis
         ax1.axvline(x = xnom, ls='--', color='k', lw=2)
@@ -188,16 +188,16 @@ if freefree==True:
     if STUDY == "M_DOT":
         ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=0)
         if magnetized_pl_arr[ind1]:
-            ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         else:
-            ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-        ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+        ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         pos_arg=2
         rot=20
         
     if STUDY == "B_PL":
         ax2.legend(handles=[blue_patch,orange_patch],loc='upper left',fontsize=16,facecolor='white',edgecolor='white', framealpha=1)
-        ax2.text(0, 10**((np.log10(ylimlow)))*4, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+        ax2.text(0, 10**((np.log10(YLIMLOW)))*4, r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 18,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
         pos_arg=2
         rot=5
 
@@ -223,33 +223,33 @@ orange_patch = mpatches.Patch(color='orange', label='Afvén wing')
 blue_patch = mpatches.Patch(facecolor='blue',label='Reconnection')
 
 if STUDY == "D_ORB":
-        ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+        ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         label_location='lower left'               
 
 elif STUDY == "M_DOT":
         if magnetized_pl_arr[ind1]:
-            #ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-            ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         else:
-            #ax2.text(1e-1, 10**((np.log10(ylimhigh)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-            ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-        ax2.text(1e-1, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+        ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         label_location='upper left'   
         
 elif STUDY == "B_PL":  
-    ax2.text(B_PL_MAX*0.7, 10**((np.log10(ylimlow)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-    ax2.text(B_PL_MAX*0.7, 10**((np.log10(ylimlow)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
     label_location='upper left'   
        
 ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=0)            
 #plt.rcParams['mathtext.fontset'] = 'custom'
 #plt.rcParams['mathtext.bf'] = 'cm:bold'
 
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'Ω='+'{:.2f}'.format(Omega_min)+' sr; '+r'β='+'{:.1f}'.format(eps_max*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'Ω='+'{:.2f}'.format(Omega_max)+' sr; '+r'β='+'{:.1f}'.format(eps_min*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.2f}'.format(eps_max),fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.3f}'.format(10**((np.log10(eps_max)+np.log10(eps_min))/2)),fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.4f}'.format(eps_min),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'Ω='+'{:.2f}'.format(Omega_min)+' sr; '+r'β='+'{:.1f}'.format(EPS_MAX*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'Ω='+'{:.2f}'.format(Omega_max)+' sr; '+r'β='+'{:.1f}'.format(EPS_MIN*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.2f}'.format(EPS_MAX),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.3f}'.format(10**((np.log10(EPS_MAX)+np.log10(EPS_MIN))/2)),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.4f}'.format(EPS_MIN),fontsize = 18,rotation=rot,fontweight='bold')
 
 """
 #Draw also Alfven radial Mach number
@@ -300,7 +300,7 @@ if any(ind > 1 for ind in M_A):
     M_A_superalfv_ind=M_A_superalfv_ind[0]
     #mdot_superalfv=M_star_dot_arr[M_A_superalfv_ind]
     x_superalfv=x[M_A_superalfv_ind]
-    if print_M_A == True:
+    if PLOT_M_A == True:
         ax1.axvline(x = x_superalfv, color='grey',lw=2)
         ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     ax2.axvline(x = x_superalfv, color='grey',lw=2)
@@ -308,7 +308,7 @@ if any(ind > 1 for ind in M_A):
     print('x_superalfv: ',x_superalfv)
 
 
-common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(eps_min*100)+'-'+str(eps_max*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
+common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(EPS_MIN*100)+'-'+str(EPS_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
 if Bfield_geom_arr[ind]:
     outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
 else:
