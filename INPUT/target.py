@@ -1,4 +1,4 @@
-from SPIworkflow.__init__ import *
+from setup import *
 import numpy as np
 
 starname='proxima'
