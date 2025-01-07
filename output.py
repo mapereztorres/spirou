@@ -8,8 +8,8 @@ class OutputWriter:
     def write_parameters(self, T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star,
         Exoplanet, Rp, Mp, r_orb, P_orb, 
         loc_pl, M_star_dot_loc, n_base_corona, nu_plasma_corona, gyrofreq,
-        Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-        Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,
+        Flux_r_S_min, Flux_r_S_max, rho_sw, n_sw_planet, v_sw_base, Flux_r_S_Z_min,
+        Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,
         Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv):
 
         with open(self.outfileTXT, 'w') as f:
@@ -47,12 +47,12 @@ class OutputWriter:
              f.write('nu_plasma_corona = {0:.2e} MHz\n'.format(nu_plasma_corona[M_star_dot_loc][0]/1e6))
              f.write('ECMI freq (fundamental) = {0:.0f} MHz\n'.format(gyrofreq/1e6))
              f.write('Flux_ST: ({0:.2e}, {0:.2e}) mJy\n'.format(Flux_r_S_min[loc_pl][0], Flux_r_S_max[loc_pl][0]))
-             #f.write('Flux_ZL: ({0:.2e}, {0:.2e}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl][0], Flux_r_S_ZL_max[loc_pl][0]))
+             #f.write('Flux_Z: ({0:.2e}, {0:.2e}) mJy\n'.format(Flux_r_S_Z_min[loc_pl][0], Flux_r_S_Z_max[loc_pl][0]))
              f.write('rho_sw at r_orb: {0:.2e} \n'.format(rho_sw[loc_pl][0]))
              f.write('n_sw_planet at r_orb: {0:.2e} \n'.format(n_sw_planet[loc_pl][0]))
              f.write('n_sw_planet at base: {0:.2e} \n'.format(n_sw_planet[0]))
              f.write('v_sw at base of the wind: {0:.2e} \n'.format(v_sw_base))
-             f.write('Flux_ZL: ({0:.2e}, {0:.2e}) mJy\n'.format(Flux_r_S_ZL_min[loc_pl][0], Flux_r_S_ZL_max[loc_pl][0]))
+             f.write('Flux_Z: ({0:.2e}, {0:.2e}) mJy\n'.format(Flux_r_S_Z_min[loc_pl][0], Flux_r_S_Z_max[loc_pl][0]))
              f.write('v_sw at the base of the wind: {0:.2e} \n'.format(v_sw_base))
              f.write('v_sw at r_orb: {0:.2e} \n'.format(v_sw[loc_pl][0]))
              f.write('v_sw(r_orb)/v_sw_base: {0:.2e} \n'.format(v_sw[loc_pl][0]/v_sw_base))

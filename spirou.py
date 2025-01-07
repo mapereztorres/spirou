@@ -21,7 +21,7 @@ from output import OutputWriter
 #
 # Observing parameters: Observin frequency, assumed rms noise, Delta_nu
 # Stellar parameters: T_corona, n_base_corona, B_field, Isothermality of plasma
-# Geometry of the sub-Alfvénic interaction: alpha, theta_M
+# Geometry of the sub-Alfvénic interaction: ALPHA_SPI, theta_M
 #
 from SPIworkflow.__init__ import *
 
@@ -66,10 +66,10 @@ Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, be
 # WHICH_INPUT is defined in __init_.py
 if WHICH_INPUT == 'table': 
     # Read in the input data to estimate radio emission from SPI
-    data = get_spi_data(infile_data=source_data)
+    data = get_spi_data(infile_data = './INPUT/table.csv')
 
     ############## CHECK THAT THE DATA TABLE IS CORRECT
-    print('Reading table: ', source_data)
+    print('Reading table: ')
     print(data)
 
     ############## TABLE INITIALIZATION 
@@ -94,7 +94,7 @@ if WHICH_INPUT == 'table':
     ############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
     print('All table planets')
     print(data['planet_name'])
-
+    planet_array = range(len(data))
 else:
     planet_array = [0] 
 
@@ -146,7 +146,7 @@ for indi in planet_array:
         print(type(M_star_dot))    
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(T_corona):
-        T_corona = T_corona_default
+        T_corona = T_CORONA_DEF
      
 
     print('Exoplanet name: ', Exoplanet)
@@ -305,14 +305,14 @@ for indi in planet_array:
             # Turnpenney+2018)
             
             # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
-            # 2007 (S_poyn_ZL), in cgs units. They coincide, except for a factor 2. 
+            # 2007 (S_poyn_Z), in cgs units. They coincide, except for a factor 2. 
             # In mks units
-            S_poynt, S_poynt_ZL = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f)
+            S_poynt, S_poynt_Z = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f)
 
             # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
-            # Zarka/Lanza (Flux_r_S_ZL...),  in erg/s/Hz/cm2
+            # Zarka/Lanza (Flux_r_S_Z...),  in erg/s/Hz/cm2
             Flux_r_S_min, Flux_r_S_max =  spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt)
-            Flux_r_S_ZL_min, Flux_r_S_ZL_max =  spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt_ZL)
+            Flux_r_S_Z_min, Flux_r_S_Z_max =  spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt_Z)
             # Compute flux density for an intermediate value of eps (in log scale)
             Flux_r_S_inter = 10**((np.log10(Flux_r_S_max) + np.log10(Flux_r_S_min))/2)
             
@@ -363,8 +363,8 @@ for indi in planet_array:
 
                 Flux_r_S_min    *= absorption_factor
                 Flux_r_S_max    *= absorption_factor
-                Flux_r_S_ZL_min *= absorption_factor
-                Flux_r_S_ZL_max *= absorption_factor    
+                Flux_r_S_Z_min *= absorption_factor
+                Flux_r_S_Z_max *= absorption_factor    
                 Flux_r_S_inter  *= absorption_factor
                 Flux_reconnect_min *= absorption_factor
                 Flux_reconnect_max *= absorption_factor
@@ -463,15 +463,16 @@ for indi in planet_array:
                 
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
-                nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_ZL_min,
-                Flux_r_S_ZL_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
+                nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_Z_min,
+                Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
 
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
             print("\nPrint out minimum and maximum values of flux density at the planet location")
             print('B_planet_ref = {0:.3f} G'.format(B_planet_ref * bfield_earth*Tesla2Gauss))
             print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
-            print("Zarka/Lanza: (mJy)", Flux_r_S_ZL_min[loc_pl], Flux_r_S_ZL_max[loc_pl])
+            print("Zarka: (mJy)", Flux_r_S_Z_min[loc_pl], Flux_r_S_Z_max[loc_pl])
+            print("Reconnection: (mJy)", Flux_reconnect_min[loc_pl], Flux_reconnect_max[loc_pl])
             print(f"Done with planet {Exoplanet}")
             print(spi.Kepler_r(M_star/M_sun,P_orb))
             print(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74])))

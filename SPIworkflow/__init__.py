@@ -9,36 +9,7 @@ from SPIworkflow.constants import *
 # multiple targets?
 #WHICH_INPUT:  "single-target" or "table"
 #WHICH_INPUT = 'table'
-
 WHICH_INPUT = 'single-targets'
-
-# If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
-COMPUTE_ALL = True
-# If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array
-#which_planets
-#which_planets = [21] #gj486
-which_planets = [0] 
-#which_planets=[52] #barnard
-###################################
-### INPUT TABLE
-###################################
-# If EXOPLANETS = True, then we use SPI-targets.csv, which contains (confirmed) planets
-EXOPLANETS = True
-
-# If true, it reads a table with stellar systems hosting planets, so 
-# the code expects info from the planets.
-if EXOPLANETS == True:
-    source_data = './INPUT/SPI-targets.csv'
-else:
-    source_data = './INPUT/SPI-NO-planets.csv'
-
-SELECTION_CRITERIA = False
-
-source_data = './INPUT/spirou_table.csv'
-
-#####################################################
-# ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
-#####################################################
 
 #######################################################################
 #  STUDY CASES
@@ -74,8 +45,8 @@ B_PL_MAX = 4
 
 ##
 # Distance (from the centre of the star) where SPI emission takes place (in units of R_star)
-#R_SPI = 1.068
 R_SPI = 1.0
+
 ####################################################
 # Stellar wind FREE ABSORPTION of SPI radio emission
 ####################################################
@@ -86,8 +57,7 @@ freefree = False
 # Ionization state (Z = 1 - fully ionized hydrogen)
 Z = 1 
 
-# Distance to the observer, which can be considered where free-free absorption becomes negligible 
-
+# Distance, measured from R_SPI, in units of R_star, where free-free absorption becomes negligible. 
 R_ff_OBSERVER = 10000
 
 ### NSTEPS_FF: number of points for the distance array
@@ -124,16 +94,15 @@ MAGN_OBLIQ = 0.
 magnetized_pl_arr = [False, True]
 #magnetized_pl_arr = [True]
 
+# Default planetary magnetic field, in Tesla
+B_PLANET_DEFAULT = bfield_earth
+
 # Setting the stellar magnetic field geometry and the value of the 
 # Computation of planetary magnetic field 
 # B_pl_law = 'Sano' => Uses Sano's scaling law (Sano 1993)
-# B_pl_law = 'None' => Doesn't use any scaling law. Uses B_planet_default instead.
+# B_pl_law = 'None' => Doesn't use any scaling law. Uses B_PLANET_DEFAULT instead.
 #B_planet_law = 'Sano'
 B_planet_law = 'None'
-
-# Default planetary magnetic field, in Tesla
-B_PLANET_DEFAULT = bfield_earth
-#B_PLANET_DEFAULT=0.5*1e-4
 
 # K_MAGNETOPAUSE - factor by which the magnetopause currents enhance
 # the magnetospheric magnetic field at the magnetopause, which is a value
@@ -147,9 +116,7 @@ K_MAGNETOPAUSE = 2.0
 # Observing frequency, in  Hz
 #freq_obs = 400e6
 # Assumed rms noise figure, in mJy
-#rms  = 0.013564
-rms=0.015
-#rms  = 0.0064
+RMS = 0.015
 # Representative bandwidth of the ECMI emission, in Hz
 #Delta_nu_obs = freq_obs/2 
 
@@ -166,20 +133,11 @@ rms=0.015
 # magnetic field at the surface of the star
 # "isothermality" of stellar plasma 
 
-# Base density using the empirical law from Peres+2004 (ApJ)
-T_corona_default = 2.5e6 #A standard value (from soft X-ray observations of a number of M-dwarf stars)
+# Default value: 2.0e6 K. Solar value
+T_CORONA_DEF = 2.0e6 
 
-# Density at the base of the corona nbase = 4.3e6*(T_corona/1e6)**4.2  (for
-# Solar Type stars)
-#n_sw_base = 1.0e8  # For a Sun-like star
-# n_sw_base = 1.0e7  # Appropriate for an M-dwarf star?
 
-# Mass-loss rate of the wind, in units of the Sun mass-loss-rate (2e-14 M_sol/year)
-#M_star_dot = 0.23 # For GJ 436 (R_star=0.464 R_sun), this results in n_sw_base ~ 1e7 cm^-3 
 
-# Stellar magnetic field at the surface of the star pole, in gauss 
-# Now it's read from an external file
-#B_star = 307.
 
 #####################################
 # STELLAR WIND
@@ -195,9 +153,9 @@ X_p = 0.5 # fraction of protons
 # SUB-ALFVENIC INTERACTION parameters
 #####################################
  
-# alpha - relative strength of the sub-Alfvénic interaction. 
-# We assume that the planet has a highly conductive atmosphere, i.e., alpha = 1
-alpha = 1
+# ALPHA_SPI - relative strength of the sub-Alfvénic interaction. 
+# We assume that the planet has a highly conductive atmosphere, i.e., ALPHA_SPI = 1
+ALPHA_SPI = 1
 
 # Efficiency factor in converting Poynting flux into ECM radio emission.
 # Be aware that eps (= eps_min and eps_max here) is not the "epsilon" in in Zarka 2018,
@@ -243,8 +201,8 @@ LIMS_MA = True
 LIM_MA_LOW = 1e-2
 LIM_MA_HIGH = 1e0
 FLUX_LIMS = True
-FLUX_LOW = 3*rms * 1e-1
-FLUX_HIGH = 3*rms * 1e2
+FLUX_LOW  = 3*RMS * 1e-1
+FLUX_HIGH = 3*RMS * 1e2
 ylimlow=1e-3
 ylimhigh=1e2
 

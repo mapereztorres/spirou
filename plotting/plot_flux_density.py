@@ -54,11 +54,11 @@ y_inter = Flux_r_S_inter
 y_min_reconnect = Flux_reconnect_min
 y_max_reconnect = Flux_reconnect_max
 y_inter_reconnect = Flux_reconnect_inter
-y_min_ZL = Flux_r_S_ZL_min # minimum flux (array), Zarka/Lanza model
-y_max_ZL = Flux_r_S_ZL_max # maximum flux (array)
+y_min_Z = Flux_r_S_Z_min # minimum flux (array), Zarka model
+y_max_Z = Flux_r_S_Z_max # maximum flux (array)
 ax2.set_ylim([ylimlow, ylimhigh])       
-indices_Flux_larger_rms = np.argwhere(Flux_r_S_min > 3*rms)
-indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max < 3*rms)
+indices_Flux_larger_rms = np.argwhere(Flux_r_S_min > 3*RMS)
+indices_Flux_smaller_rms = np.argwhere(Flux_r_S_max < 3*RMS)
 if indices_Flux_larger_rms.size > 0:
     x_larger_rms = x[indices_Flux_larger_rms[0]]
     x_larger_rms=x_larger_rms[0]
@@ -264,15 +264,15 @@ if draw_M_A_radial:
     ax12.tick_params(axis='y', labelcolor=color)
 """ 
 
-# Draw 3*rms upper limit?
+# Draw 3*RMS upper limit?
 if DRAW_RMS == True:
-    ax2.axhline(y = 3*rms, ls='-.', color='grey', lw=2)
+    ax2.axhline(y = 3*RMS, ls='-.', color='grey', lw=2)
 
 # Draw a little Earth at the planet position for visualization purposes?
 if (DRAW_EARTH == True) and (STUDY == 'D_ORB'):
     paths = ['./pics/earth.png']
     x_earth = [r_orb / R_star]
-    y = [3*rms]
+    y = [3*RMS]
     for x0, y0, path in zip(x_earth, y, paths):
         ab_earth = AnnotationBbox(spi.getImage(path), (x0, y0), frameon=False)
         ax2.add_artist(ab_earth)            

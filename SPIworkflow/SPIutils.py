@@ -539,9 +539,11 @@ def beam_solid_angle(which_beam_solid_angle,beta_min, beta_max):
 
     return Omega_min, Omega_max
 
-def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f):
+def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
     """
-    # Total Poynting flux, as in Saur+2013 - Eq. 55 (page 7 of 20)
+    # Returns Total Poynting flux 
+    #
+    # S_poynt_mks - Computed as in Saur+2013 - Eq. 55 (page 7 of 20)
     # Applies if  M_A is small (<< 1)
     # Note that for the geometric factor, we follow Turnpenney's definition, so 
     # the factor is sin^2(theta), not cos^2(theta)
@@ -550,30 +552,22 @@ def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, alpha, geom_f):
     # Total Poynting flux (S_mks), in mks units [kg * m * s^(-2) * A^(-2)]
     # Poynting flux, in mks units
 
-    # Total Poynting flux, as in Lanza 2009 (Eq. 8) and Zarka 2007 (Eq. 9) 
-    # They have a value which is different by a factor 2 * M_A * alpha^2
-    # In addition, they include a geometric factor of order 1/2.
-    #
-    #ZL_factor = 0.5
-    #S_poynt_ZL = S_poynt * ZL_factor / (2 * M_A * alpha**2 * geom_f)
-
-    # Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
+    # S_poynt_Z_mks - Total Poynting flux, as in Zarka 2007 (Eq. 8), but using the
     # Alfvén conductance as defined in Neubaur.
     # Eq. 8 in Zarka2007 explicityly states that it is the power "per hemisphere",
     # In this sense, this is the same as in the expresion by Saur, 
-    # so there seems to be a factor of two discrepancy, 
-    # if taken into account that v_rel = v_alf * M_A. 
+    # so there seems to be only a factor of two discrepancy, 
     #
     """
-    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (alpha*M_A)**2  \
+    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (ALPHA_SPI*M_A)**2  \
                     * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
-    S_poynt = S_poynt_mks * 1e7 # Total Poynting flux, in cgs units (erg/s) 
+    S_poynt = S_poynt_mks * 1e7 # in cgs units (erg/s) 
     
-    S_poynt_ZL_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
+    S_poynt_Z_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
                     * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
-    S_poynt_ZL     = S_poynt_ZL_mks * 1e7  # in cgs units
+    S_poynt_Z     = S_poynt_Z_mks * 1e7  # in cgs units
     
-    return S_poynt, S_poynt_ZL
+    return S_poynt, S_poynt_Z
 
 def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
         """
@@ -581,6 +575,8 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
             S_reconnect - Poynting flux (array), in cgs
             P_d_mks     - Dissipated power (array), in SI units (Watt)
             P_d         - Dissipated power (array), in cgs units (erg/s)
+
+            It uses Eq. (8) in Lanza (2009; A&A 505, 339–350).
         """
         P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_planet_eff/1e2)**2 * (v_rel/1e2)
         P_d     = P_d_mks * 1e7 # in cgs units 
@@ -598,7 +594,7 @@ def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
     
     return Flux_min, Flux_max
     
-def old_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_ZL):
+def old_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_Z):
     """ Computes the minimum and maximum expected flux densities to be received at
         Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
     """
@@ -609,12 +605,12 @@ def old_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_ZL):
     Flux_r_S_max = S_poynt * dilution_factor_max
     Flux_r_S_max *= 1e26 # Flux density, in mJy
 
-    Flux_r_S_ZL_min = S_poynt_ZL * dilution_factor_min
-    Flux_r_S_ZL_min *= 1e26 # Flux density, in mJy
-    Flux_r_S_ZL_max = S_poynt_ZL * dilution_factor_max
-    Flux_r_S_ZL_max *= 1e26 # Flux density, in mJy
+    Flux_r_S_Z_min = S_poynt_Z * dilution_factor_min
+    Flux_r_S_Z_min *= 1e26 # Flux density, in mJy
+    Flux_r_S_Z_max = S_poynt_Z * dilution_factor_max
+    Flux_r_S_Z_max *= 1e26 # Flux density, in mJy
 
-    return Flux_r_S_min, Flux_r_S_max, Flux_r_S_ZL_min, Flux_r_S_ZL_max
+    return Flux_r_S_min, Flux_r_S_max, Flux_r_S_Z_min, Flux_r_S_Z_max
 
 def power_estimations(flux, Delta_nu_obs, flux_min, flux_max):
     """ To BE UPDATED

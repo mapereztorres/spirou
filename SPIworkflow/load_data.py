@@ -206,29 +206,29 @@ def load_target(data, indi):
     B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
 
     # Read info for planets in table
-    if source_data == './INPUT/SPI-targets.csv' or source_data == './INPUT/spirou_table.csv':
+    #if source_data == './INPUT/SPI-targets.csv' or source_data == './INPUT/table.csv':
         # Planet - 
-        Exoplanet = data['planet_name'][indi]
-        Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
-        if pd.isna(Mp): # If there is no mass value, use mass * sin(i)
-            Mp = data['mass_sini'][indi] * M_earth 
-        Rp = data['radius_planet(r_earth)'][indi]
-        if pd.isna(Rp): 
-            Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
-        Rp *= R_earth # Planetary radius, in cm
-        P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days
-        r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
-        if pd.isna(r_orb): # If there is no mass value, use mass * sin(i)
-            r_orb = spi.Kepler_r(M_star/M_sun, P_orb) * au
-        eccentricity=data['eccentricity'][indi]
-    else:
+    Exoplanet = data['planet_name'][indi]
+    Mp = float(data['mass_planet(m_earth)'][indi])*M_earth # Planetary mass, in grams
+    if pd.isna(Mp): # If there is no mass value, use mass * sin(i)
+        Mp = data['mass_sini'][indi] * M_earth 
+    Rp = data['radius_planet(r_earth)'][indi]
+    if pd.isna(Rp): 
+        Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+    Rp *= R_earth # Planetary radius, in cm
+    r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
+    P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days
+    if pd.isna(r_orb): # If there is no mass value, use mass * sin(i)
+        r_orb = spi.Kepler_r(M_star/M_sun, P_orb) * au
+    eccentricity=data['eccentricity'][indi]
+    #else:
         # If no planet, set exoplanet as Earth, and semi-major axis = 0.2 * au 
-        Exoplanet = 'Earth'
-        Mp = M_earth # Planetary mass, in grams
-        Rp = R_earth # Planetary radius, in cm
-        r_orb  = 0.2 * au    # orbital distance, in cm
-        eccentricity=0
-        P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
+    #    Exoplanet = 'Earth'
+    #    Mp = M_earth # Planetary mass, in grams
+    #    Rp = R_earth # Planetary radius, in cm
+    #    r_orb  = 0.1 * au    # orbital distance, in cm
+    #    eccentricity=0
+    #    P_orb = spi.Kepler_P(data['mass_star(m_sun)'][indi], 0.2)   #orbital period of planet, in days
 
     # compute periastron (q) and apoastron (Q), in cm
     q = (1 - eccentricity) * r_orb 
@@ -262,14 +262,14 @@ class table_lists:
         self.B_sw_list=[]
         self.v_alf_list=[]
         self.M_A_list=[]
-        self.Flux_r_S_ZL_min_list=[]
-        self.Flux_r_S_ZL_max_list=[]
+        self.Flux_r_S_Z_min_list=[]
+        self.Flux_r_S_Z_max_list=[]
         self.P_Bpl_list=[]
         self.P_dyn_list=[]
         self.P_th_list=[]
         self.P_Bsw_list=[]
         self.Rmp_list=[]
-    def add_values(self,planet_name,star_name,d_star,mass_star,radius_star,p_rot,bfield_star,a,p_orb,eccentricity,q,Q,mass_planet,radius_planet,T_cor,m_dot,nu_pl,nu_cycl,rho_pl,B_pl,B_sw,v_alf,M_A,Flux_r_S_ZL_min,Flux_r_S_ZL_max,P_Bpl,P_dyn,P_th,P_Bsw,Rmp):
+    def add_values(self,planet_name,star_name,d_star,mass_star,radius_star,p_rot,bfield_star,a,p_orb,eccentricity,q,Q,mass_planet,radius_planet,T_cor,m_dot,nu_pl,nu_cycl,rho_pl,B_pl,B_sw,v_alf,M_A,Flux_r_S_Z_min,Flux_r_S_Z_max,P_Bpl,P_dyn,P_th,P_Bsw,Rmp):
         self.planet_name_list.append(planet_name)
         self.star_name_list.append(star_name)
         self.d_star_list.append(d_star)
@@ -293,8 +293,8 @@ class table_lists:
         self.B_sw_list.append(B_sw)
         self.v_alf_list.append(v_alf)
         self.M_A_list.append(M_A)
-        self.Flux_r_S_ZL_min_list.append(Flux_r_S_ZL_min)
-        self.Flux_r_S_ZL_max_list.append(Flux_r_S_ZL_max)
+        self.Flux_r_S_Z_min_list.append(Flux_r_S_Z_min)
+        self.Flux_r_S_Z_max_list.append(Flux_r_S_Z_max)
         self.P_Bpl_list.append(P_Bpl)
         self.P_dyn_list.append(P_dyn)
         self.P_th_list.append(P_th)
