@@ -1,7 +1,7 @@
 # The expressions used here are from the following links:
 #https://scholarlypublications.universiteitleiden.nl/access/item%3A3485847/view
 #https://ar5iv.labs.arxiv.org/html/0803.4507
-from SPIworkflow.__init__ import *
+from setup import *
 import scipy.integrate as integral
 
 import SPIworkflow.SPIutils as spi
