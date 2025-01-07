@@ -3,7 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
-from SPIworkflow.__init__ import *
+from setup import *
 from SPIworkflow.constants import *
 from scipy.special import lambertw
 
@@ -149,21 +149,21 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
  
     return r_core, rho_core, magn_moment_planet, B_planet
 
-def R_planet_eff_func(Rp, theta_M, B_planet, B_tot):
+def R_planet_eff_func(Rp, THETA_M, B_planet, B_tot):
     """ Computes the effective obstacle radius for the planet. 
         If the planet is magnetized, it is normally larger than the planet radius
         (R_planet).
         If unmagnetized, then the effective radius is made equal to Rp.
         OUTPUT: R_planet_eff - Effective planet radius, in cm 
         INPUT : Rp - Planet radius (cm)
-                theta_M - angle  (radians), of the intrinsic planetary magnetic field
+                THETA_M - angle  (radians), of the intrinsic planetary magnetic field
                 (B_planet) 
                           wrt the external magnetic field (B_tot).
                 B_planet -  planet magnetic field (G)
                 B_tot    - Magnetic field of the stellar wind at planet position (G)
     """
     if (B_planet > 0.0):
-        R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (Bp/B_tot)**(1./3.)
+        R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (Bp/B_tot)**(1./3.)
         R_planet_eff[R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than R_planet
     else:
         R_planet_eff = Rp
@@ -285,18 +285,18 @@ def plasma_freq(n_e = 1.0):
     nu_plasma = 9.0e3 * np.sqrt(n_e)
     return nu_plasma
 
-def get_Rmp_Saur(Rp, theta_M, B_planet_arr, B_sw):
+def get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw):
     """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
-       Saur+2013, A&A).  It depends on the orientation, theta_M, of the intrinsic planetary
+       Saur+2013, A&A).  It depends on the orientation, THETA_M, of the intrinsic planetary
        magnetic field (B_planet_arr) wrt the external magnetic field of the stellar wind (B_sw).
     OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
     INPUT : Rp           (cm) - Float: Planet radius, in cm
-            theta_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
+            THETA_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
                                 wind magnetic field, in radians
             B_planet_arr (G)  - Array: Planetary magnetic field, in Gauss
             B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
     """
-    R_planet_eff = Rp * np.sqrt(3*np.cos(theta_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
+    R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
     R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
 
     return R_planet_eff
@@ -585,8 +585,8 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
         return S_reconnect, P_d, P_d_mks
 
 def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
-    dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
-    dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
+    dilution_factor_min = EPS_MIN / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = EPS_MAX / (Omega_min * d**2 * Delta_nu_cycl)
     Flux_min = S_poynt * dilution_factor_min
     Flux_min *= 1e26 # Flux density, in mJy
     Flux_max = S_poynt * dilution_factor_max
@@ -598,8 +598,8 @@ def old_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_Z):
     """ Computes the minimum and maximum expected flux densities to be received at
         Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
     """
-    dilution_factor_min = eps_min / (Omega_max * d**2 * Delta_nu_cycl) 
-    dilution_factor_max = eps_max / (Omega_min * d**2 * Delta_nu_cycl)
+    dilution_factor_min = EPS_MIN / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = EPS_MAX / (Omega_min * d**2 * Delta_nu_cycl)
     Flux_r_S_min = S_poynt * dilution_factor_min
     Flux_r_S_min *= 1e26 # Flux density, in mJy
     Flux_r_S_max = S_poynt * dilution_factor_max
@@ -629,8 +629,8 @@ def power_estimations(flux, Delta_nu_obs, flux_min, flux_max):
             #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
             #
             # Range of values for the star-ward Poynting flux
-            #Poynt_min = power_min / eps_max 
-            #Poynt_max = power_max / eps_min 
+            #Poynt_min = power_min / EPS_MAX 
+            #Poynt_max = power_max / EPS_MIN 
     """
     dummy = 1
     return dummy
