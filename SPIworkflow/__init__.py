@@ -5,14 +5,13 @@ from SPIworkflow.constants import *
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 #
-#WHICH_INPUT = 'file'
-WHICH_INPUT = 'table'
-#INPUT_FILE  = 'test.py'
-#INPUT_PLANET = 'k2155b'
-#INPUT_PLANET = 'HD238090b'
-#INPUT_PLANET = 'HD_99492_b'
-INPUT_PLANET = 'trappist1b_turnpenney'
-#INPUT_PLANET = 'barnard'
+# Do you want to carry out the computations for a "single-target", or a "table" containing
+# multiple targets?
+#WHICH_INPUT:  "single-target" or "table"
+#WHICH_INPUT = 'table'
+
+WHICH_INPUT = 'single-targets'
+
 # If COMPUTE_ALL = True, calcualte SPI radio emission for all targets in table.
 COMPUTE_ALL = True
 # If COMPUTE_ALL = False, then calculate the SPI radio emission for planets in array

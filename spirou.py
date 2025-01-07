@@ -66,13 +66,7 @@ Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, be
 # WHICH_INPUT is defined in __init_.py
 if WHICH_INPUT == 'table': 
     # Read in the input data to estimate radio emission from SPI
-    #source_data = './INPUT/SPI-sources_planets_MASTER.csv'
-    #source_data = './INPUT/SPI-sources-sample5.csv'
-    #
-    if SELECTION_CRITERIA == False:
-        data = get_spi_data(infile_data=source_data)
-    else:
-        data = get_spi_data(infile_data=source_data,distance_max=15, p_orb_max = 10, bfield_min=100,bfield_max=1000.0, dec_min=-90)
+    data = get_spi_data(infile_data=source_data)
 
     ############## CHECK THAT THE DATA TABLE IS CORRECT
     print('Reading table: ', source_data)
@@ -101,16 +95,10 @@ if WHICH_INPUT == 'table':
     print('All table planets')
     print(data['planet_name'])
 
-    # Select the exoplanets for which to run the simulation
-    # COMPUTE_ALL and which_planets are set up in __init__.py
-    if COMPUTE_ALL == True:
-        planet_array = range(round(len(data)/1))
-    else:
-        planet_array = which_planets
-    #print(planet_array)    
 else:
     planet_array = [0] 
-print(data)
+
+#print(data)
 #print(Data2)
 for indi in planet_array:
 # Read parameters from table/file
@@ -120,8 +108,8 @@ for indi in planet_array:
         #print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
         T_corona = data['T_corona(MK)'][indi]*1e6
         M_star_dot = data['mdot(mdot_sun)'][indi]
-    else:   # Read from <FILE>.py (for individual target)
-        file_name = 'INPUT.INDIVIDUAL_TARGETS.' + INPUT_PLANET
+    else:   # Read from target.py (for individual targets)
+        file_name = 'INPUT.target' 
         # import all parameters into a single variable
         imported_parameters = importlib.import_module(file_name) 
 
