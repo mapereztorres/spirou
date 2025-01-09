@@ -90,15 +90,15 @@ if INPUT_TABLE == True:
     data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
     ############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
-    print('\n###########################################################')
-    print('All table planets')
-    print('###########################################################')
-    display(data['planet_name'])
+    print('SPIROU WILL BE RUN FOR THE FOLLOWING TARGETS\n')
+    print(data['planet_name'])
     print('\n')
     planet_array = range(len(data))
 else:
     # else we deal with one single target 
+    print(f'READING INFO FROM A SINGLE TARGET FILE\n')
     planet_array = [0] 
+
 
 for indi in planet_array:
 # Read parameters from a table containing multiple targets or from a single target file
@@ -143,7 +143,7 @@ for indi in planet_array:
         T_corona = T_CORONA_DEF
      
 
-    print('Running SPIROU for the exoplanet: ', Exoplanet)
+    print(f'RUNNING SPIROU FOR THE EXOPLANET: {Exoplanet}\n')
 
     ###############################################
 
@@ -286,7 +286,7 @@ for indi in planet_array:
             indices_R_planet_eff_larger_Rp = np.argwhere(R_planet_eff > Rp)
             if indices_R_planet_eff_larger_Rp.size > 0:
                 B_planet_eff_rad = B_planet_arr[indices_R_planet_eff_larger_Rp[0]]          
-                print('value of Bp where magnesphere is larger than Rp: ',B_planet_eff_rad)
+                #print('value of Bp where magnetosphere is larger than Rp: ',B_planet_eff_rad)
 
             # If R_pl_eff < R_p, force R_pl_eff = R_p (R_planet_eff cannot be smaller
             # than Rp)
@@ -378,9 +378,6 @@ for indi in planet_array:
             FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
             if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
-            else:
-                print(FOLDER + ' already exists.')
-                
                 
             ### Plot received flux density as a function of distance from the star
             filename = 'plotting/plot_flux_density.py'
@@ -437,38 +434,34 @@ for indi in planet_array:
 
             outfileTXT = os.path.join(outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
-            ### NOTE: Add B_planet_arr[loc_pl] in the output table
-            print(" ")
-            #print('n_base_corona = ', n_base_corona)
-            #print('type(n_base_corona) = ', type(n_base_corona))
-            print(" ")
-            print('M_star_dot_loc = ', M_star_dot_loc)
-            print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
-            print('n_base_corona[M_star_dot_loc] = ', n_base_corona[M_star_dot_loc])
-            print('############################')
-            #print(x_larger_rms)
-            if x_larger_rms is np.nan or 'nan':
-                print('NO value of '+STUDY+' where there is clear detection for the Alfvén Wing model')
-            else:
-                print('value of '+STUDY+' where there is clear detection for the Alfvén Wing model: ',x_larger_rms)
-                
+
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_Z_min,
                 Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
 
+            print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
+
+    print(f'DONE WITH PLANET {Exoplanet}!!\n')
+    print('###########################################################\n')
+
+            #print('M_star_dot_loc = ', M_star_dot_loc)
+            #print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
+            #print(f'n_base_corona[M_star_dot_loc] = {n_base_corona[M_star_dot_loc][0]:.2e}')
+            #print('############################')
+            #print(x_larger_rms)
+            #if x_larger_rms is np.nan or 'nan':
+            #    print('NO value of '+STUDY+' where there is clear detection for the Alfvén Wing model')
+            #else:
+            #    print('value of '+STUDY+' where there is clear detection for the Alfvén Wing model: ',x_larger_rms)
+                
+
             # Print out the expected flux received at Earth from the SPI at the position of the planet
 
-            print("\nPrint out minimum and maximum values of flux density at the planet location")
-            print('B_planet_ref = {0:.3f} G'.format(B_planet_ref * bfield_earth*Tesla2Gauss))
-            print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
-            print("Zarka: (mJy)", Flux_r_S_Z_min[loc_pl], Flux_r_S_Z_max[loc_pl])
-            print("Reconnection: (mJy)", Flux_reconnect_min[loc_pl], Flux_reconnect_max[loc_pl])
-            print(f"Done with planet {Exoplanet}")
-            print(spi.Kepler_r(M_star/M_sun,P_orb))
-            print(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74])))
-            print(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
-            print(str(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2)))
-            #print(B_planet_Sano)
+            #print("\nPrint out minimum and maximum values of flux density at the planet location")
+            #print('B_planet_ref = {0:.3f} G'.format(B_planet_ref * bfield_earth*Tesla2Gauss))
+            #print("Saur/Turnpenney (mJy): ", Flux_r_S_min[loc_pl], Flux_r_S_max[loc_pl])
+            #print("Zarka: (mJy)", Flux_r_S_Z_min[loc_pl], Flux_r_S_Z_max[loc_pl])
+            #print("Reconnection: (mJy)", Flux_reconnect_min[loc_pl], Flux_reconnect_max[loc_pl])
             #### TEMPORARY TABLE
             ####################
