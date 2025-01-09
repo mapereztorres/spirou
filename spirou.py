@@ -90,22 +90,20 @@ if INPUT_TABLE == True:
     data.reset_index(inplace = True) # to prevent funny jumps in the indices
 
     ############## PRINT INDEX OF EACH PLANET AFTER RESETTING INDICES IN data
+    print('\n###########################################################')
     print('All table planets')
-    print(data['planet_name'])
+    print('###########################################################')
+    display(data['planet_name'])
+    print('\n')
     planet_array = range(len(data))
 else:
     # else we deal with one single target 
     planet_array = [0] 
 
-#print(data)
-#print(Data2)
-
 for indi in planet_array:
 # Read parameters from a table containing multiple targets or from a single target file
     if INPUT_TABLE == True: 
-        #starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
-        #print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
         T_corona = data['T_corona(MK)'][indi]*1e6
         M_star_dot = data['mdot(mdot_sun)'][indi]
     else:   # Read from target.py (for individual targets)
@@ -116,9 +114,6 @@ for indi in planet_array:
         # convert imported_parameters into global variables
         globals().update({k: v for k, v in imported_parameters.__dict__.items() if not k.startswith('__')})
         
-        # LPM  -  MODIFY PRINTING
-        # print(starname, d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb)
-
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
          B_star= spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
@@ -142,14 +137,13 @@ for indi in planet_array:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
         else:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
-        print('M_star_dot: ',M_star_dot)
-        print(type(M_star_dot))    
+        print('Estimated value of M_star_dot: ',M_star_dot)
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(T_corona):
         T_corona = T_CORONA_DEF
      
 
-    print('Exoplanet name: ', Exoplanet)
+    print('Running SPIROU for the exoplanet: ', Exoplanet)
 
     ###############################################
 
@@ -169,17 +163,14 @@ for indi in planet_array:
     # Nsteps defines the size of the array
     #
     if STUDY == "D_ORB":
-        print('You asked to carry out a study of radio emission vs orbital separation: STUDY == "D_ORB" ')
         Nsteps = int(2*d_orb_max)
         d_orb  = np.linspace(1.02, d_orb_max, Nsteps) * R_star # Array of (orbital) distances to the star, in cm 
         M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons
     elif STUDY == "M_DOT":
-        print('You asked to carry out a study of radio emission vs Mass loss rate: STUDY == "M_DOT" ')
         d_orb  = np.array([r_orb])
         Nsteps = int(M_DOT_STRETCH * np.log10(M_DOT_MAX/M_DOT_MIN))
         M_star_dot_arr = np.logspace(np.log10(M_DOT_MIN), np.log10(M_DOT_MAX), Nsteps)
     elif STUDY == "B_PL":
-        print('You asked to carry out a study of radio emission vs B_planet: STUDY == "B_PL" ')
         Nsteps = round( (B_PL_MAX - B_PL_MIN) / STEP)
         d_orb = np.array([r_orb])
         M_star_dot_arr = np.array([M_star_dot]) # Convert to a numpy array of 1 element for safety reasons

@@ -230,3 +230,19 @@ print('### https://github.com/mapereztorres/spirou             ###')
 print('###                                                     ###')
 print('###########################################################\n')
 
+###
+print('You have chosen the following setup parameters for SPIROU:\n')
+
+###
+if INPUT_TABLE == False:
+    print(f'RUNNING THE CODE FOR A SINGLE OBJECT: INPUT_TABLE = {INPUT_TABLE}\n')
+else:
+    print(f'RUNNING THE CODE FOR MULTIPLE OBJECTS: INPUT_TABLE = {INPUT_TABLE}\n')
+
+###
+if STUDY == "D_ORB":
+    print('Carrying out a STUDY OF RADIO EMISSION VS ORBITAL SEPARATION: STUDY == D_ORB\n')
+elif STUDY == "M_DOT":
+    print('Carrying out a STUDY OF RADIO EMISSION vs STELLAR MASS LOSS RATE: STUDY == M_DOT\n ')
+elif STUDY == "B_PL":
+    print('Carrying out a STUDY OF RADIO EMISSION VS PLANETARY MAGNETIC FIELD: STUDY == B_PL\n')
