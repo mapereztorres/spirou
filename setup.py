@@ -5,11 +5,12 @@ from SPIworkflow.constants import *
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
 # Choose whether to carry out the computations for a 
-# "single-target", or a "table" containing multiple targets. 
+# table containing multiple targets (INPUT_TABLE = True), or
+# for a single target (INPUT_TABLE = False). 
 
 # Uncomment the line that applies
-#WHICH_INPUT = 'table'
-WHICH_INPUT = 'single-targets'
+INPUT_TABLE = False
+#INPUT_TABLE = True
 
 #######################################################################
 #  STUDY CASES
@@ -178,13 +179,21 @@ EKIN_MAX = 20
 
 ## Beam solid angle of the ECM radio emission
 ## 
-# OMEGA_JUPITER_IO below is the value obtained from DAM emission (single flux tube) 
-OMEGA_JUPITER_IO = 0.16  
-#which_beam_solid_angle = 'Computed'
-which_beam_solid_angle = 'fixed'
-OMEGA_MIN = 0.16
-#OMEGA_MAX = OMEGA_MIN
-OMEGA_MAX = 1.6
+## Choose whether to compute the beam solid angle (COMPUTE_BSA = True), 
+## or use fixed values (COMPUTE_BSA = False)
+COMPUTE_BSA = False
+
+## The standard avlue for OMEGA_MIN for SPI is
+## taken from the Io-Jupiter interaction.
+## OMEGA_JUPITER_IO = 0.16 sterradians (DAM emission from a single flux tube)
+
+OMEGA_MIN = OMEGA_JUPITER_IO
+# OMEGA_MAX due to star-planet interaction is at most a few times OMEGA_MIN
+# Note: Many papers have wrongly assumed OMEGA_MAX = 1.6 (sterr), which is the 
+# beam solid angle of the whole Jupiter auroral oval. 
+
+# OMEGA_MAX = OMEGA_MIN
+OMEGA_MAX = 3*OMEGA_JUPITER_IO
 
 #####################################
 # PLOTTING AND WRITING SETUP
@@ -208,4 +217,16 @@ FLUX_LOW  = 3*RMS * 1e-1
 FLUX_HIGH = 3*RMS * 1e2
 YLIMLOW   = 1e-3
 YLIMHIGH  = 1e2
+
+### WELCOME TO SPIROU
+print('###########################################################')
+print('###                                                     ###')
+print('### SPIROU code @Pérez-Torres & Peña-Moñino 2025        ###')
+print('###                                                     ###')
+print('### If you use fully or partial parts of this code,     ###')
+print('### please acknowledge our work by citing the paper     ###') 
+print('### XXXX and indicating the url address for the code:   ###') 
+print('### https://github.com/mapereztorres/spirou             ###') 
+print('###                                                     ###')
+print('###########################################################\n')
 
