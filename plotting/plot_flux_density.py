@@ -69,7 +69,7 @@ if indices_Flux_larger_rms.size > 0:
     x_last_larger=x_last_larger[0]
     x_last_larger="{:.2f}".format(x_last_larger)    
     x_last_larger=str(x_last_larger)
-    print('value of x where there is clear detection for the Alfvén Wing model: ( ',x_larger_rms+' , '+x_last_larger+' )')
+    #print('value of x where there is clear detection for the Alfvén Wing model: ( ',x_larger_rms+' , '+x_last_larger+' )')
     x_larger_rms=x_larger_rms+' , '+x_last_larger
 else:
     x_larger_rms=np.nan
@@ -86,7 +86,7 @@ if indices_Flux_smaller_rms.size > 0:
     x_last_smaller=x_last_smaller[0]
     x_last_smaller="{:.2f}".format(x_last_smaller)    
     x_last_smaller=str(x_last_smaller)
-    print('value of x where there is clear NON detection for the Alfvén Wing model: ( ',x_smaller_rms+' , '+x_last_smaller+' )')
+    #print('value of x where there is clear NON detection for the Alfvén Wing model: ( ',x_smaller_rms+' , '+x_last_smaller+' )')
     x_smaller_rms=x_smaller_rms+' , '+x_last_smaller
 else:
     x_smaller_rms=np.nan
@@ -135,7 +135,7 @@ if STUDY == 'D_ORB':
     #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
     xtickslocs = ax1.get_xticks()
     ax1.set_xticks([])
-    print('xtickslocs :', xtickslocs)
+    #print('xtickslocs :', xtickslocs)
     new_tick_locations=xtickslocs[1:-1]
     #xtickslocs_periods = spi.Kepler_P(M_star/M_sun,xtickslocs*R_star/au)
     #ax1.set_xticks(xtickslocs)
@@ -282,19 +282,19 @@ if (DRAW_EARTH == True) and (STUDY == 'D_ORB'):
 # To this end, first find out the position of the planet in the distance array
 d_diff = np.abs((d_orb - r_orb) / R_star)
 loc_pl = np.where(d_diff == d_diff.min())
-if STUDY == 'D_ORB':
-    print('Position in d_orb array where the planet is located', loc_pl)
+#if STUDY == 'D_ORB':
+#print('Position in d_orb array where the planet is located', loc_pl)
 
 # Print in the graph the value of the planetary magnetic field, in units of bfield_earth
 if STUDY == 'B_PL':
     B_planet_ref = round(float(B_planet_Sano[0] /(bfield_earth * Tesla2Gauss) ), 2) 
 else:
     B_planet_ref = round(float(B_planet_arr[loc_pl][0] / (bfield_earth*Tesla2Gauss) ), 2) 
-    print(type((B_planet_arr[loc_pl][0])))
-#print(M_A)
+
+# 
 x_superalfv='nan'           
 if any(ind > 1 for ind in M_A):
-    print('The planet enters super-Afvénic regime')
+    #print('The planet enters super-Afvénic regime')
     M_A_superalfv_arr=np.where(M_A >1)
     M_A_superalfv_ind=M_A_superalfv_arr[0]
     M_A_superalfv_ind=M_A_superalfv_ind[0]
@@ -305,7 +305,7 @@ if any(ind > 1 for ind in M_A):
         ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     ax2.axvline(x = x_superalfv, color='grey',lw=2)
     ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
-    print('x_superalfv: ',x_superalfv)
+    #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
 
 common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(EPS_MIN*100)+'-'+str(EPS_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
