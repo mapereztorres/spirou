@@ -40,8 +40,6 @@ import importlib
 # 
 # outdir, df_planets, df_no_noplanets = create_data_tables()
 
-
-
 # Call empty lists to be used later in out_table
 # all_lists = table_lists()
 # LPM  - DOCUMENT BETTER
@@ -60,11 +58,11 @@ if not os.path.exists('./OUTPUT'):
 beta_min = spi.beta_keV(EKIN_MIN);  beta_max = spi.beta_keV(EKIN_MAX)
             
 # Beam solid angle covered by the ECM emission, in sterradians
-Omega_min, Omega_max = spi.beam_solid_angle(which_beam_solid_angle, beta_min, beta_max)
+Omega_min, Omega_max = spi.beam_solid_angle(COMPUTE_BSA, beta_min, beta_max)
 
 # Read in the input data to estimate radio emission from SPI
-# WHICH_INPUT is defined in setup.py
-if WHICH_INPUT == 'table': 
+# INPUT_TABLE is defined in setup.py
+if INPUT_TABLE == True:
     # Read in the input data to estimate radio emission from SPI
     data = get_spi_data(infile_data = './INPUT/table.csv')
 
@@ -96,13 +94,15 @@ if WHICH_INPUT == 'table':
     print(data['planet_name'])
     planet_array = range(len(data))
 else:
+    # else we deal with one single target 
     planet_array = [0] 
 
 #print(data)
 #print(Data2)
+
 for indi in planet_array:
-# Read parameters from table/file
-    if WHICH_INPUT == 'table': # read from table (for multiple targets)
+# Read parameters from a table containing multiple targets or from a single target file
+    if INPUT_TABLE == True: 
         #starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         #print('starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q');print(starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q)
@@ -136,7 +136,7 @@ for indi in planet_array:
 
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(M_star_dot):
-        if WHICH_INPUT == 'table':       
+        if INPUT_TABLE == True:       
             data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
             #M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
