@@ -246,3 +246,32 @@ elif STUDY == "M_DOT":
     print('Carrying out a STUDY OF RADIO EMISSION vs STELLAR MASS LOSS RATE: STUDY == M_DOT\n ')
 elif STUDY == "B_PL":
     print('Carrying out a STUDY OF RADIO EMISSION VS PLANETARY MAGNETIC FIELD: STUDY == B_PL\n')
+
+###
+
+if len(Bfield_geom_arr)==2:
+    print('RUNNING FOR BOTH OPEN PARKER SPIRAL AND DIPOLAR  DIPOLAR MAGNETIC FIELD GEOMETRIES\n')
+else:
+    if Bfield_geom_arr[0] == 0:
+        print('RUNNING FOR CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY\n')    
+    else:
+        print('RUNNING FOR OPEN PARKER SPIRAL MAGNETIC FIELD GEOMETRY\n')    
+        
+###    
+if len(magnetized_pl_arr)==2:    
+    print('RUNNING FOR BOTH A MAGNETIZED AND NON-MAGNETIZED PLANET\n')
+else:
+    if magnetized_pl_arr[0] == FALSE:
+        print('RUNNING FOR A NON-MAGNETIZED PLANET\n')    
+    else:
+        print('RUNNING FOR A MAGNETIZED PLANET\n')    
+        
+###
+if freefree == True:
+    print('FREE FREE ABSORPTION EFFECTS CONSIDERED\n')
+else:
+    print('FREE FREE ABSORPTION EFFECTS IGNORED\n')    
+    
+###
+print(f'USED RMS VALUE OF {RMS:.2f} mJy')    
+    
