@@ -288,6 +288,6 @@ else:
     print(f'THE BEAM SOLID ANGLE OF THE AURORAL EMISSION RANGES WILL BE COMPUTED BASED\nON THE VALUES OF THE MINIMUM AND MAXIMUM KINETIC ENERGY OF THE ELECTRONS\nEMITTING VIA THE ECM MECHANISM: FROM {EKIN_MIN:.0f} KEV UP TO {EKIN_MAX:.0f} KEV\n')
 
 ### 
-print(f'You are assuming an observing rms value of {RMS*1e3:.1f} microJy\n')    
+print(f'You are assuming an observing rms value of {RMS*1e3:.1f} μJy\n')    
 
 print('###########################################################\n')
