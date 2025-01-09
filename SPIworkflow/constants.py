@@ -47,3 +47,10 @@ bfield_earth = 50e-6             # Earth surface magnetic field at the pole, in 
 r_core_earth = 3.486e6           # Earth outer core radius, in [meters], from Sano 1993
 rho_core_earth = 1.0e4           # Outer core density of Earth, in kg * m^(-3)
 
+# Beam solid angle of the ECM radio emission for star-planet interaction 
+OMEGA_JUPITER_IO = 0.16          # As obtained from DAM emission (single flux tube), in sterradians
+
+# Beam solid angle of the ECM radio emission from the whole Jupiter auroral oval.
+# It doesn't apply for SPI, where the beam solid angle must be close to a single flux
+# tube (~0.16 str = OMEGA_JUPITER_IO).
+OMEGA_JUPITER_OVAL = 1.6 
