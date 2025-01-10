@@ -224,9 +224,9 @@ for indi in planet_array:
         for ind1 in range(len(magnetized_pl_arr)):
             # Bfield_geom_arr defines the geometry of the magnetic field (closed / open)
             if Bfield_geom_arr[ind]:
-                print("\nOPEN PARKER MAGNETIC FIELD GEOMETRY")
+                selected_geometry="OPEN PARKER MAGNETIC FIELD GEOMETRY"
             else:
-                print("\nCLOSED DIPOLAR MAGNETIC FIELD GEOMETRY")
+                selected_geometry="CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY"
            
             # get magnetic field components
             B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
@@ -237,8 +237,8 @@ for indi in planet_array:
 
             # defines whether planet is unmagnetized (magnetized_pl_arr[ind1] = 0), or magnetized (magnetized_pl_arr[ind1] = 1)
             if magnetized_pl_arr[ind1]: # magnetized planet
-                print('Magnetized planet\n')
                 if B_planet_law == 'Sano':
+                    planez_magnetized='MAGNETIZED PLANET'
                     # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                     # Assumes a tidally locked planet, i.e., the rotation period of the
                     # planet equals its orbital one. 
@@ -254,9 +254,10 @@ for indi in planet_array:
                 B_planet_arr    *=  Tesla2Gauss #  B_planet_arr, in Gauss 
 
             else:  # unmagnetized planet
-                print('Unmagnetized planet\n')
+                planez_magnetized='UNMAGNETIZED PLANET'
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
-
+            print(f'RUNNING FOR {selected_geometry} AND {planez_magnetized}')
+            
             if STUDY == "B_PL":
                 B_planet_Sano = B_planet_arr # Planet magnetic field at r_orb. 1-element array, in Gauss. 
                 B_planet_arr  = np.linspace(B_PL_MIN, B_PL_MAX, Nsteps)
