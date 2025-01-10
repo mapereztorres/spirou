@@ -133,18 +133,18 @@ if STUDY == 'D_ORB':
     #ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
     #ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
     #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
-    xtickslocs = ax1.get_xticks()
-    ax1.set_xticks([])
-    #print('xtickslocs :', xtickslocs)
-    new_tick_locations=xtickslocs[1:-1]
+    #xtickslocs = ax1.get_xticks()
+    #ax1.set_xticks([])
+    ##print('xtickslocs :', xtickslocs)
+    #new_tick_locations=xtickslocs[1:-1]
     #xtickslocs_periods = spi.Kepler_P(M_star/M_sun,xtickslocs*R_star/au)
     #ax1.set_xticks(xtickslocs)
     #ax1.set_xlabel(np.round(xtickslocs_periods, 2))
-    def tick_function(X):
-        V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
-        return ["%.2f" % z for z in V]
-    ax1.set_xticks(new_tick_locations)
-    ax1.set_xticklabels(tick_function(new_tick_locations))
+    #def tick_function(X):
+    #    V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
+    #    return ["%.2f" % z for z in V]
+    #ax1.set_xticks(new_tick_locations)
+    #ax1.set_xticklabels(tick_function(new_tick_locations))
     #ax3.yaxis.set_ticks(ax1.get_yticks())
     
     #print(type(xtickslocs))
@@ -152,6 +152,12 @@ if STUDY == 'D_ORB':
     #print('xtickslocs :', xtickslocs)
     #print('xtickslocs period:', xtickslocs_periods)
     #ymin, _ = ax.get_ylim()
+    ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
+    distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
+    ax1.set_xticks(distances_rv_signals)
+    ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
+    ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
+    ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
 elif STUDY == 'M_DOT':
     ax2.set_xscale('log') 
     ax2.set_yscale('log') 
@@ -219,7 +225,7 @@ else:
         pos_arg=2
         rot=5
 '''
-orange_patch = mpatches.Patch(color='orange', label='Afvén wing')
+orange_patch = mpatches.Patch(color='orange', label='Alfvén wing')
 blue_patch = mpatches.Patch(facecolor='blue',label='Reconnection')
 
 if STUDY == "D_ORB":
