@@ -218,6 +218,7 @@ FLUX_HIGH = 3*RMS * 1e2
 YLIMLOW   = 1e-3
 YLIMHIGH  = 1e2
 
+
 ### WELCOME TO SPIROU
 print('###########################################################')
 print('###                                                     ###')

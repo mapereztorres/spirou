@@ -43,10 +43,10 @@ import importlib
 # Call empty lists to be used later in out_table
 # all_lists = table_lists()
 # LPM  - DOCUMENT BETTER
-dipole_mag_pl_lists   = table_lists()
-dipole_unmag_pl_lists = table_lists()
-spiral_mag_pl_lists   = table_lists()
-spiral_unmag_pl_lists = table_lists()
+#dipole_mag_pl_lists   = table_lists()
+#dipole_unmag_pl_lists = table_lists()
+#spiral_mag_pl_lists   = table_lists()
+#spiral_unmag_pl_lists = table_lists()
 
 if not os.path.exists('./OUTPUT'):
     os.makedirs('./OUTPUT')
