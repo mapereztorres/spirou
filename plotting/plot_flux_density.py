@@ -152,12 +152,12 @@ if STUDY == 'D_ORB':
     #print('xtickslocs :', xtickslocs)
     #print('xtickslocs period:', xtickslocs_periods)
     #ymin, _ = ax.get_ylim()
-    ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
-    distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
-    ax1.set_xticks(distances_rv_signals)
-    ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
-    ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
-    ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
+    #ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
+    #distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
+    #ax1.set_xticks(distances_rv_signals)
+    #ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
+    #ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
+    #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
 elif STUDY == 'M_DOT':
     ax2.set_xscale('log') 
     ax2.set_yscale('log') 
