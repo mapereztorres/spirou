@@ -2,14 +2,19 @@
 
 **S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited
 
-`spirou` predicts the radio emission from star-planet (Sub-Alfvénic) interaction (SPI)
-via the electron-cyclotron maser instability mechanism.  The main script is
-`spirou.py`, which computes the expected flux density due to this interaction. 
+`SPIROU` is a public Python code to predict the radio emission from
+Sub-Alfvénic star-planet interaction (SPI), via the electron-cyclotron maser
+instability mechanism.  The main script is `spirou.py`.
 
-The code can compute the flux density from SPI as a function the orbital
-distance (i.e., the semi-major axis) to the planet. If the semi-major axis is
-fixed, tthe code can compute the expected flux density as a function of the
-planetary magnetic field, or as a function of the stellar wind mass loss rate. 
+which computes the
+expected flux density due to this interaction. 
+
+The code can compute the expected flux density from SPI (1) as a function of the orbital
+distance (i.e., the semi-major axis) to the planet,  (2) as a function of the planetary magnetic field, 
+or (3) as a function of the stellar wind mass loss rate.  For cases 2 and 3, 
+
+If the semi-major axis is
+fixed, tthe code can compute the expected flux density as 
 
 The current version of the code assumes an isothermal Parker wind, and takes
 into account the free-free extinction of the radio emission within the stellar

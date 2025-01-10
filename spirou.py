@@ -115,7 +115,9 @@ for indi in planet_array:
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         T_corona = data['T_corona(MK)'][indi]*1e6
         M_star_dot = data['mdot(mdot_sun)'][indi]
-        
+        print(f'RUNNING SPIROU FOR EXOPLANET {planet_array[indi]}: {Exoplanet}\n')
+    else: 
+        print(f'RUNNING SPIROU FOR EXOPLANET {Exoplanet}\n')
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
          B_star= spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
@@ -145,7 +147,6 @@ for indi in planet_array:
         T_corona = T_CORONA_DEF
      
 
-    print(f'RUNNING SPIROU FOR EXOPLANET {Exoplanet}\n')
 
     ###############################################
 
@@ -237,8 +238,8 @@ for indi in planet_array:
 
             # defines whether planet is unmagnetized (magnetized_pl_arr[ind1] = 0), or magnetized (magnetized_pl_arr[ind1] = 1)
             if magnetized_pl_arr[ind1]: # magnetized planet
+                planet_magnetized='MAGNETIZED PLANET'
                 if B_planet_law == 'Sano':
-                    planez_magnetized='MAGNETIZED PLANET'
                     # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
                     # Assumes a tidally locked planet, i.e., the rotation period of the
                     # planet equals its orbital one. 
@@ -254,9 +255,9 @@ for indi in planet_array:
                 B_planet_arr    *=  Tesla2Gauss #  B_planet_arr, in Gauss 
 
             else:  # unmagnetized planet
-                planez_magnetized='UNMAGNETIZED PLANET'
+                planet_magnetized='UNMAGNETIZED PLANET'
                 B_planet_arr  = np.zeros(len(d_orb)) # unmagnetized planet
-            print(f'RUNNING FOR {selected_geometry} AND {planez_magnetized}')
+            print(f'\nRUNNING FOR {selected_geometry} \nAND {planet_magnetized}')
             
             if STUDY == "B_PL":
                 B_planet_Sano = B_planet_arr # Planet magnetic field at r_orb. 1-element array, in Gauss. 
@@ -447,6 +448,10 @@ for indi in planet_array:
 
     print(f'\nDONE WITH PLANET {Exoplanet}!!\n')
     print('###########################################################\n')
+
+print('###########################################################\n')
+print(f'SPIROU HAS FINISHED SUCCESSFULLY!!\n')
+print('###########################################################\n')
 
             #print('M_star_dot_loc = ', M_star_dot_loc)
             #print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
