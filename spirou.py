@@ -95,9 +95,18 @@ if INPUT_TABLE == True:
     print('\n')
     planet_array = range(len(data))
 else:
-    # else we deal with one single target 
-    print(f'READING INFO FROM A SINGLE TARGET FILE\n')
+    # else we deal with one single target
     planet_array = [0] 
+
+    file_name = 'INPUT.target' 
+    
+    print(f'READING INFO FROM {file_name.replace(".","/")}'+'.py\n')
+
+    # import all parameters into a single variable
+    imported_parameters = importlib.import_module(file_name) 
+        
+    # convert imported_parameters into global variables
+    globals().update({k: v for k, v in imported_parameters.__dict__.items() if not k.startswith('__')})
 
 
 for indi in planet_array:
@@ -106,13 +115,6 @@ for indi in planet_array:
         starname,d, R_star, M_star, P_rot_star, B_star, Exoplanet, Mp, Rp, r_orb, P_orb,eccentricity, q, Q = load_target(data, indi)
         T_corona = data['T_corona(MK)'][indi]*1e6
         M_star_dot = data['mdot(mdot_sun)'][indi]
-    else:   # Read from target.py (for individual targets)
-        file_name = 'INPUT.target' 
-        # import all parameters into a single variable
-        imported_parameters = importlib.import_module(file_name) 
-
-        # convert imported_parameters into global variables
-        globals().update({k: v for k, v in imported_parameters.__dict__.items() if not k.startswith('__')})
         
     # Fill B_star column if empty. Uses original units from table
     if pd.isna(B_star):
@@ -143,7 +145,7 @@ for indi in planet_array:
         T_corona = T_CORONA_DEF
      
 
-    print(f'RUNNING SPIROU FOR THE EXOPLANET: {Exoplanet}\n')
+    print(f'RUNNING SPIROU FOR EXOPLANET {Exoplanet}\n')
 
     ###############################################
 
@@ -442,7 +444,7 @@ for indi in planet_array:
 
             print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
 
-    print(f'DONE WITH PLANET {Exoplanet}!!\n')
+    print(f'\nDONE WITH PLANET {Exoplanet}!!\n')
     print('###########################################################\n')
 
             #print('M_star_dot_loc = ', M_star_dot_loc)
