@@ -112,52 +112,25 @@ if STUDY == 'D_ORB':
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
     ax2.set_xlim(0,d_orb_max)
-    #ax11.set_xlabel("Orbital period [days]")
+
     ax1 = ax2.twiny()
+   
     
-    #new_tick_locations=np.array([2.34,4.12,6.74])
-    ax1.set_xlim(ax2.get_xlim())
-    #ax1.set_xticks(new_tick_locations)
-    #ax1.set_xticklabels(np.round(np.array([2.34,4.12,6.74]), 2))
-    #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2))
-    #(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
-    #ax1.set_xticks(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star)
     ax1.set_xlabel(r"Orbital period (days)")
-    #ax1.set_xticks(spi.Kepler_r(M_star/M_sun,np.array([1,5,10]))*au/R_star)
-    #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
-    #ax1.set_xticks(np.round(spi.Kepler_r(M_star/M_sun,np.array([0.1,1,10]))*au/R_star, 2))
-    #ax1.set_xticklabels(np.round(spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star, 2))
-    #ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
-    #distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
-    #ax1.set_xticks(distances_rv_signals)
-    #ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
-    #ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
-    #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
-    #xtickslocs = ax1.get_xticks()
-    #ax1.set_xticks([])
-    ##print('xtickslocs :', xtickslocs)
-    #new_tick_locations=xtickslocs[1:-1]
-    #xtickslocs_periods = spi.Kepler_P(M_star/M_sun,xtickslocs*R_star/au)
-    #ax1.set_xticks(xtickslocs)
-    #ax1.set_xlabel(np.round(xtickslocs_periods, 2))
-    #def tick_function(X):
-    #    V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
-    #    return ["%.2f" % z for z in V]
-    #ax1.set_xticks(new_tick_locations)
-    #ax1.set_xticklabels(tick_function(new_tick_locations))
-    #ax3.yaxis.set_ticks(ax1.get_yticks())
     
-    #print(type(xtickslocs))
-    #print(type(xtickslocs_periods))
-    #print('xtickslocs :', xtickslocs)
-    #print('xtickslocs period:', xtickslocs_periods)
-    #ymin, _ = ax.get_ylim()
-    #ax1.set_xticklabels((np.array([2.34,4.12,6.74])))
-    #distances_rv_signals=spi.Kepler_r(M_star/M_sun,np.array([2.34,4.12,6.74]))*au/R_star
-    #ax1.set_xticks(distances_rv_signals)
-    #ax1.axvline(x = distances_rv_signals[0], ls='-.', color='k', lw=1.5)
-    #ax1.axvline(x = distances_rv_signals[1], ls='-.', color='k', lw=1.5)
-    #ax1.axvline(x = distances_rv_signals[2], ls='-.', color='k', lw=1.5)
+    def tick_function(X):
+        V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
+        return ["%.0f" % z for z in V]
+    xtickslocs = ax2.get_xticks()    
+    new_tick_locations=xtickslocs[1:-1]
+    #print(new_tick_locations)
+    #print(type(new_tick_locations))
+    #print(tick_function(new_tick_locations))
+    
+    ax1.set_xlim(ax2.get_xlim())
+    ax1.set_xticks(new_tick_locations)
+    ax1.set_xticklabels(tick_function(new_tick_locations))
+
 elif STUDY == 'M_DOT':
     ax2.set_xscale('log') 
     ax2.set_yscale('log') 
@@ -309,7 +282,9 @@ if any(ind > 1 for ind in M_A):
     if PLOT_M_A == True:
         ax1.axvline(x = x_superalfv, color='grey',lw=2)
         ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
-    ax2.axvline(x = x_superalfv, color='grey',lw=2)
+    print(x[0],x_superalfv )
+    if x_superalfv!=x[0]: 
+        ax2.axvline(x = x_superalfv, color='grey',lw=2)
     ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
