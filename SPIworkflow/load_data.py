@@ -118,7 +118,7 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
     #
     #data['freq_cycl(ghz)'] = data.loc[:,('bfield_star(gauss)')]*2.8e-3
     #data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
-    data.loc['freq_cycl(ghz)'] = df2['bfield_star(gauss)']*2.8e-3
+    data['freq_cycl(ghz)'] = data['bfield_star(gauss)']*2.8e-3
 
     data.reset_index(inplace=True)
 
