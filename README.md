@@ -2,6 +2,8 @@
 
 **S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited
 
+![**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited](images/spirou-logo.png)
+
 `SPIROU` is a public Python code to predict the radio emission from
 Sub-Alfvénic star-planet interaction (SPI), via the electron-cyclotron maser
 instability mechanism.  The main script is `spirou.py`.
