@@ -1,7 +1,5 @@
 
-<img src="pics/spirou-logo.png" alt="Alt text" style="width: 50%; transform: rotate(45deg);">
-
-![**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited](pics/spirou-logo.png)
+<img src="pics/spirou-logo.png" alt="Alt text" style="width: 50%; transform: rotate(90deg);">
 
 # SPIROU
 
