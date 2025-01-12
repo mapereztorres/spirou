@@ -1,4 +1,4 @@
-![**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited](pics/spirou-logo.png =40x30)
+![**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited](pics/spirou-logo.png)
 
 
 # SPIROU
