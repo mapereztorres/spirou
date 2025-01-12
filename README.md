@@ -1,5 +1,5 @@
 
-<img src="pics/spirou-logo.png" alt="spirou-logo" width="400" height="300"/>
+<img src="pics/spirou-logo.png" alt="spirou-logo" width="400" height="300" rotate="90"/>
 
 ![**S**tar-**P**lanet **I**nteraction and **R**adio **O**bservations **U**nited](pics/spirou-logo.png)
 
