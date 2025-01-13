@@ -449,9 +449,9 @@ for indi in planet_array:
     print(f'\nDONE WITH PLANET {Exoplanet}!!\n')
     print('###########################################################\n')
 
-print('###########################################################\n')
+print('###########################################################')
 print(f'SPIROU HAS FINISHED SUCCESSFULLY!!\n')
-print('###########################################################\n')
+print('###########################################################')
 
             #print('M_star_dot_loc = ', M_star_dot_loc)
             #print('Type of M_star_dot_loc : ', type(M_star_dot_loc))

@@ -9,8 +9,8 @@ from SPIworkflow.constants import *
 # for a single target (INPUT_TABLE = False). 
 
 # Uncomment the line that applies
-INPUT_TABLE = True
-#INPUT_TABLE = False
+#INPUT_TABLE = True
+INPUT_TABLE = False
 
 #######################################################################
 #  STUDY CASES
@@ -162,12 +162,19 @@ X_p = 0.5 # fraction of protons
 ALPHA_SPI = 1
 
 # Efficiency factor in converting Poynting flux into ECM radio emission.
-# Be aware that eps (= eps_min and eps_max here) is not the "epsilon" in in Zarka 2018,
-# 2024 (HoE), where it is called "beta"
+#
+# We use the naming convention in Zarka (2018) and Zarka (2024), in the 
+# Handbook of Exoplanets, i.e., "beta" (his Eq. 1 in Zarka 2024), 
+# which we rename as "beta_eff". 
+# Zarka (2024) shows that beta_eff is in the range from 1e-4 (BETA_EFF_MIN) to 1e-2
+# (BETA_EFF_MAX)
 # 
-#eps_min = 0.01; eps_max = 0.11
-#eps_min = 0.002; eps_max = 0.01
-EPS_MIN = 0.001; EPS_MAX = 0.01
+BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
+
+# Fraction of Poynting flux going to dissipated power (Eq. 2 in Zarka 2024)
+# Zarka (2024) quotes a value of 0.2 +/- 0.1
+EPSILON = 0.2 
+
 # theta_M - Angle between planetary field and stellar field (rad) in the planet rest frame
 THETA_M = np.pi/2
 
@@ -280,7 +287,7 @@ else:
     print('FREE FREE ABSORPTION EFFECTS ARE IGNORED\n')    
     
 ###
-print(f'THE EFFICIENCY FACTOR IN CONVERTING POYNTING FLUX \nTO RADIO EMISSION RANGES FROM {EPS_MIN:.1e} UP TO {EPS_MAX:.1e}\n')
+print(f'THE EFFICIENCY FACTOR IN CONVERTING POYNTING FLUX \nTO RADIO EMISSION RANGES FROM {BETA_EFF_MIN:.1e} UP TO {BETA_EFF_MAX:.1e}\n')
 
 ###
 if COMPUTE_BSA == False: 

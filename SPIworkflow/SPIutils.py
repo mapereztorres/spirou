@@ -574,64 +574,25 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
             S_reconnect - Poynting flux (array), in cgs
             P_d_mks     - Dissipated power (array), in SI units (Watt)
             P_d         - Dissipated power (array), in cgs units (erg/s)
-
-            It uses Eq. (8) in Lanza (2009; A&A 505, 339–350).
+                          
+            P_d is computed using Eq. (8) in Lanza (2009; A&A 505, 339–350).
+            
         """
         P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_planet_eff/1e2)**2 * (v_rel/1e2)
         P_d     = P_d_mks * 1e7 # in cgs units 
-        S_reconnect = P_d/0.2
+        S_reconnect = P_d / EPSILON
         
         return S_reconnect, P_d, P_d_mks
 
 def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
-    dilution_factor_min = EPS_MIN / (Omega_max * d**2 * Delta_nu_cycl) 
-    dilution_factor_max = EPS_MAX / (Omega_min * d**2 * Delta_nu_cycl)
+    """ Computes the minimum and maximum expected flux densities to be received at
+        Earth, in erg/s/Hz/cm2
+    """
+    dilution_factor_min = BETA_EFF_MIN / (Omega_max * d**2 * Delta_nu_cycl) 
+    dilution_factor_max = BETA_EFF_MAX / (Omega_min * d**2 * Delta_nu_cycl)
     Flux_min = S_poynt * dilution_factor_min
     Flux_min *= 1e26 # Flux density, in mJy
     Flux_max = S_poynt * dilution_factor_max
     Flux_max *= 1e26 # Flux density, in mJy
     
     return Flux_min, Flux_max
-    
-def old_get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt, S_poynt_Z):
-    """ Computes the minimum and maximum expected flux densities to be received at
-        Earth, for both the Saur-Turnpenney and Zarka-Lanza models, in erg/s/Hz/cm2
-    """
-    dilution_factor_min = EPS_MIN / (Omega_max * d**2 * Delta_nu_cycl) 
-    dilution_factor_max = EPS_MAX / (Omega_min * d**2 * Delta_nu_cycl)
-    Flux_r_S_min = S_poynt * dilution_factor_min
-    Flux_r_S_min *= 1e26 # Flux density, in mJy
-    Flux_r_S_max = S_poynt * dilution_factor_max
-    Flux_r_S_max *= 1e26 # Flux density, in mJy
-
-    Flux_r_S_Z_min = S_poynt_Z * dilution_factor_min
-    Flux_r_S_Z_min *= 1e26 # Flux density, in mJy
-    Flux_r_S_Z_max = S_poynt_Z * dilution_factor_max
-    Flux_r_S_Z_max *= 1e26 # Flux density, in mJy
-
-    return Flux_r_S_min, Flux_r_S_max, Flux_r_S_Z_min, Flux_r_S_Z_max
-
-def power_estimations(flux, Delta_nu_obs, flux_min, flux_max):
-    """ To BE UPDATED
-        Computes in-band radio power received from one whole hemisphere of the star, and
-    the minimum and maximum power, depending of the efficiency of the conversion of
-    power into Poynting flux"
-            # 
-            #power  = 2*np.pi * flux * mJy * d**2 * Delta_nu_obs 
-
-            # The range of allowed powers, considering the beamed solid angle
-            # and the possible total bandwidth
-            # 
-
-            #
-            #power_min = power/(2*np.pi) * (flux_min/flux) * Omega_min * Delta_nu_cycl/Delta_nu_obs
-            #power_max = power/(2*np.pi) * (flux_max/flux) * Omega_max * Delta_nu_cycl/Delta_nu_obs
-            #
-            # Range of values for the star-ward Poynting flux
-            #Poynt_min = power_min / EPS_MAX 
-            #Poynt_max = power_max / EPS_MIN 
-    """
-    dummy = 1
-    return dummy
-
-

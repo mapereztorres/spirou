@@ -224,11 +224,11 @@ ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,face
 #plt.rcParams['mathtext.fontset'] = 'custom'
 #plt.rcParams['mathtext.bf'] = 'cm:bold'
 
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'Ω='+'{:.2f}'.format(Omega_min)+' sr; '+r'β='+'{:.1f}'.format(EPS_MAX*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'Ω='+'{:.2f}'.format(Omega_max)+' sr; '+r'β='+'{:.1f}'.format(EPS_MIN*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.2f}'.format(EPS_MAX),fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.3f}'.format(10**((np.log10(EPS_MAX)+np.log10(EPS_MIN))/2)),fontsize = 18,rotation=rot,fontweight='bold')
-#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.4f}'.format(EPS_MIN),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'Ω='+'{:.2f}'.format(Omega_min)+' sr; '+r'β='+'{:.1f}'.format(BETA_EFF_MAX*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'Ω='+'{:.2f}'.format(Omega_max)+' sr; '+r'β='+'{:.1f}'.format(BETA_EFF_MIN*100)+'%',fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_max_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.2f}'.format(BETA_EFF_MAX),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_inter_no_abs[round(len(x)/pos_arg)]*1.3,r'β='+'{:.3f}'.format(10**((np.log10(BETA_EFF_MAX)+np.log10(BETA_EFF_MIN))/2)),fontsize = 18,rotation=rot,fontweight='bold')
+#ax2.text(x[round(len(x)/pos_arg)],Flux_r_S_min_no_abs[round(len(x)/pos_arg)]*0.6,r'β='+'{:.4f}'.format(BETA_EFF_MIN),fontsize = 18,rotation=rot,fontweight='bold')
 
 """
 #Draw also Alfven radial Mach number
@@ -282,14 +282,13 @@ if any(ind > 1 for ind in M_A):
     if PLOT_M_A == True:
         ax1.axvline(x = x_superalfv, color='grey',lw=2)
         ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
-    print(x[0],x_superalfv )
     if x_superalfv!=x[0]: 
         ax2.axvline(x = x_superalfv, color='grey',lw=2)
     ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
 
-common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(EPS_MIN*100)+'-'+str(EPS_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
+common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(BETA_EFF_MIN*100)+'-'+str(BETA_EFF_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
 if Bfield_geom_arr[ind]:
     outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
 else:
