@@ -33,19 +33,24 @@ the user.
 * Miguel Pérez-Torres
 * Luis Peña-Moñino
 
+## Running SPIROU
+
 The main script is `spirou.py`. To be sure the code runs without any issues, run it within the `spirou` environment. To create the `spirou` environment, run the following commad:
 
-``` conda env create -f spirou.yml 
+``` 
+conda env create -f spirou.yml 
 ```
 
 To activate this environment, use 
 
-``` $ conda activate spirou 
+``` 
+$ conda activate spirou 
 ```
 
 At this point, you simply run 
 
-```python spirou.py
+```
+python spirou.py
 ```
 And SPIROU will run.
 
@@ -83,7 +88,8 @@ The following file structure of spirou should be self-explanatory.
 
 When you are done, it is good to deactivate the environment:
 
-``` $ conda deactivate 
+``` 
+$ conda deactivate 
 ```
 
 In case there are modifications of some dependencies, the file `spirou.yml` will eventually need to be modified, and you will need to update the environment, by running the followin commands.
