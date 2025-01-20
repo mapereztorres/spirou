@@ -141,7 +141,7 @@ for indi in planet_array:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
         else:
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
-        print('Estimated value of M_star_dot: ',M_star_dot)
+        print(f'Estimated value of M_star_dot: {M_star_dot:.2e} M_dot_sun')
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(T_corona):
         T_corona = T_CORONA_DEF
