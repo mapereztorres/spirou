@@ -90,5 +90,5 @@ else:
     #out_diagnos =  FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Closed-Bstar" + diagnostic_string 
     geometry = "-Closed-Bstar"
 out_diagnos =  FOLDER + '/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
-plt.savefig(out_diagnos)
+plt.savefig(out_diagnos,bbox_inches='tight')
 
