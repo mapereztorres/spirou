@@ -80,8 +80,8 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-Bfield_geom_arr = [0,1]
-#Bfield_geom_arr = [0] 
+#Bfield_geom_arr = [0,1]
+Bfield_geom_arr = [0] 
 
 # MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
 # (in degrees). Fixed to zero for simplicity. 
@@ -95,8 +95,8 @@ MAGN_OBLIQ = 0.
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-magnetized_pl_arr = [False, True]
-#magnetized_pl_arr = [True]
+#magnetized_pl_arr = [False, True]
+magnetized_pl_arr = [True]
 
 # Default planetary magnetic field, in Tesla
 B_PLANET_DEFAULT = bfield_earth
