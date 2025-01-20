@@ -215,9 +215,10 @@ def load_target(data, indi):
         Mp = data['mass_sini'][indi] * M_earth 
     Rp = data['radius_planet(r_earth)'][indi]
     if pd.isna(Rp): 
+        # Rp - as in Mueller+2019. Better than Zeng+2016 for Mp >~ 4 M_Earth
         Rp = spi.Rp_Mueller(data['mass_planet(m_earth)'][indi])
-        Rp_zeng = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
-        print(f'Estimated planet radius from Mueller+2019: {Rp}')
+        #Rp_Zeng = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+        print(f'Estimated planet radius from Mueller+2019: {Rp:.2f} R_Earth')
         #print(f'Estimated planet radius from Zeng+2016: {Rp_zeng}')
     Rp *= R_earth # Planetary radius, in cm
     r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
