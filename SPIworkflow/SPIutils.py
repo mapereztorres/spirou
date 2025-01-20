@@ -53,6 +53,8 @@ def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, angle_v_r
         B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(MAGN_OBLIQ * np.pi/180) 
         B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(MAGN_OBLIQ * np.pi/180) 
         B_sw  = np.sqrt(B_r**2 + B_phi**2) 
+        elif pfss: 
+        #PFSS (Potential 
         
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
     angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
