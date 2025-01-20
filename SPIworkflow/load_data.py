@@ -57,7 +57,8 @@ def get_spi_data(infile_data='./INPUT/SPI-targets.csv',
 
     # Read in data file using pandas
     df = pd.read_csv(infile_data)
-
+    if 'radius_planet(r_earth)' not in df:
+        df['radius_planet(r_earth)']=''
     # Create new pandas.Dataframe with a subset of rows (easy to display in,
     # e.g., jupyter notebook.
     if infile_data =='./INPUT/SPI-sources_planets_MASTER.csv':
@@ -214,7 +215,10 @@ def load_target(data, indi):
         Mp = data['mass_sini'][indi] * M_earth 
     Rp = data['radius_planet(r_earth)'][indi]
     if pd.isna(Rp): 
-        Rp = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+        Rp = spi.Rp_Mueller(data['mass_planet(m_earth)'][indi])
+        Rp_zeng = spi.Rp_Zeng(data['mass_planet(m_earth)'][indi])
+        print(f'Estimated planet radius from Mueller+2019: {Rp}')
+        #print(f'Estimated planet radius from Zeng+2016: {Rp_zeng}')
     Rp *= R_earth # Planetary radius, in cm
     r_orb  = data['a(au)'][indi] * au   # orbital distance, in cm
     P_orb = data['p_orb(days)'][indi] # orbital period of planet, in days

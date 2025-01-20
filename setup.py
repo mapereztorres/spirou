@@ -9,8 +9,8 @@ from SPIworkflow.constants import *
 # for a single target (INPUT_TABLE = False). 
 
 # Uncomment the line that applies
-#INPUT_TABLE = True
-INPUT_TABLE = False
+INPUT_TABLE = True
+#INPUT_TABLE = False
 
 #######################################################################
 #  STUDY CASES
@@ -21,13 +21,13 @@ INPUT_TABLE = False
 #######################################################################
 
 # Uncomment the line that applies
-#STUDY = "D_ORB"
-STUDY = "M_DOT"
+STUDY = "D_ORB"
+#STUDY = "M_DOT"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
-D_ORB_LIM = np.nan
-#D_ORB_LIM = 1000.
+#D_ORB_LIM = np.nan
+D_ORB_LIM = 3000
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -36,7 +36,7 @@ D_ORB_LIM = np.nan
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 2e+1
+M_DOT_MAX = 1e+2
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -80,8 +80,8 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#Bfield_geom_arr = [0,1]
-Bfield_geom_arr = [0] 
+Bfield_geom_arr = [0,1]
+#Bfield_geom_arr = [0] 
 
 # MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
 # (in degrees). Fixed to zero for simplicity. 
