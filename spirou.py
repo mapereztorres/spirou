@@ -211,7 +211,7 @@ for indi in planet_array:
     # If the stellar plasma is assumed to be isothermal, then 
     # the density falls down as ~ R^(-2) * v_sw^(-1).
     # Alternatively, we fix the density at the distance of the planet from the host star.
-    if isothermal:
+    if ISOTHERMAL:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
         n_sw_planet = spi.n_wind(M_star_dot_arr, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
     else:
@@ -236,7 +236,7 @@ for indi in planet_array:
             else:    
                 selected_geometry="CLOSED PFSS MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
-            B_r, B_phi, B_sw, angle_B, theta, geom_f,geometry = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
                     v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
@@ -388,7 +388,10 @@ for indi in planet_array:
             FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
             if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
-                
+
+            # generate output files for the different magnetic field geometries
+            geometry = "-" + Bfield_geom_arr[ind].replace('_','-') + 'Bstar'
+
             ### Plot received flux density as a function of distance from the star
             filename = 'plotting/plot_flux_density.py'
             with open(filename) as file:
