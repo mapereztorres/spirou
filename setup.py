@@ -26,8 +26,8 @@ STUDY = "D_ORB"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
-#D_ORB_LIM = np.nan
-D_ORB_LIM = 3000
+D_ORB_LIM = np.nan
+#D_ORB_LIM = 3000
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -80,13 +80,12 @@ NSTEPS_FF = 10000
 # Stellar magnetic field geometry
 # The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
 #                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#Bfield_geom_arr = [0,1]
-Bfield_geom_arr = [0] 
-
+Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss']
 # MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
 # (in degrees). Fixed to zero for simplicity. 
 MAGN_OBLIQ = 0.
- 
+
+R_SS = 6 
 #####################################
 # PLANET MAGNETIC FIELD SETUP
 #####################################
@@ -256,20 +255,32 @@ elif STUDY == "B_PL":
     print('CARRYING OUT A STUDY OF RADIO EMISSION VS PLANETARY MAGNETIC FIELD: STUDY == B_PL\n')
 
 ###
-
-if len(Bfield_geom_arr)==2:
-    print('RUNNING FOR BOTH AN OPEN PARKER SPIRAL AND \n A (CLOSED) DIPOLAR MAGNETIC FIELD GEOMETRIES\n')
-else:
-    if Bfield_geom_arr[0] == 0:
-        print('RUNNING FOR A CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY\n')    
-    else:
-        print('RUNNING FOR AN OPEN PARKER SPIRAL MAGNETIC FIELD GEOMETRY\n')    
-        
+'''
+#['open_parker_spiral','closed_dipole','closed_pfss']
+if 'open_parker_spiral' in Bfield_geom_arr:
+    print('RUNNING FOR AN OPEN PARKER SPIRAL MAGNETIC FIELD GEOMETRY\n')    
+if 'closed_dipole' in Bfield_geom_arr:
+    print('RUNNING FOR A CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY\n')    
+if 'pfss' in Bfield_geom_arr:   
+    print('RUNNING FOR A CLOSED PFSS MAGNETIC FIELD GEOMETRY\n')   
+'''   
+ind=0
+printing_str='RUNNING FOR THE FOLLOWING GEOMETRIES:'
+while ind < len(Bfield_geom_arr):
+   if ind == len(Bfield_geom_arr)-1 and ind>0:
+       printing_str += ' AND'
+   elif ind>0:
+       printing_str += ','
+   #geom=' '+Bfield_geom_arr[ind].replace('_', ' ')
+   printing_str += ' '+Bfield_geom_arr[ind].replace('_', ' ').upper()
+   ind=ind+1
+print(printing_str+'\n') 
+    
 ###    
 if len(magnetized_pl_arr)==2:    
     print('RUNNING FOR BOTH A MAGNETIZED AND A NON-MAGNETIZED PLANET\n')
 else:
-    if magnetized_pl_arr[0] == FALSE:
+    if magnetized_pl_arr[0] == False:
         print('RUNNING FOR A NON-MAGNETIZED PLANET\n')    
     else:
         print('RUNNING FOR A MAGNETIZED PLANET\n')    

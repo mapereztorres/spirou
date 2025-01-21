@@ -224,13 +224,19 @@ for indi in planet_array:
     for ind in range(len(Bfield_geom_arr)):
         for ind1 in range(len(magnetized_pl_arr)):
             # Bfield_geom_arr defines the geometry of the magnetic field (closed / open)
-            if Bfield_geom_arr[ind]:
+            #if Bfield_geom_arr[ind]:
+            #    selected_geometry="OPEN PARKER MAGNETIC FIELD GEOMETRY"
+            #else:
+            #    selected_geometry="CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY"
+            #['open_parker_spiral','closed_dipole','pfss']
+            if Bfield_geom_arr[ind] == 'open_parker_spiral':
                 selected_geometry="OPEN PARKER MAGNETIC FIELD GEOMETRY"
-            else:
+            elif Bfield_geom_arr[ind] == 'closed_dipole':
                 selected_geometry="CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY"
-           
+            else:    
+                selected_geometry="CLOSED PFSS MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
-            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
+            B_r, B_phi, B_sw, angle_B, theta, geom_f,geometry = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
                     v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 

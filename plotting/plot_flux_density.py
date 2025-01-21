@@ -289,10 +289,12 @@ if any(ind > 1 for ind in M_A):
 
 
 common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(BETA_EFF_MIN*100)+'-'+str(BETA_EFF_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
-if Bfield_geom_arr[ind]:
-    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
-else:
-    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
+#if Bfield_geom_arr[ind] == 'open_parker_spiral':
+#    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-spiral-Bstar" + common_string 
+#elif Bfield_geom_arr[ind]== 'closed_dipole':
+#    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-dipole-Bstar" + common_string 
+#else:
+outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string     
 # Variable to send output to files (PLOTOUT= True), or show them in
 # the terminal (PLOTOUT = False) 
 if freefree == True:
