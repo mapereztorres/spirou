@@ -26,44 +26,51 @@ def get_velocity_comps(M_star, d_orb, P_rot_star):
     return v_orb, v_corot, Omega_star
  
 def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
-    """Computes the radial, azimuthal components of the stellar wind magnetic field for
-    an open (Parker spiral) and a closed (dipolar) magnetic field topologies of the host
-    star.
+    """
+    Computes the radial and azimuthal components of the stellar wind magnetic field for
+    three different geometries: 
+    1.- An open Parker spiral (open_parker_spiral)
+    2.- A pure (closed) dipole (closed_dipole)
+    3.- A modified dipole (potential field source surface, PFSS). 
     OUTPUT:
     INPUT: 
-    ...
     """
-    B_r_dipole   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(MAGN_OBLIQ * np.pi/180) 
-    B_phi_dipole = - B_star * (d_orb/R_star)**(-3) * np.sin(MAGN_OBLIQ * np.pi/180) 
+
+    B_r_dipole   = 2 * B_star * (d_orb/R_star)**(-3) * np.cos(POLAR_ANGLE * np.pi/180) 
+    B_theta_dipole =   B_star * (d_orb/R_star)**(-3) * np.sin(POLAR_ANGLE * np.pi/180) 
+    B_phi_dipole = 0.0
+
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
-        # B_r   - Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
-        # B_phi - Azimuthal field (Eqn 21 Turnpenney 2018)
-        # B_sw - Total stellar wind B-field at planet orbital distance
-        B_r = B_star * (d_orb/R_star)**(-2)  
-        B_phi = B_r * v_corot/v_sw 
-        B_sw = np.sqrt(B_r**2 + B_phi**2) 
-        geometry = "-Open-spiral-Bstar" 
+        # B_r   - Radial component of B_sw (e.g., Eqn 20 Turnpenney 2018).
+        # B_phi - Azimuthal component of B_sw
+        # B_theta - Polar component. Here we assume symmetry in the radial direction, so
+        # B_theta = 0
+        # B_sw - Total stellar wind B-field at the orbital distance of the planet
+        B_r     = B_star * (d_orb/R_star)**(-2)  
+        B_phi   = B_r * v_corot/v_sw * np.sin(POLAR_ANGLE)
+        B_theta = 0.0  
     elif Bfield_geom == 'closed_dipole':
         # Closed, dipolar configuration - It falls with distance as R^(-3)
         # B_star - magnetic field at the magnetic equator on the stellar surface
         # B_r - Radial component of the dipole magnetic field of the stellar wind as f(distance to star) 
         #       Note that its value is 2*B_star, since B_star is the value at the
         #       equator
-        # B_phi - Azimuthal component of the dipole magnetic field 
+        # B_theta_dipole - component of the dipole magnetic field 
         # B_sw - Total stellar wind B-field at planet orbital distance
         # MAGN_OBLIQ - Angle between the rotation axis and magnetic axis of the star
-        B_r = B_r_dipole
-        B_phi = B_phi_dipole
-        B_sw  = np.sqrt(B_r**2 + B_phi**2) 
-        geometry = "-Closed-dipole-Bstar"
+        B_r     = B_r_dipole
+        B_phi   = B_phi_dipole
+        B_theta = B_theta_dipole
     elif Bfield_geom == 'closed_pfss': 
-        #PFSS (Potential
-        B_r   = B_r_dipole * (((d_orb/R_star)**(3)+2*R_SS**3)/(1+2*R_SS**3))
-        B_phi = B_phi_dipole * (((d_orb/R_star)**(3)+2*R_SS**3)/(1+2*R_SS**3))
-        B_sw  = np.sqrt(B_r**2 + B_phi**2)
-        geometry = "-Closed-PFSS"  
-        
+        #PFSS (Potential Field Source Surface)
+        B_r     = B_r_dipole * ( ( (d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) )
+        B_phi   = B_phi_dipole
+        B_theta = B_theta_dipole * ( (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) )
+
+    # Total stellar wind magnetic field
+    B_sw  = np.sqrt(B_r**2 + B_phi**2) 
+
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
     angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
 
@@ -78,7 +85,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
 
-    return B_r, B_phi, B_sw, angle_B, theta, geom_f, geometry
+    return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
 def getImage(path):
     return OffsetImage(plt.imread(path, format="jpg"), zoom=.02)
