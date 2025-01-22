@@ -78,17 +78,24 @@ NSTEPS_FF = 10000
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-#Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss','hybrid']
-Bfield_geom_arr=['hybrid']
+#Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss','hybrid','pfss_parker']
+Bfield_geom_arr=['pfss_parker']
 # POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
 # polar axis, measured from the polar axis. Always positive.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
 POLAR_ANGLE = np.pi/2 
 
-# Potential soure surface radius (PFSS), in units of R_star
-R_SS = 10.0 
-R_T = 20
-DELTA_R = R_T * 0.5
+# R_T and DELTA_R are used for the hybrid model, i.e. the transition from a pure dipole
+# to an open Parker spiral.
+# DELTA_R - Width of the transition region, in units of R_star
+R_T = 10.0
+DELTA_R = 0.3 * R_T 
+
+# Potential source surface radius (PFSS), in units of R_star
+# R__SS is defined as below, due to the boundary conditions imposed on the components of
+# the closed magnetic field geometry (see, e.g., Eqns. 5 and 6 in Jardine+2002, MNRAS)
+R_SS = R_T + DELTA_R / 2
+
 #####################################
 # PLANET MAGNETIC FIELD SETUP
 #####################################
@@ -275,7 +282,7 @@ while ind < len(Bfield_geom_arr):
        printing_str += ' AND'
    elif ind>0:
        printing_str += ','
-   printing_str += ' '+Bfield_geom_arr[ind].replace('_', ' ').upper()
+   printing_str += ' ' + Bfield_geom_arr[ind].replace('_', ' ').upper()
    ind=ind+1
 print(printing_str+'\n') 
     
