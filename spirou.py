@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 import matplotlib.patches as mpatches
+
 #matplotlib.rc_file_defaults()
 plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
@@ -394,7 +395,7 @@ for indi in planet_array:
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
 
             # generate output files for the different magnetic field geometries
-            geometry = "-" + Bfield_geom_arr[ind].replace('_','-') + 'Bstar'
+            geometry = "-" + Bfield_geom_arr[ind].replace('_','-') + '-Bstar'
 
             ### Plot received flux density as a function of distance from the star
             filename = 'plotting/plot_flux_density.py'
@@ -458,6 +459,10 @@ for indi in planet_array:
                 Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
 
             print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
+    ################################        
+    filename = 'plotting/plot_model_comparison.py'
+    with open(filename) as file:
+        exec(file.read())          
 
     print(f'\nDONE WITH PLANET {Exoplanet}!!\n')
     print('###########################################################\n')
@@ -466,6 +471,7 @@ print('###########################################################')
 print(f'SPIROU HAS FINISHED SUCCESSFULLY!!\n')
 print('###########################################################')
 
+    
             #print('M_star_dot_loc = ', M_star_dot_loc)
             #print('Type of M_star_dot_loc : ', type(M_star_dot_loc))
             #print(f'n_base_corona[M_star_dot_loc] = {n_base_corona[M_star_dot_loc][0]:.2e}')
