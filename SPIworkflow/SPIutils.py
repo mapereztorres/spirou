@@ -39,6 +39,12 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     B_r_dipole   = 2 * B_star * (d_orb/R_star)**(-3) * np.cos(POLAR_ANGLE * np.pi/180) 
     B_theta_dipole =   B_star * (d_orb/R_star)**(-3) * np.sin(POLAR_ANGLE * np.pi/180) 
     B_phi_dipole = 0.0
+    
+    B_r_parker =  B_star * (d_orb/R_star)**(-2)
+    B_theta_parker = 0.0
+    B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
+    
+    sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / DELTA_R))
 
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
@@ -47,9 +53,9 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # B_theta - Polar component. Here we assume symmetry in the radial direction, so
         # B_theta = 0
         # B_sw - Total stellar wind B-field at the orbital distance of the planet
-        B_r     = B_star * (d_orb/R_star)**(-2)  
-        B_phi   = B_r * v_corot/v_sw * np.sin(POLAR_ANGLE)
-        B_theta = 0.0  
+        B_r     = B_r_parker  
+        B_phi   = B_phi_parker
+        B_theta = B_theta_parker 
     elif Bfield_geom == 'closed_dipole':
         # Closed, dipolar configuration - It falls with distance as R^(-3)
         # B_star - magnetic field at the magnetic equator on the stellar surface
@@ -67,7 +73,11 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_r     = B_r_dipole * ( ( (d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) )
         B_phi   = B_phi_dipole
         B_theta = B_theta_dipole * ( (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) )
-
+    elif Bfield_geom == 'hybrid':
+        B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
+        B_theta = B_theta_dipole* (1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+    
     # Total stellar wind magnetic field
     B_sw  = np.sqrt(B_r**2 + B_phi**2) 
 
@@ -84,6 +94,9 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
+        
+    if Bfield_geom == 'hybrid': 
+        geom_f = (1 - sigmoid)+(np.sin(theta))**2 * sigmoid # Geometric factor in efficiency 
 
     return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
