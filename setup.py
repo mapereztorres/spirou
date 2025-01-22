@@ -78,8 +78,8 @@ NSTEPS_FF = 10000
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-#Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss','hybrid','pfss_parker']
-Bfield_geom_arr=['pfss_parker']
+Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss','hybrid','pfss_parker']
+#Bfield_geom_arr=['pfss_parker']
 # POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
 # polar axis, measured from the polar axis. Always positive.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
