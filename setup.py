@@ -78,8 +78,8 @@ NSTEPS_FF = 10000
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss']
-
+#Bfield_geom_arr=['open_parker_spiral','closed_dipole','closed_pfss','hybrid']
+Bfield_geom_arr=['hybrid']
 # POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
 # polar axis, measured from the polar axis. Always positive.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
@@ -87,7 +87,8 @@ POLAR_ANGLE = np.pi/2
 
 # Potential soure surface radius (PFSS), in units of R_star
 R_SS = 10.0 
-
+R_T = 20
+DELTA_R = R_T * 0.5
 #####################################
 # PLANET MAGNETIC FIELD SETUP
 #####################################
@@ -170,8 +171,8 @@ ALPHA_SPI = 1
 # Zarka (2024) shows that beta_eff is in the range from 1e-4 (BETA_EFF_MIN) to 1e-2
 # (BETA_EFF_MAX)
 # 
-#BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
-BETA_EFF_MIN = 1e-2; BETA_EFF_MAX = 1.1e-2 
+BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
+#BETA_EFF_MIN = 1e-2; BETA_EFF_MAX = 1.1e-2 
 
 # Fraction of Poynting flux going to dissipated power (Eq. 2 in Zarka 2024)
 # Zarka (2024) quotes a value of 0.2 +/- 0.1

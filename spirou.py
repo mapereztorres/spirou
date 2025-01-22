@@ -233,8 +233,10 @@ for indi in planet_array:
                 selected_geometry="OPEN PARKER MAGNETIC FIELD GEOMETRY"
             elif Bfield_geom_arr[ind] == 'closed_dipole':
                 selected_geometry="CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY"
-            else:    
+            elif Bfield_geom_arr[ind] == 'closed_pfss':    
                 selected_geometry="CLOSED PFSS MAGNETIC FIELD GEOMETRY"
+            elif Bfield_geom_arr[ind] == 'hybrid':   
+                selected_geometry="HYBRID DIPOLE-PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
             B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
                     v_sw, angle_v_rel)
