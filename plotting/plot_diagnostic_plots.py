@@ -94,3 +94,19 @@ diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_ar
 out_diagnos =  FOLDER + '/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
 plt.savefig(out_diagnos,bbox_inches='tight')
 
+df_B_tot= pd.DataFrame({
+     STUDY: x,
+    'Bsw': B_sw*np.ones(len(x))
+})  
+df_B_tot.to_csv(FOLDER + '/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'_B_sw.csv')
+
+
+df_M_A = pd.DataFrame({
+    STUDY: x,
+    'M_A': M_A
+})  
+df_M_A.to_csv(FOLDER + '/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'_M_A.csv')
+
+
+
+
