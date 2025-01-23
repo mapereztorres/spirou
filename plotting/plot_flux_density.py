@@ -304,7 +304,9 @@ common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[lo
 #elif Bfield_geom_arr[ind]== 'closed_dipole':
 #    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-dipole-Bstar" + common_string 
 #else:
-outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string     
+
+#outfile = FOLDER + '/' +'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string     
+outfile = 'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string   
 # Variable to send output to files (PLOTOUT= True), or show them in
 # the terminal (PLOTOUT = False) 
 
@@ -314,9 +316,9 @@ if freefree == True:
 
 if PLOTOUT == True:
     plt.tight_layout()
-    outfilePDF = os.path.join(outfile + ".pdf")
+    outfilePDF = os.path.join(FOLDER + '/PDF/' +outfile+ ".pdf")
     plt.savefig(outfilePDF)
-    outfilePNG = os.path.join(outfile + ".png")
+    outfilePNG = os.path.join(FOLDER + '/PNG/' +outfile +".png")
     plt.savefig(outfilePNG)
     plt.close()
 else:
@@ -329,9 +331,10 @@ df_alfven = pd.DataFrame({
      STUDY: x,
     'FLUX': y_inter
 })  
-df_alfven.to_csv(outfile+'_alfven_wing_model.csv')
+df_alfven.to_csv(FOLDER + '/CSV/' +outfile+'_alfven_wing_model.csv')
+
 df_reconnect = pd.DataFrame({
     STUDY: x,
     'FLUX': y_inter_reconnect
 })  
-df_reconnect.to_csv(outfile+'_reconnection_model.csv')  
+df_reconnect.to_csv(FOLDER + '/CSV/' +outfile+'_reconnection_model.csv')  

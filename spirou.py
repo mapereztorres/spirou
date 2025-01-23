@@ -393,7 +393,14 @@ for indi in planet_array:
             FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
             if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
-
+            if not(os.path.isdir(FOLDER+'/PDF')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/PDF')
+            if not(os.path.isdir(FOLDER+'/PNG')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/PNG')
+            if not(os.path.isdir(FOLDER+'/CSV')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/CSV')
+            if not(os.path.isdir(FOLDER+'/TXT')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/TXT')
             # generate output files for the different magnetic field geometries
             geometry = "-" + Bfield_geom_arr[ind].replace('_','-') + '-Bstar'
 
@@ -432,10 +439,12 @@ for indi in planet_array:
             
             if freefree == True: 
                 df = pd.DataFrame(zip(x,y_min, y_max), columns=[STUDY, 'flux_min'+str(T_corona/1e6)+'MK', 'flux_max'+str(T_corona/1e6)+'MK'])
-                df.to_csv(os.path.join(outfile + ".csv"))            
+                df.to_csv(os.path.join(FOLDER + '/CSV/' +outfile+ ".csv"))            
                 df2= pd.DataFrame(zip(x,absorption_factor),columns=[STUDY,'abs_factor_'+str(T_corona/1e6)+'MK'])
-                df2.to_csv(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
+                #df2.to_csv(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))+'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.csv')   
+                df2.to_csv(FOLDER + '/CSV/' + str(Exoplanet.replace(" ", "_"))
                          +'-'+'absorption_vs_mdot'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.csv')   
+                         
             
             ################################
             # DIAGNOSTIC PLOTS
@@ -450,7 +459,7 @@ for indi in planet_array:
             ################### Send OUTPUT to external text file/s
             ###########################################################
 
-            outfileTXT = os.path.join(outfile+'.txt')
+            outfileTXT = os.path.join(FOLDER + '/TXT/' +outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
 
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
