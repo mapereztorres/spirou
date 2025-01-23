@@ -82,15 +82,24 @@ NSTEPS_FF = 10000
 Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 #Bfield_geom_arr=['pfss_parker']
 
+# DIPOLE TILT - Tilt of the dipolar magnetic moment of the star wrt the rotation axis
+# (in radians).
 # POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
-# polar axis, measured from the polar axis. Always positive.
+# polar axis, measured from the polar axis. In radians.
+# NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
+# TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-POLAR_ANGLE = np.pi/2 
+DIPOLE_TILT = 0.0 
+POLAR_ANGLE = np.pi/2
+AZIMUTH     = np.pi
+
+TOLERANCE = 1e-2
 
 # R_T and DELTA_R are used for the hybrid model, i.e. the transition from a pure dipole
 # to an open Parker spiral.
 # DELTA_R - Width of the transition region, in units of R_star
-R_T = 10.0
+# 
+R_T = 10.0 * np.sin(POLAR_ANGLE)**2
 DELTA_R = 0.3 * R_T 
 
 # Potential source surface radius (PFSS), in units of R_star

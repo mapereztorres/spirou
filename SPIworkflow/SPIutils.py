@@ -40,9 +40,16 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     INPUT: 
     """
 
-    B_r_dipole   = 2 * B_star * (d_orb/R_star)**(-3) * np.cos(POLAR_ANGLE) 
-    B_theta_dipole =   B_star * (d_orb/R_star)**(-3) * np.sin(POLAR_ANGLE) 
-    B_phi_dipole = 0.0
+    r_dipole_geom     = np.cos(DIPOLE_TILT) * np.cos(POLAR_ANGLE) + np.sin(DIPOLE_TILT) * np.sin(POLAR_ANGLE) * np.cos(AZIMUTH)
+    theta_dipole_geom = np.cos(DIPOLE_TILT) * np.sin(POLAR_ANGLE) - np.sin(DIPOLE_TILT) * np.cos(POLAR_ANGLE) * np.cos(AZIMUTH)
+    phi_dipole_geom   = np.sin(DIPOLE_TILT) * np.sin(AZIMUTH)
+
+    # Magnetic moment of the star
+    Magnetic_m_dipole =  R_star**3 * B_star
+    
+    B_r_dipole     =  Magnetic_m_dipole/d_orb**3  * 2 * r_dipole_geom
+    B_theta_dipole =  Magnetic_m_dipole/d_orb**3  * theta_dipole_geom
+    B_phi_dipole   =  Magnetic_m_dipole/d_orb**3  * phi_dipole_geom
     
     B_r_parker =  B_star * (d_orb/R_star)**(-2)
     B_theta_parker = 0.0
@@ -51,7 +58,13 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
 
-    sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / DELTA_R))
+    if np.abs(np.sin(AZIMUTH)) < TOLERANCE and np.abs(np.sin(POLAR_ANGLE - DIPOLE_TILT)) < TOLERANCE:
+        sigmoid = 1.0
+        print('NOTE: You selected a value of POLAR_ANGLE too close to 0 or 180 degrees.')
+        print('      The PFSS_Parker model will be equivalent to running a pure Parker spiral.')
+    else:  
+        sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / DELTA_R))
+
 
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
