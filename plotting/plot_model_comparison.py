@@ -6,7 +6,6 @@ from matplotlib.lines import Line2D
 #matplotlib.rc_file_defaults()
 plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
-print('comparison plots for the fluxes')
 ##comparison plots for the fluxes
 alfven_wing_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
 reconnection_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
@@ -48,7 +47,6 @@ ax2.set_xlim(left=2)
 plt.savefig(FOLDER+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
 
 
-print('comparison plots for the stellar wind magnetic field')
 ##comparison plots for the stellar wind magnetic field
 FOLDER + '/CSV/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'_B_sw.csv'
 diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'
@@ -87,7 +85,6 @@ plt.savefig(FOLDER + '/' +'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplan
 
 
 
-print('comparison plots for M_A')
 ##comparison plots for M_A
 bsw_parker=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_M_A.csv')
 
