@@ -40,13 +40,13 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     INPUT: 
     """
 
-    B_r_dipole   = 2 * B_star * (d_orb/R_star)**(-3) * np.cos(POLAR_ANGLE * np.pi/180) 
+    B_r_dipole   = 2 * B_star * (d_orb/R_star)**(-3) * np.cos(POLAR_ANGLE) 
+    B_theta_dipole =   B_star * (d_orb/R_star)**(-3) * np.sin(POLAR_ANGLE) 
     B_phi_dipole = 0.0
-    B_theta_dipole =   B_star * (d_orb/R_star)**(-3) * np.sin(POLAR_ANGLE * np.pi/180) 
     
     B_r_parker =  B_star * (d_orb/R_star)**(-2)
-    B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
     B_theta_parker = 0.0
+    B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
 
     pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
@@ -61,8 +61,8 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # B_theta = 0
         # B_sw - Total stellar wind B-field at the orbital distance of the planet
         B_r     = B_r_parker  
-        B_phi   = B_phi_parker
         B_theta = B_theta_parker 
+        B_phi   = B_phi_parker
 
     elif Bfield_geom == 'closed_dipole':
         # Closed, dipolar configuration - It falls with distance as R^(-3)
@@ -73,8 +73,8 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # dipole with spherical symmetry)
         # B_sw - Total stellar wind B-field at planet orbital distance
         B_r     = B_r_dipole
-        B_phi   = B_phi_dipole
         B_theta = B_theta_dipole
+        B_phi   = B_phi_dipole
 
     elif Bfield_geom == 'closed_pfss': 
         # PFSS (Potential Field Source Surface)
@@ -85,13 +85,13 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
         # and all predicted values are indistinguisable from model "closed_dipole" 
         B_r     = B_r_dipole * pfss_r_factor 
-        B_phi   = B_phi_dipole
         B_theta = B_theta_dipole * pfss_theta_factor 
+        B_phi   = B_phi_dipole
 
     elif Bfield_geom == 'hybrid':
         B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
-        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
         B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
     
     elif Bfield_geom == 'pfss_parker': 
         # PFSS with a transition to an open Parker spiral
@@ -101,11 +101,11 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
         # and all predicted values are indistinguisable from model "closed_dipole" 
         B_r     = B_r_dipole * pfss_r_factor * (1 - sigmoid) + B_r_parker * sigmoid
-        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
         B_theta = B_theta_dipole *pfss_theta_factor *(1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
 
     # Total stellar wind magnetic field
-    B_sw  = np.sqrt(B_r**2 + B_phi**2) 
+    B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 
 
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
     angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
