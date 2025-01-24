@@ -89,8 +89,8 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-DIPOLE_TILT = 0.0 
-POLAR_ANGLE = np.pi/2
+DIPOLE_TILT = np.pi/4 
+POLAR_ANGLE = np.pi - np.pi/4
 AZIMUTH     = np.pi
 
 TOLERANCE = 1e-2
@@ -99,7 +99,7 @@ TOLERANCE = 1e-2
 # to an open Parker spiral.
 # DELTA_R - Width of the transition region, in units of R_star
 # 
-R_T = 10.0 * np.sin(POLAR_ANGLE)**2
+R_T = 10.0# * np.sin(POLAR_ANGLE)**2 
 DELTA_R = 0.3 * R_T 
 
 # Potential source surface radius (PFSS), in units of R_star

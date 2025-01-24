@@ -57,11 +57,17 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
 
     pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
-
-    if np.abs(np.sin(AZIMUTH)) < TOLERANCE and np.abs(np.sin(POLAR_ANGLE - DIPOLE_TILT)) < TOLERANCE:
+ 
+    #if np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE or np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE :
+    #    if np.abs(np.sin(AZIMUTH)) < TOLERANCE:
+        
+        
+    if (np.abs(AZIMUTH) < TOLERANCE and np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE) or (np.abs(AZIMUTH-np.pi) < TOLERANCE and np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE):
         sigmoid = 1.0
         print('NOTE: You selected a value of POLAR_ANGLE too close to 0 or 180 degrees.')
         print('      The PFSS_Parker model will be equivalent to running a pure Parker spiral.')
+        #else:
+        #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
     else:  
         sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / DELTA_R))
 
