@@ -7,7 +7,7 @@ plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
 plt.figure(figsize=(8,7.5))
 ax = plt.subplot2grid((1,1),(0,0),rowspan=1,colspan=1)
-ax.plot(x, R_planet_eff_normalized, color='k')
+ax.plot(x, R_obs_normalized, color='k')
 ax.plot(x, Rmp/Rp, color='r')
 ax.set_xlabel(xlabel,fontsize=20)
 ax.set_ylabel(r"$R(R_{pl})$")

@@ -224,12 +224,12 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
  
     return r_core, rho_core, magn_moment_planet, B_planet
 
-def R_planet_eff_func(Rp, THETA_M, B_planet, B_tot):
+def R_obs_func(Rp, THETA_M, B_planet, B_tot):
     """ Computes the effective obstacle radius for the planet. 
         If the planet is magnetized, it is normally larger than the planet radius
         (R_planet).
         If unmagnetized, then the effective radius is made equal to Rp.
-        OUTPUT: R_planet_eff - Effective planet radius, in cm 
+        OUTPUT: R_obs - Effective planet radius, in cm 
         INPUT : Rp - Planet radius (cm)
                 THETA_M - angle  (radians), of the intrinsic planetary magnetic field
                 (B_planet) 
@@ -238,12 +238,12 @@ def R_planet_eff_func(Rp, THETA_M, B_planet, B_tot):
                 B_tot    - Magnetic field of the stellar wind at planet position (G)
     """
     if (B_planet > 0.0):
-        R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (Bp/B_tot)**(1./3.)
-        R_planet_eff[R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than R_planet
+        R_obs = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (Bp/B_tot)**(1./3.)
+        R_obs[R_obs < Rp] = Rp # R_obs cannot be smaller than R_planet
     else:
-        R_planet_eff = Rp
+        R_obs = Rp
     
-    return R_planet_eff
+    return R_obs
 
 def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     """ Returns the radio luminosity of an early-type magnetic star, 
@@ -361,20 +361,20 @@ def plasma_freq(n_e = 1.0):
     return nu_plasma
 
 def get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw):
-    """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
+    """It computes the effective radius, R_obs, of the Alfvén wing, in cm, using Eq. 57 in 
        Saur+2013, A&A).  It depends on the orientation, THETA_M, of the intrinsic planetary
        magnetic field (B_planet_arr) wrt the external magnetic field of the stellar wind (B_sw).
-    OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
+    OUTPUT: R_obs (cm) - Array: Effective planet radius, in cm
     INPUT : Rp           (cm) - Float: Planet radius, in cm
             THETA_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
                                 wind magnetic field, in radians
             B_planet_arr (G)  - Array: Planetary magnetic field, in Gauss
             B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
     """
-    R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
-    R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+    R_obs = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
+    R_obs[ R_obs < Rp] = Rp # R_obs cannot be smaller than Rplanet    
 
-    return R_planet_eff
+    return R_obs
 
 def get_P_sw(n_sw, v_rel, T_e, B_sw, mu):
     """
@@ -613,7 +613,7 @@ def beam_solid_angle(COMPUTE_BSA,beta_min, beta_max):
 
     return Omega_min, Omega_max
 
-def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
+def get_S_poynt(R_obs, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
     """
     # Returns Total Poynting flux 
     #
@@ -633,17 +633,17 @@ def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
     # so there seems to be only a factor of two discrepancy, 
     #
     """
-    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (ALPHA_SPI*M_A)**2  \
+    S_poynt_mks = 2 * np.pi * (R_obs/1e2)**2 * (ALPHA_SPI*M_A)**2  \
                     * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
     S_poynt = S_poynt_mks * 1e7 # in cgs units (erg/s) 
     
     S_poynt_Z_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
+                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_obs/1e2)**2 
     S_poynt_Z     = S_poynt_Z_mks * 1e7  # in cgs units
     
     return S_poynt, S_poynt_Z
 
-def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
+def get_S_reconnect(R_obs, B_sw, v_rel, gamma = 0.5):
         """
         OUTPUT: 
             S_reconnect - Poynting flux (array), in cgs
@@ -653,7 +653,7 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
             P_d is computed using Eq. (8) in Lanza (2009; A&A 505, 339–350).
             
         """
-        P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_planet_eff/1e2)**2 * (v_rel/1e2)
+        P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_obs/1e2)**2 * (v_rel/1e2)
         P_d     = P_d_mks * 1e7 # in cgs units 
         S_reconnect = P_d / EPSILON
         

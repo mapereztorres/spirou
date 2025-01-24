@@ -275,8 +275,8 @@ for indi in planet_array:
                 B_planet_arr  = np.linspace(B_PL_MIN, B_PL_MAX, Nsteps)
             
             # Effective radius of the obstacle, in cm
-            # Case 1. À la Saur+2013. 
-            R_planet_eff_Saur = spi.get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw)
+            # Case 1. À la Saur+2013. (NOT currently used)
+            #R_obs_Saur = spi.get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw)
 
 
             # Case 2. À la Zarka (2007), Turnpenney+2018, etc.
@@ -294,18 +294,17 @@ for indi in planet_array:
             Rmp = spi.get_Rmp(P_B_planet, P_dyn_sw, P_th_sw, P_B_sw) * Rp
     
             # The effective radius (in cm) is the radius of the magnetopause
-            R_planet_eff = Rmp
-            R_planet_eff_normalized = R_planet_eff/Rp 
+            # If R_pl_eff < R_p, force R_pl_eff = R_p (R_obs cannot be smaller than Rp
+            R_obs = Rmp
+            R_obs[R_obs < Rp] = Rp 
+            R_obs_normalized = R_obs/Rp 
 
-            # Find value of Bp where R_planet_eff where is larger than Rp
-            indices_R_planet_eff_larger_Rp = np.argwhere(R_planet_eff > Rp)
-            if indices_R_planet_eff_larger_Rp.size > 0:
-                B_planet_eff_rad = B_planet_arr[indices_R_planet_eff_larger_Rp[0]]          
-                #print('value of Bp where magnetosphere is larger than Rp: ',B_planet_eff_rad)
+            # Find value of Bp where R_obs where is larger than Rp
+            #indices_R_obs_larger_Rp = np.argwhere(R_obs > Rp)
+            #if indices_R_obs_larger_Rp.size > 0:
+                #Bp value where R_magnetosphere is larger than Rp
+            #    B_planet_eff_rad = B_planet_arr[indices_R_obs_larger_Rp[0]]          
 
-            # If R_pl_eff < R_p, force R_pl_eff = R_p (R_planet_eff cannot be smaller
-            # than Rp)
-            R_planet_eff[R_planet_eff < Rp] = Rp 
             
             ## Get Poynting fluxes for the Alfvén wing model (Zarka 2007, Saur 2013,
             # Turnpenney+2018)
@@ -313,7 +312,7 @@ for indi in planet_array:
             # Get Poynting flux using Eq. 55 in Saur+2013 (S_poynt) and Eq. 8 in Zarka
             # 2007 (S_poyn_Z), in cgs units. They coincide, except for a factor 2. 
             # In mks units
-            S_poynt, S_poynt_Z = spi.get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f)
+            S_poynt, S_poynt_Z = spi.get_S_poynt(R_obs, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f)
 
             # Get fluxes at Earth, in cgs units for both Saur+ (Flux_r_S...) and
             # Zarka/Lanza (Flux_r_S_Z...),  in erg/s/Hz/cm2
@@ -324,8 +323,9 @@ for indi in planet_array:
             
             
             # Get flux for the reconnection model (Lanza 2009, A&A)
-            S_reconnect, P_d, P_d_mks = spi.get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5)
+            S_reconnect, P_d, P_d_mks = spi.get_S_reconnect(R_obs, B_sw, v_rel, gamma = 0.5)
             
+            #20250124-TBC: if R_obs < Rp:
             Flux_reconnect_min, Flux_reconnect_max = spi.get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_reconnect)
             Flux_reconnect_inter = 10**((np.log10(Flux_reconnect_max) + np.log10(Flux_reconnect_min))/2)
 
@@ -465,7 +465,7 @@ for indi in planet_array:
             out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
                 Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_Z_min,
-                Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_planet_eff,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_planet_eff_normalized,x_superalfv)
+                Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_obs,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_obs_normalized,x_superalfv)
 
             print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
     ################################        
