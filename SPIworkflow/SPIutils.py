@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import math
 
 from setup import *
 from SPIworkflow.constants import *
@@ -24,6 +25,13 @@ def get_velocity_comps(M_star, d_orb, P_rot_star):
     v_corot = d_orb * Omega_star 
 
     return v_orb, v_corot, Omega_star
+ 
+def cart2sph(x, y, z):
+    #r = math.hypot(x, y, z)
+    r = math.hypot(x, y, z)
+    theta = math.atan2(math.hypot(x, y), z)
+    phi=math.atan2(y, x)
+    return r, theta, phi
  
 def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
     """
@@ -52,8 +60,38 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     B_phi_dipole   =  Magnetic_m_dipole/d_orb**3  * phi_dipole_geom
     
     B_r_parker =  B_star * (d_orb/R_star)**(-2)
-    B_theta_parker = 0.0
+    B_theta_parker = 0.0 *np.ones(len(d_orb))
     B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
+    print('v_corot: ',v_corot)
+    print('v_sw: ',v_sw)
+    '''
+    #To Cartesian coordinates
+    Bx=B_r_parker*np.sin(POLAR_ANGLE)*np.cos(AZIMUTH) - B_phi_parker *np.sin(AZIMUTH) 
+    By=B_r_parker*np.sin(POLAR_ANGLE)*np.sin(AZIMUTH) + B_phi_parker *np.cos(AZIMUTH) 
+    Bz=B_r_parker*np.cos(POLAR_ANGLE)
+    
+    #Lets rotate in the XZ plane (thus Y is the rotation axis) by an angle alpha
+    Bx_rot = Bx*np.cos(DIPOLE_TILT) + Bz *np.sin(DIPOLE_TILT)
+    By_rot = By
+    Bz_rot = -Bx*np.sin(DIPOLE_TILT) + Bz *np.cos(DIPOLE_TILT)    
+    
+    print(f'Before rotating: B=({B_phi_parker}')#,{B_theta_parker},{B_phi_parker}')
+    #Now we can reconvert to spherical coordinates
+    B_r_parker=[]
+    B_theta_parker=[]
+    B_phi_parker=[]
+    
+    for ind in range(len(Bx_rot)):
+        Br, Btheta, Bphi= cart2sph(Bx_rot[ind], By_rot[ind], Bz_rot[ind])
+        B_r_parker.append(Br)
+        B_theta_parker.append(Btheta)
+        B_phi_parker.append(Bphi)
+    
+    B_r_parker = Bx_rot*np.sin(POLAR_ANGLE)*np.cos(AZIMUTH)
+    B_theta_parker
+    B_phi_parker
+    print(f'After rotating: B=({B_phi_parker}')#,{B_theta_parker},{B_phi_parker}')
+    '''
 
     pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
@@ -122,6 +160,8 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_r     = B_r_dipole * pfss_r_factor * (1 - sigmoid) + B_r_parker * sigmoid
         B_theta = B_theta_dipole *pfss_theta_factor *(1 - sigmoid) + B_theta_parker * sigmoid
         B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+
+
 
     # Total stellar wind magnetic field
     B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 

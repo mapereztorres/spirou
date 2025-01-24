@@ -89,9 +89,9 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-DIPOLE_TILT = np.pi/4 
-POLAR_ANGLE = np.pi - np.pi/4
-AZIMUTH     = np.pi
+DIPOLE_TILT = 0 
+POLAR_ANGLE = np.pi/2
+AZIMUTH     = 0
 
 TOLERANCE = 1e-2
 
