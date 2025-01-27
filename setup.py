@@ -9,8 +9,8 @@ from SPIworkflow.constants import *
 # for a single target (INPUT_TABLE = False). 
 
 # Uncomment the line that applies
-#INPUT_TABLE = True
-INPUT_TABLE = False
+INPUT_TABLE = True
+#INPUT_TABLE = False
 
 #######################################################################
 #  STUDY CASES
@@ -89,9 +89,9 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-DIPOLE_TILT = np.pi/4 
-POLAR_ANGLE = np.pi - np.pi/4
-AZIMUTH     = np.pi
+DIPOLE_TILT = 0.0
+POLAR_ANGLE = np.pi/2
+AZIMUTH     = 0.0
 
 TOLERANCE = 1e-2
 
@@ -99,7 +99,7 @@ TOLERANCE = 1e-2
 # to an open Parker spiral.
 # DELTA_R - Width of the transition region, in units of R_star
 # 
-R_T = 10.0# * np.sin(POLAR_ANGLE)**2 
+R_T = 10.0 # * np.sin(POLAR_ANGLE)**2 
 DELTA_R = 0.3 * R_T 
 
 # Potential source surface radius (PFSS), in units of R_star
@@ -119,6 +119,7 @@ R_SS = R_T + DELTA_R / 2
 magnetized_pl_arr = [True]
 
 # Default planetary magnetic field, in Tesla
+# bfield_earth is defined in constants.py
 B_PLANET_DEFAULT = bfield_earth
 
 # Setting the stellar magnetic field geometry and the value of the 
@@ -214,13 +215,11 @@ COMPUTE_BSA = False
 ## The standard avlue for OMEGA_MIN for SPI is
 ## taken from the Io-Jupiter interaction.
 ## OMEGA_JUPITER_IO = 0.16 sterradians (DAM emission from a single flux tube)
-
 OMEGA_MIN = OMEGA_JUPITER_IO
+
 # OMEGA_MAX due to star-planet interaction is at most a few times OMEGA_MIN
 # Note: Many papers have wrongly assumed OMEGA_MAX = 1.6 (sterr), which is the 
 # beam solid angle of the whole Jupiter auroral oval. 
-
-# OMEGA_MAX = OMEGA_MIN
 OMEGA_MAX = 3*OMEGA_JUPITER_IO
 
 #####################################

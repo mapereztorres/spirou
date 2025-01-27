@@ -47,25 +47,24 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     # Magnetic moment of the star
     Magnetic_m_dipole =  R_star**3 * B_star
     
-    B_r_dipole     =  Magnetic_m_dipole/d_orb**3  * 2 * r_dipole_geom
-    B_theta_dipole =  Magnetic_m_dipole/d_orb**3  * theta_dipole_geom
-    B_phi_dipole   =  Magnetic_m_dipole/d_orb**3  * phi_dipole_geom
+    B_r_dipole     =  Magnetic_m_dipole / d_orb**3  * 2 * r_dipole_geom
+    B_theta_dipole =  Magnetic_m_dipole / d_orb**3  * theta_dipole_geom
+    B_phi_dipole   =  Magnetic_m_dipole / d_orb**3  * phi_dipole_geom
     
     B_r_parker =  B_star * (d_orb/R_star)**(-2)
     B_theta_parker = 0.0
     B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
 
+    # pffs_r_factor and pfss_theta_factor taken as in Jardine+2002 (MNRAS). See Eqs. 7 and 8 
     pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
  
-    #if np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE or np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE :
-    #    if np.abs(np.sin(AZIMUTH)) < TOLERANCE:
-        
-        
+    # The planet cannot be in the same axis of the dipolar magnetic moment of the star  
+    # If that's the case, a Parker spiral geometry is enforced.
     if (np.abs(AZIMUTH) < TOLERANCE and np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE) or (np.abs(AZIMUTH-np.pi) < TOLERANCE and np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE):
         sigmoid = 1.0
-        print('NOTE: You selected a value of POLAR_ANGLE too close to 0 or 180 degrees.')
-        print('      The PFSS_Parker model will be equivalent to running a pure Parker spiral.')
+        print('NOTE: The combination of selected values for AZIMUTH, POLAR_ANGLE and DIPOLE TILT are such that \nthe planet is located along the axis of the dipolar magnetic moment of the star.')
+        print('Therefore, there are no closed (dipolar) lines, so the PFSS_Parker model will be equivalent to \nrunning a pure Parker spiral.')
         #else:
         #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
     else:  
@@ -223,27 +222,6 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
     B_planet  = magn_moment_planet / R_planet**3 # in units of B_earth
  
     return r_core, rho_core, magn_moment_planet, B_planet
-
-def R_obs_func(Rp, THETA_M, B_planet, B_tot):
-    """ Computes the effective obstacle radius for the planet. 
-        If the planet is magnetized, it is normally larger than the planet radius
-        (R_planet).
-        If unmagnetized, then the effective radius is made equal to Rp.
-        OUTPUT: R_obs - Effective planet radius, in cm 
-        INPUT : Rp - Planet radius (cm)
-                THETA_M - angle  (radians), of the intrinsic planetary magnetic field
-                (B_planet) 
-                          wrt the external magnetic field (B_tot).
-                B_planet -  planet magnetic field (G)
-                B_tot    - Magnetic field of the stellar wind at planet position (G)
-    """
-    if (B_planet > 0.0):
-        R_obs = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (Bp/B_tot)**(1./3.)
-        R_obs[R_obs < Rp] = Rp # R_obs cannot be smaller than R_planet
-    else:
-        R_obs = Rp
-    
-    return R_obs
 
 def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     """ Returns the radio luminosity of an early-type magnetic star, 
