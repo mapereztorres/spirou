@@ -38,6 +38,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
 
     OUTPUT:
     INPUT: 
+        B_star: Float - surface magnetic field at the stellar equator, in Gauss(?) - Check units
     """
 
     r_dipole_geom     = np.cos(DIPOLE_TILT) * np.cos(POLAR_ANGLE) + np.sin(DIPOLE_TILT) * np.sin(POLAR_ANGLE) * np.cos(AZIMUTH)
@@ -298,9 +299,24 @@ def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
     return v_sw_terminal
 
 def get_r_alfven(B_star,R_star, M_star_dot_arr, v_sw_terminal):
-    factor = 4 - 3 * np.sin(theta)**2
+    """
+    Computes the Alfvén radius for a given colatitude value (POLAR_ANGLE).
+    (POLAR_ANGLE = 0 implies at the magnetic equator)
+
+    We follow the formalism in ud-Doula & Owocki (2002, ApJ)
+
+    OUTPUT: r_alfvén - Alfvén radius, in stellar radii
+    INPUT: 
+        B_star - in Gauss
+        R_star - in cm
+        M_star_dot_arr - units?
+        v_sw_terminal - terminal wind speed, in cm/s
+    """
+    factor = 4 - 3 * np.sin(theta)**2  ## factor in RHS of Eq. 8 
+
     def equation(R_ratio, eta_star):
         return (R_ratio**(2*q-2) - R_ratio**(2*q-3)) - eta_star * factor
+
     eta_star = (B_star/2)**2 * R_star**2 / (M_star_dot_arr[0] * v_sw_terminal)
     #eta_star = 0.4 ((B_star/2)/100)**2 * (R_star/1e12)**2 / (M_star_dot_arr[0]/(M_sun_dot) * v_sw_terminal)
     R_initial_guess = 2  # Initial guess for R_A/R_star
