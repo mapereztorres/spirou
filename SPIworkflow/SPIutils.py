@@ -652,7 +652,11 @@ def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
     
     
     
-def get_confinement(P_dyn_sw, P_B_sw):
-    eta = P_B_sw / (P_dyn_sw/2)
+def get_confinement(P_dyn_sw, P_B_sw): 
+    """
+     Computes the "Magnetic confinement parameter" as in ud-Doula & Owocki (2002)
+    """
+    P_kin_sw = P_dyn_sw/2
+    eta = P_B_sw / P_kin_sw
     return eta
     

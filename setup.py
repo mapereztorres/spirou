@@ -58,7 +58,7 @@ R_SPI = 1.0
 ####################################################
 
 ### Consider free-free absorption (True => Yes; False => No)
-freefree = True
+freefree = False
 
 # Ionization state (Z = 1 - fully ionized hydrogen)
 Z = 1 
@@ -91,7 +91,7 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-DIPOLE_TILT = 51*np.pi/180
+DIPOLE_TILT = 0.0
 POLAR_ANGLE = np.pi/2
 AZIMUTH     = 0.0
 
