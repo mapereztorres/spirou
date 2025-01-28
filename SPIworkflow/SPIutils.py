@@ -276,7 +276,7 @@ def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
         function,  with D_r obtained using Eq. 18. In turn, Eq. 18 is taken from Eq. 15 in Cranmer 2004. 
 
        OUTPUT:  v_sw_terminal (cm/s) - Float: terminal speed of the isothermal stellar wind, in cm/s.
-       INPUT:   R_star (cm)          -  Float Radius of the star
+       INPUT:   R_star (cm)          - Float Radius of the star
                 M_star (g)           - Float: Mass of star, in grams
                 T_corona (K)         - Float: Temperature at the base of the corona, in Kelvin
                 m_av     (g)         - Float: Average particle mass of the stellar wind, in grams
@@ -297,6 +297,15 @@ def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
 
     return v_sw_terminal
 
+def get_r_alfven(B_star,R_star, M_star_dot_arr, v_sw_terminal):
+    factor = 4 - 3 * np.sin(theta)**2
+    def equation(R_ratio, eta_star):
+        return (R_ratio**(2*q-2) - R_ratio**(2*q-3)) - eta_star * factor
+    eta_star = (B_star/2)**2 * R_star**2 / (M_star_dot_arr[0] * v_sw_terminal)
+    #eta_star = 0.4 ((B_star/2)/100)**2 * (R_star/1e12)**2 / (M_star_dot_arr[0]/(M_sun_dot) * v_sw_terminal)
+    R_initial_guess = 2  # Initial guess for R_A/R_star
+    r_alfven = fsolve(equation, R_initial_guess, args=(eta_star))[0]
+    return r_alfven
     
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
@@ -321,7 +330,7 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = 0.5 * m_p):
                 v_sw       - Speed of stellar wind at distance d, in cm/s
                 m_av       - average particle mass of the stellar wind (= mu * m_p) in grams
     """
-    M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
+    
     ### WARNING: when using the " *= " format below, the original value of M_star_dot is
     # overwritten outside the function, even if not present in return!!
     #

@@ -20,6 +20,7 @@ mJy     = 1.0e-26               # 1 mJy, in erg/s/cm2/Hz
 G     = 6.67408e-8              # Gravitational constant (cgs)
 M_sun = Msun = 1.9891e33        # Mass of Sun, in g
 R_sun = Rsun = 6.9599e10        # Radius of the Sun, in cm
+M_sun_dot = 2e-14               # Sun mass-loss rate, in Msun/yr
 M_earth = 5.9742e+27            # in g
 R_earth = 6.378136e+8           # in cm
 M_jup = M_jupiter  = 1.8987e+30 # in g
