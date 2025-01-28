@@ -22,7 +22,7 @@ orange_patch = mpatches.Patch(color='orange', label=r'v_${\rm sound}$')
 ax1.set_xscale('log')
 ax1.set_yscale('log')          
 ax1.legend(handles=[blue_patch,red_patch,black_patch,orange_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-
+ax1.axhline(y = v_sw_terminal/1e5)
 
 ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
 ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')

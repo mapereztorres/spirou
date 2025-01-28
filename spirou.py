@@ -195,6 +195,9 @@ for indi in planet_array:
     # Stellar wind velocity at the closest distance to the star, in cm/s
     v_sw_base = v_sw[0]    
      
+    # Terminal speed of the isothermal stellar wind, in cm/s
+    v_sw_terminal = spi.get_v_sw_terminal(R_star, M_star, T_corona, m_av)
+    
     # Plasma number density at base of the corona, in cm^(-3)
     n_base_corona = spi.n_wind(M_star_dot_arr, R_star, v_sw_base, m_av) 
 

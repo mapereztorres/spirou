@@ -269,6 +269,34 @@ def v_stellar_wind(d_orb, M_star, T_corona, m_av):
         v_sw[i]  = np.sqrt(v_sw2[i].real)
 
     return v_sound, r_sonic, v_sw
+
+def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
+    """ This function computes the terminal speed of an isothermal stellar wind
+        The stellar wind speed is computed as in Turnpenney+18, using the Lambert W
+        function,  with D_r obtained using Eq. 18. In turn, Eq. 18 is taken from Eq. 15 in Cranmer 2004. 
+
+       OUTPUT:  v_sw_terminal (cm/s) - Float: terminal speed of the isothermal stellar wind, in cm/s.
+       INPUT:   R_star (cm)          -  Float Radius of the star
+                M_star (g)           - Float: Mass of star, in grams
+                T_corona (K)         - Float: Temperature at the base of the corona, in Kelvin
+                m_av     (g)         - Float: Average particle mass of the stellar wind, in grams
+    """
+    v_sound = np.sqrt(k_B * T_corona / m_av) 
+    r_sonic =  G * M_star / (2 * v_sound**2) # Radius of sonic point, in cgs units
+
+    # Terminal speed -- computed at 200 stellar radii 
+    r_terminal = 200 * R_star
+
+    D_r = (r_terminal / r_sonic)**(-4) * np.exp(4*(1 - r_sonic/r_terminal) - 1)
+    #v_sw2 = np.zeros(len(r_terminal), dtype=complex)
+    #v_sw  = np.zeros(len(r_terminal))
+
+    v_sw_terminal2 = -v_sound**2 * lambertw(-D_r, k=-1)
+    # The actual speeed is the real part 
+    v_sw_terminal  = np.sqrt(v_sw_terminal2.real)
+
+    return v_sw_terminal
+
     
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
