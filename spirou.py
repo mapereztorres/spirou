@@ -69,6 +69,7 @@ if INPUT_TABLE == True:
 
     ############## CHECK THAT THE DATA TABLE IS CORRECT
     print('Reading table: ')
+    pd.set_option('display.max_columns', None)
     print(data)
 
     ############## TABLE INITIALIZATION 
@@ -289,7 +290,8 @@ for indi in planet_array:
 
             # Stellar wind pressure, in erg/cm3
             P_sw, P_dyn_sw, P_th_sw, P_B_sw = spi.get_P_sw(n_sw_planet, v_rel, T_corona, B_sw, mu)
-
+            eta = spi.get_confinement(P_dyn_sw, P_B_sw)
+            #alfven_alt = spi.get_alfven_alt(eta, POLAR_ANGLE)
             # Radius of magnetopause, in cm
             Rmp = spi.get_Rmp(P_B_planet, P_dyn_sw, P_th_sw, P_B_sw) * Rp
     
@@ -468,6 +470,7 @@ for indi in planet_array:
                 Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_obs,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_obs_normalized,x_superalfv)
 
             print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
+            
     ################################        
     filename = 'plotting/plot_model_comparison.py'
     with open(filename) as file:

@@ -1,6 +1,8 @@
 import numpy as np
 from SPIworkflow.constants import *
 
+#python spirou.py 2>&1 | tee logfile.txt
+
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -36,7 +38,7 @@ D_ORB_LIM = np.nan
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+2
+M_DOT_MAX = 1e+0
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -56,7 +58,7 @@ R_SPI = 1.0
 ####################################################
 
 ### Consider free-free absorption (True => Yes; False => No)
-freefree = False
+freefree = True
 
 # Ionization state (Z = 1 - fully ionized hydrogen)
 Z = 1 
@@ -89,7 +91,7 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
-DIPOLE_TILT = 0.0
+DIPOLE_TILT = 51*np.pi/180
 POLAR_ANGLE = np.pi/2
 AZIMUTH     = 0.0
 

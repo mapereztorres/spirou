@@ -35,11 +35,13 @@ black_patch = mpatches.Patch(color='black', label=r'B$_{\rm perp}$')
 ax2.set_xscale('log')
 ax2.set_yscale('log')            
 ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+ax2.set_ylim([1e-5,1e5])
 
 ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
 ax3.set_xscale('log')
 ax3.set_yscale('log')
-
+#ax3.plot(x, eta*np.ones(len(x)), color='k', lw=lw)
+#ax3.axyline(y = xnom, ls='--', color='k', lw=2)
 
 ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
 ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
