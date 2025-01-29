@@ -199,8 +199,17 @@ for indi in planet_array:
     # Terminal speed of the isothermal stellar wind, in cm/s
     v_sw_terminal = spi.get_v_sw_terminal(R_star, M_star, T_corona, m_av)
     
-    #Alfven distance, in cm
-    eta_star, R_alfven = spi.get_R_alfven(B_star, R_star, M_star_dot_arr, v_sw_terminal)
+    # Magnetic confinement parameter at the stellar equator
+    eta_star = spi.get_eta_star(B_star, R_star, M_star_dot_arr, v_sw_terminal)
+
+    #Alfven radius at the specified POLAR_ANGLE, in stellar radii
+    R_alfven = spi.get_R_alfven(eta_star, colatitude=POLAR_ANGLE)
+
+    #Alfven radius at the pole, in stellar radii
+    R_alfven_pole = spi.get_R_alfven(eta_star, colatitude = 0)
+
+    # Latitude above which all magnetic field lines are open
+    theta_A_deg, latitude = spi.get_theta_A(R_alfven_pole)
 
     # Plasma number density at base of the corona, in cm^(-3)
     n_base_corona = spi.n_wind(M_star_dot_arr, R_star, v_sw_base, m_av) 
@@ -249,7 +258,7 @@ for indi in planet_array:
             elif Bfield_geom_arr[ind] == 'pfss_parker':   
                 selected_geometry="HYBRID PFSS - PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
-            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel)
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)

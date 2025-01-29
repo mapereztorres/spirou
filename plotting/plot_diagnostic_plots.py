@@ -76,11 +76,12 @@ ax2.axvline(x = xnom, ls='--', color='k', lw=2)
 ax3.axvline(x = xnom, ls='--', color='k', lw=2)
 ax4.axvline(x = xnom, ls='--', color='k', lw=2)
         
-if STUDY == "D_ORB":
-    ax4.set_xlim([2,x[-1]])
-if M_A[-1]>1:
+if (M_A > 1).any():
     ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   
 ax4.set_xlabel(xlabel,fontsize=20)
+
+if STUDY == "D_ORB":
+    ax4.set_xlim([2,x[-1]])
 
 fig.set_figwidth(8)
 fig.set_figheight(20)
