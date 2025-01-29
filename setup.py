@@ -104,15 +104,20 @@ TOLERANCE = 1e-2
 
 # R_T and DELTA_R are used for the hybrid model, i.e. the transition from a pure dipole
 # to an open Parker spiral.
-# DELTA_R - Width of the transition region, in units of R_star
+# DELTA_R - Width of the transition region, 
 # 
-R_T = 10.0 # * np.sin(POLAR_ANGLE)**2 
-DELTA_R = 0.3 * R_T 
+#R_T = 10.0 # * np.sin(POLAR_ANGLE)**2 
+DELTA_R = 0.05 * R_sun
 
 # Potential source surface radius (PFSS), in units of R_star
 # R__SS is defined as below, due to the boundary conditions imposed on the components of
 # the closed magnetic field geometry (see, e.g., Eqns. 5 and 6 in Jardine+2002, MNRAS)
-R_SS = R_T + DELTA_R / 2
+#R_SS = R_T + DELTA_R / 2
+
+
+# R_ALFVEN_GUESS - Initial guess for the Alfvén radius (see get_R_alfven in SPIutils.py)
+#                  in units of R_star (stellar radii)
+R_ALFVEN_GUESS = 20.0
 
 #####################################
 # PLANET MAGNETIC FIELD SETUP
