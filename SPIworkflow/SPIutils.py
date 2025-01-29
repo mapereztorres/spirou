@@ -26,7 +26,7 @@ def get_velocity_comps(M_star, d_orb, P_rot_star):
 
     return v_orb, v_corot, Omega_star
  
-def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
+def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven):
     """
     Computes the radial and azimuthal components of the stellar wind magnetic field for
     three different geometries: 
@@ -34,13 +34,24 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     2.- A pure (closed) dipole (closed_dipole)
     3.- A modified dipole (potential field source surface, PFSS). 
     4.- A hybrid model, using a sigmoid to model the transition from a pure closed
-    dipole to an open Parker spiral magnetic field geometry. It uses also a source
-    surface radius, R_SS, with a transition region of width DELTA_R (see setup.py.
+    dipole to an open Parker spiral magnetic field geometry. 
 
     OUTPUT:
     INPUT: 
-        B_star: Float - surface magnetic field at the stellar equator, in Gauss(?) - Check units
+        Bfield_geom (string): 
+        B_star      (float) : surface magnetic field at the stellar equator, in Gauss
+        d_orb       (array) : array of orbital distances to the planet, in cm
+        R_star      (float) : Radius of star, in cm
+        v_corot     (array) : array of corotation speeds, in cm/s
+        v_sw        (array) : stellar wind speed, in cm/s
+        angle_v_rel (array) : Angle of the relative velocity of the planet wrt the
+                              stellar wind velocity (radians)
+        R_alfven    (array) : Alfvén radius, in units of stellar radii
     """
+
+    
+    R_SS = R_T = R_alfven
+    Delta_R_norm = DELTA_R / R_star
 
     r_dipole_geom     = np.cos(DIPOLE_TILT) * np.cos(POLAR_ANGLE) + np.sin(DIPOLE_TILT) * np.sin(POLAR_ANGLE) * np.cos(AZIMUTH)
     theta_dipole_geom = np.cos(DIPOLE_TILT) * np.sin(POLAR_ANGLE) - np.sin(DIPOLE_TILT) * np.cos(POLAR_ANGLE) * np.cos(AZIMUTH)
@@ -70,8 +81,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         #else:
         #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
     else:  
-        sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / DELTA_R))
-
+        sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / Delta_R_norm))
 
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
@@ -96,6 +106,11 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_theta = B_theta_dipole
         B_phi   = B_phi_dipole
 
+    elif Bfield_geom == 'hybrid':
+        B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
+        B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+
     elif Bfield_geom == 'closed_pfss': 
         # PFSS (Potential Field Source Surface)
         #
@@ -108,11 +123,6 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_theta = B_theta_dipole * pfss_theta_factor 
         B_phi   = B_phi_dipole
 
-    elif Bfield_geom == 'hybrid':
-        B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
-        B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
-        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
-    
     elif Bfield_geom == 'pfss_parker': 
         # PFSS with a transition to an open Parker spiral
         #
@@ -299,49 +309,76 @@ def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
 
     return v_sw_terminal
 
-def get_R_alfven(B_star, R_star, M_star_dot_arr, v_sw_terminal):
+
+def get_eta_star(B_star, R_star, M_star_dot_arr, v_sw_terminal):
     """
-    Computes the Alfvén radius for a given colatitude value (POLAR_ANGLE).
-    (POLAR_ANGLE = 0 implies at the magnetic equator)
-
-    We follow the formalism in ud-Doula & Owocki (2002, ApJ)
-
+    Compute the magnetic confinement parameter at the stellar equator.
     OUTPUT: 
-        eta_star (array) - Magnetic confinement parameter at the equator of the stellar
-        surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
-        R_alfvén (array) - Alfvén radius at a certain value of the POLAR_ANGLE (theta ==
-                           colatitude). It returns an array of the same length as M_star_dot_arr.
+        eta_star (array):  Magnetic confinement parameter at the equator of the stellar
+                           surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+                           It returns an array of the same length as M_star_dot_arr.
+
     INPUT: 
         B_star (float)          - stellar magnetic field in the equator (Gauss)
         R_star (float)          - Stellar radius, in cm
         M_star_dot_arr (array)  - Stellar mass loss rate,  in units of M_sun_dot
         v_sw_terminal  (float)  - terminal wind speed, in cm/s
     """
+
     #Convert M_star_dot_arr to cgs units
     M_star_dot_cgs = M_star_dot_arr * M_sun_dot * (M_sun / yr2sec) 
-    
-    #print(f'M_star_dot_arr  = {M_star_dot_arr}; M_sun_dot = {M_sun_dot:.2e} yr2sec = {yr2sec:.2e}\n M_star_dot_cgs (gm/s) = {M_star_dot_cgs}')
 
-    print(f'\nB_star (G) = {B_star:.2f}; R_star (R_sun) = {(R_star/R_sun):.2f}\n M_star_dot_cgs (gm/s) = {M_star_dot_cgs}; v_sw_terminal (km/s) = {v_sw_terminal/1e5:.2f}')
+    # magnetic confinement parameter
+    # B_star = B_0 / 2 (as defined in ud-Doula & Owocki 2002)
+    eta_star = B_star**2 * R_star**2 / (M_star_dot_cgs * v_sw_terminal)
 
-    factor = 4 - 3 * np.sin(POLAR_ANGLE)**2  ## factor in RHS of Eq. 8 
+    return eta_star
+
+def get_R_alfven(eta_star, colatitude):
+    """
+    Computes the Alfvén radius for a given colatitude value 
+    (colatitude = 90 deg implies at the magnetic equator)
+    We follow the formalism in ud-Doula & Owocki (2002, ApJ)
+
+    OUTPUT: 
+        R_alfvén (array) - Alfvén radius at a certain value of the POLAR_ANGLE (theta ==
+                           colatitude). 
+                           It returns an array of the same length as M_star_dot_arr.
+                           In units of stellar radii
+    INPUT: 
+        eta_star (array):  Magnetic confinement parameter at the equator of the stellar
+                           surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+        colatitude (float)  - colatitude at which to determine R_alfven, in radians
+    """
+    factor = 4 - 3 * np.sin(colatitude)**2  ## factor in RHS of Eq. 8 
 
     def equation(R_ratio, eta_star):
         return (R_ratio**(2*Q_DIPOLE-2) - R_ratio**(2*Q_DIPOLE-3)) - eta_star * factor
 
-    B_0 = 2 * B_star # to be consistent with nomenclature in ud-Doula & Owocki (2002) 
 
-    # magnetic confinement 
-    eta_star = B_0**2 * R_star**2 / (M_star_dot_cgs * v_sw_terminal)
+    R_alfven = fsolve(equation, R_ALFVEN_GUESS, args=(eta_star))[0]
 
-    R_initial_guess = 20  # Initial guess for R_A/R_star
-    R_alfven = fsolve(equation, R_initial_guess, args=(eta_star))[0]
-
-    #print(f'\neta_star = {eta_star[0]:.2e}; R_alfven (R_star) = {R_alfven[0]:.2e}')
-    print(f'eta_star = {eta_star[0]}')
-    print(f'R_alfven (R_star) = {R_alfven}')
-    return eta_star, R_alfven
+    return R_alfven
     
+
+def get_theta_A(R_alfven_pole):
+    """
+    OUTPUT: theta_A (array): colatitude at which the last closed magnetic line of the
+            dipole closes the stellar surface. 
+            See Eq. 9 in ud-Doula & Owocki (2002). Note that here R_alfven_pole is
+            already normalized to R_star.
+    INPUT: 
+        R_alfvén_pole (array):  Alfvén radius at the pole of the star (theta = 0)
+                                It returns an array.  In units of stellar radii
+    """
+
+    theta_A = np.arcsin(np.sqrt(1./R_alfven_pole))
+    theta_A_deg = np.degrees(theta_A)
+    latitude = np.abs(90. - theta_A_deg)
+    
+    return theta_A_deg, latitude
+
+
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
     mass of the stellar wind, given the fraction of protons.
