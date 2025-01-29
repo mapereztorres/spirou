@@ -121,24 +121,25 @@ for indi in planet_array:
     else: 
         print(f'RUNNING SPIROU FOR EXOPLANET {Exoplanet}\n')
     # Fill B_star column if empty. Uses original units from table
+    # B_star - stellar magnetic field at the equator, in Gauss
     if pd.isna(B_star):
          B_star= spi.B_starmass(star_mass=data['mass_star(m_sun)'][indi],Prot=data['p_rot(days)'][indi])
          data['bfield_star(gauss)'][indi]=B_star
          # Eventually include uncertainties in B _star
          data['e_bfield_star'][indi]='TBD'
 
-    #B_star = data['bfield_star(gauss)'][indi]/R_SPI**3    # Stellar surface magnetic field
-    B_star = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
+    B_spi = B_star * (R_SPI)**-3                        # Magnetic field where the SPI emission takes place (R_SPI)  
+
     #nu_ecm = 2.8e6 * B_star # cyclotron freq, in Hz
 
     # cyclotron (= ECM) frequency, and ECM bandwith, in Hz
-    nu_ecm = e*B_star/(2*np.pi * m_e * c) 
+    nu_ecm = e * B_spi/(2*np.pi * m_e * c) 
     Delta_nu_cycl = nu_ecm 
 
     #  Check whether M_star_dot is read from input table/file
     if np.isnan(M_star_dot):
         if INPUT_TABLE == True:       
-            data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
+            #data['M_star_dot(M_sun_dot)'][indi] = spi.Mdot_star(R_star=data['radius_star(r_sun)'][indi], M_star=data['mass_star(m_sun)'][indi], Prot_star=data['p_rot(days)'][indi])/M_sun_dot
             #M_star_dot = data['M_star_dot(M_sun_dot)'][indi]     # Stellar mass loss rate in solar units 
             M_star_dot = spi.Mdot_star(R_star=R_star/R_sun, M_star=M_star/M_sun, Prot_star=P_rot_star/day)/M_sun_dot
         else:
@@ -153,7 +154,7 @@ for indi in planet_array:
     ###############################################
 
     # Electron gyrofrequency and ECM bandwidth 
-    #gyrofreq = e*B_star/(2*np.pi * m_e * c) # in cgs units
+    #gyrofreq = e*B_spi/(2*np.pi * m_e * c) # in cgs units
     #Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
 
     # Max. orbital distance, in units of R_star
@@ -199,8 +200,8 @@ for indi in planet_array:
     v_sw_terminal = spi.get_v_sw_terminal(R_star, M_star, T_corona, m_av)
     
     #Alfven distance, in cm
-    #r_alfven = get_r_alfven(B_star,R_star, M_star_dot_arr, v_sw_terminal)
-    
+    eta_star, R_alfven = spi.get_R_alfven(B_star, R_star, M_star_dot_arr, v_sw_terminal)
+
     # Plasma number density at base of the corona, in cm^(-3)
     n_base_corona = spi.n_wind(M_star_dot_arr, R_star, v_sw_base, m_av) 
 
@@ -248,8 +249,7 @@ for indi in planet_array:
             elif Bfield_geom_arr[ind] == 'pfss_parker':   
                 selected_geometry="HYBRID PFSS - PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
-            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_star, d_orb, R_star, v_corot,
-                    v_sw, angle_v_rel)
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
@@ -258,8 +258,7 @@ for indi in planet_array:
             if magnetized_pl_arr[ind1]: # magnetized planet
                 planet_magnetized='MAGNETIZED PLANET'
                 if B_planet_law == 'Sano':
-                    # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth 
-                    # Assumes a tidally locked planet, i.e., the rotation period of the
+                    # Planetary magnetic field, using Sano's (1993) scaling law, in units of B_earth # Assumes a tidally locked planet, i.e., the rotation period of the
                     # planet equals its orbital one. 
                     # WARNING: For small rotation periods, the inferred magnetic field
                     # is too large to be reliable at all.
@@ -470,8 +469,7 @@ for indi in planet_array:
             outfileTXT = os.path.join(FOLDER + '/TXT/' +outfile+'.txt')
             out_to_file = OutputWriter(outfileTXT)
 
-            out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, 
-                Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
+            out_to_file.write_parameters(T_corona, M_star_dot, mu, d, R_star, M_star, P_rot_star, B_star, Exoplanet, Rp, Mp, r_orb, P_orb, loc_pl, M_star_dot_loc, n_base_corona,
                 nu_plasma_corona, nu_ecm, Flux_r_S_min, Flux_r_S_max, rho_sw_planet, n_sw_planet, v_sw_base, Flux_r_S_Z_min,
                 Flux_r_S_Z_max, v_sw, v_rel, v_alf, M_A, B_sw, Rmp, R_obs,x_larger_rms,x_smaller_rms,STUDY,Omega_min, Omega_max,R_obs_normalized,x_superalfv)
 

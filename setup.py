@@ -84,6 +84,10 @@ NSTEPS_FF = 10000
 Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 #Bfield_geom_arr=['pfss_parker']
 
+# INDEX of the DIPOLE
+# Q_DIPOLE = 3.0 => DIPOLE
+Q_DIPOLE = 3.0
+
 # DIPOLE TILT - Tilt of the dipolar magnetic moment of the star wrt the rotation axis
 # (in radians).
 # POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
@@ -91,6 +95,7 @@ Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
 # NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
 # TOLERANCE parameter to prevent hravoc.
 # Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
+# 
 DIPOLE_TILT = 0.0
 POLAR_ANGLE = np.pi/2
 AZIMUTH     = 0.0

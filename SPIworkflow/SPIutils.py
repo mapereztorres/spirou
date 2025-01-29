@@ -6,6 +6,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from setup import *
 from SPIworkflow.constants import *
 from scipy.special import lambertw
+from scipy.optimize import fsolve
 
 
 # FUNCTION DEFINITIONS 
@@ -298,30 +299,48 @@ def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
 
     return v_sw_terminal
 
-def get_r_alfven(B_star,R_star, M_star_dot_arr, v_sw_terminal):
+def get_R_alfven(B_star, R_star, M_star_dot_arr, v_sw_terminal):
     """
     Computes the Alfvén radius for a given colatitude value (POLAR_ANGLE).
     (POLAR_ANGLE = 0 implies at the magnetic equator)
 
     We follow the formalism in ud-Doula & Owocki (2002, ApJ)
 
-    OUTPUT: r_alfvén - Alfvén radius, in stellar radii
+    OUTPUT: 
+        eta_star (array) - Magnetic confinement parameter at the equator of the stellar
+        surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+        R_alfvén (array) - Alfvén radius at a certain value of the POLAR_ANGLE (theta ==
+                           colatitude). It returns an array of the same length as M_star_dot_arr.
     INPUT: 
-        B_star - in Gauss
-        R_star - in cm
-        M_star_dot_arr - units?
-        v_sw_terminal - terminal wind speed, in cm/s
+        B_star (float)          - stellar magnetic field in the equator (Gauss)
+        R_star (float)          - Stellar radius, in cm
+        M_star_dot_arr (array)  - Stellar mass loss rate,  in units of M_sun_dot
+        v_sw_terminal  (float)  - terminal wind speed, in cm/s
     """
-    factor = 4 - 3 * np.sin(theta)**2  ## factor in RHS of Eq. 8 
+    #Convert M_star_dot_arr to cgs units
+    M_star_dot_cgs = M_star_dot_arr * M_sun_dot * (M_sun / yr2sec) 
+    
+    #print(f'M_star_dot_arr  = {M_star_dot_arr}; M_sun_dot = {M_sun_dot:.2e} yr2sec = {yr2sec:.2e}\n M_star_dot_cgs (gm/s) = {M_star_dot_cgs}')
+
+    print(f'\nB_star (G) = {B_star:.2f}; R_star (R_sun) = {(R_star/R_sun):.2f}\n M_star_dot_cgs (gm/s) = {M_star_dot_cgs}; v_sw_terminal (km/s) = {v_sw_terminal/1e5:.2f}')
+
+    factor = 4 - 3 * np.sin(POLAR_ANGLE)**2  ## factor in RHS of Eq. 8 
 
     def equation(R_ratio, eta_star):
-        return (R_ratio**(2*q-2) - R_ratio**(2*q-3)) - eta_star * factor
+        return (R_ratio**(2*Q_DIPOLE-2) - R_ratio**(2*Q_DIPOLE-3)) - eta_star * factor
 
-    eta_star = (B_star/2)**2 * R_star**2 / (M_star_dot_arr[0] * v_sw_terminal)
-    #eta_star = 0.4 ((B_star/2)/100)**2 * (R_star/1e12)**2 / (M_star_dot_arr[0]/(M_sun_dot) * v_sw_terminal)
-    R_initial_guess = 2  # Initial guess for R_A/R_star
-    r_alfven = fsolve(equation, R_initial_guess, args=(eta_star))[0]
-    return r_alfven
+    B_0 = 2 * B_star # to be consistent with nomenclature in ud-Doula & Owocki (2002) 
+
+    # magnetic confinement 
+    eta_star = B_0**2 * R_star**2 / (M_star_dot_cgs * v_sw_terminal)
+
+    R_initial_guess = 20  # Initial guess for R_A/R_star
+    R_alfven = fsolve(equation, R_initial_guess, args=(eta_star))[0]
+
+    #print(f'\neta_star = {eta_star[0]:.2e}; R_alfven (R_star) = {R_alfven[0]:.2e}')
+    print(f'eta_star = {eta_star[0]}')
+    print(f'R_alfven (R_star) = {R_alfven}')
+    return eta_star, R_alfven
     
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
