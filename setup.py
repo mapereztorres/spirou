@@ -112,7 +112,7 @@ DELTA_R = 0.05 * R_sun
 # Potential source surface radius (PFSS), in units of R_star
 # R__SS is defined as below, due to the boundary conditions imposed on the components of
 # the closed magnetic field geometry (see, e.g., Eqns. 5 and 6 in Jardine+2002, MNRAS)
-#R_SS = R_T + DELTA_R / 2
+R_SS = 4.5
 
 
 # R_ALFVEN_GUESS - Initial guess for the Alfvén radius (see get_R_alfven in SPIutils.py)

@@ -50,7 +50,8 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     """
 
     
-    R_SS = R_T = R_alfven
+    #R_SS = R_T = R_alfven
+    R_T = R_SS
     Delta_R_norm = DELTA_R / R_star
 
     r_dipole_geom     = np.cos(DIPOLE_TILT) * np.cos(POLAR_ANGLE) + np.sin(DIPOLE_TILT) * np.sin(POLAR_ANGLE) * np.cos(AZIMUTH)
