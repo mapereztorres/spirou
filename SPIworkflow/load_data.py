@@ -204,7 +204,7 @@ def load_target(data, indi):
     R_star = data['radius_star(r_sun)'][indi] * R_sun    # Stellar radius in cm
     M_star = data['mass_star(m_sun)'][indi] * M_sun      # Stellar mass in g,
     P_rot_star = float(data['p_rot(days)'][indi]) * day  # Rotation period  of star, in sec
-    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field
+    B_star = data['bfield_star(gauss)'][indi]            # Stellar surface magnetic field at the Equator, in Gauss
 
     # Read info for planets in table
     #if source_data == './INPUT/SPI-targets.csv' or source_data == './INPUT/table.csv':

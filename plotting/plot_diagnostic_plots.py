@@ -21,8 +21,9 @@ blue_patch = mpatches.Patch(color='blue', label=r'v_${\rm sw}$')
 orange_patch = mpatches.Patch(color='orange', label=r'v_${\rm sound}$')
 ax1.set_xscale('log')
 ax1.set_yscale('log')          
+#ax1.set_ylim(100,2000)
 ax1.legend(handles=[blue_patch,red_patch,black_patch,orange_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
-
+ax1.axhline(y = v_sw_terminal/1e5)
 
 ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
 ax2.plot(x, B_phi*np.ones(len(x)), color='g', linestyle='dashdot')
@@ -35,11 +36,14 @@ black_patch = mpatches.Patch(color='black', label=r'B$_{\rm perp}$')
 ax2.set_xscale('log')
 ax2.set_yscale('log')            
 ax2.legend(handles=[red_patch,green_patch,blue_patch,black_patch],loc='upper right',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+ax2.set_ylim([1e-5,1e5])
 
 ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
 ax3.set_xscale('log')
 ax3.set_yscale('log')
-
+#ax3.plot(x, eta*np.ones(len(x)), color='k', lw=lw)
+#ax3.axyline(y = xnom, ls='--', color='k', lw=2)
+ax3.axvline(x = R_alfven)
 
 ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
 ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
@@ -72,23 +76,42 @@ ax2.axvline(x = xnom, ls='--', color='k', lw=2)
 ax3.axvline(x = xnom, ls='--', color='k', lw=2)
 ax4.axvline(x = xnom, ls='--', color='k', lw=2)
         
-if STUDY == "D_ORB":
-    ax4.set_xlim([2,x[-1]])
-if M_A[-1]>1:
+if (M_A > 1).any():
     ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   
 ax4.set_xlabel(xlabel,fontsize=20)
+
+if STUDY == "D_ORB":
+    ax4.set_xlim([2,x[-1]])
 
 fig.set_figwidth(8)
 fig.set_figheight(20)
 #diagnostic_string = "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf' 
-diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(BETA_EFF_MIN*100)+'-'+str(BETA_EFF_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'
+diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'
 
-if Bfield_geom_arr[ind]:
+#if Bfield_geom_arr[ind] == 'open_parker_spiral':
     #out_diagnos =  FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Open-Bstar" + diagnostic_string 
-    geometry = "-Open-Bstar" 
-else:
+#    geometry = "-Open-spiral-Bstar" 
+#elif Bfield_geom_arr[ind]== 'closed_dipole':
     #out_diagnos =  FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-diagnostic" + "-Closed-Bstar" + diagnostic_string 
-    geometry = "-Closed-Bstar"
-out_diagnos =  FOLDER + '/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
+#    geometry = "-Closed-dipole-Bstar"
+#else:
+#    geometry = "-Closed-PFSS-Bstar"
+out_diagnos =  FOLDER + '/'+ STUDY +"-diagnostic-"  + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
 plt.savefig(out_diagnos,bbox_inches='tight')
+
+df_B_tot= pd.DataFrame({
+     STUDY: x,
+    'Bsw': B_sw*np.ones(len(x))
+})  
+df_B_tot.to_csv(FOLDER + '/CSV/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'_B_sw.csv')
+
+
+df_M_A = pd.DataFrame({
+    STUDY: x,
+    'M_A': M_A
+})  
+df_M_A.to_csv(FOLDER + '/CSV/' +"diagnostic-" + STUDY + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'_M_A.csv')
+
+
+
 

@@ -6,6 +6,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from setup import *
 from SPIworkflow.constants import *
 from scipy.special import lambertw
+from scipy.optimize import fsolve
 
 
 # FUNCTION DEFINITIONS 
@@ -25,35 +26,117 @@ def get_velocity_comps(M_star, d_orb, P_rot_star):
 
     return v_orb, v_corot, Omega_star
  
-def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
-    """Computes the radial, azimuthal components of the stellar wind magnetic field for
-    an open (Parker spiral) and a closed (dipolar) magnetic field topologies of the host
-    star.
+def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven):
+    """
+    Computes the radial and azimuthal components of the stellar wind magnetic field for
+    three different geometries: 
+    1.- An open Parker spiral (open_parker_spiral)
+    2.- A pure (closed) dipole (closed_dipole)
+    3.- A modified dipole (potential field source surface, PFSS). 
+    4.- A hybrid model, using a sigmoid to model the transition from a pure closed
+    dipole to an open Parker spiral magnetic field geometry. 
+
     OUTPUT:
     INPUT: 
-    ...
+        Bfield_geom (string): 
+        B_star      (float) : surface magnetic field at the stellar equator, in Gauss
+        d_orb       (array) : array of orbital distances to the planet, in cm
+        R_star      (float) : Radius of star, in cm
+        v_corot     (array) : array of corotation speeds, in cm/s
+        v_sw        (array) : stellar wind speed, in cm/s
+        angle_v_rel (array) : Angle of the relative velocity of the planet wrt the
+                              stellar wind velocity (radians)
+        R_alfven    (array) : Alfvén radius, in units of stellar radii
     """
-    if open_field: 
+
+    
+    R_SS = R_T = R_alfven
+    Delta_R_norm = DELTA_R / R_star
+
+    r_dipole_geom     = np.cos(DIPOLE_TILT) * np.cos(POLAR_ANGLE) + np.sin(DIPOLE_TILT) * np.sin(POLAR_ANGLE) * np.cos(AZIMUTH)
+    theta_dipole_geom = np.cos(DIPOLE_TILT) * np.sin(POLAR_ANGLE) - np.sin(DIPOLE_TILT) * np.cos(POLAR_ANGLE) * np.cos(AZIMUTH)
+    phi_dipole_geom   = np.sin(DIPOLE_TILT) * np.sin(AZIMUTH)
+
+    # Magnetic moment of the star
+    Magnetic_m_dipole =  R_star**3 * B_star
+    
+    B_r_dipole     =  Magnetic_m_dipole / d_orb**3  * 2 * r_dipole_geom
+    B_theta_dipole =  Magnetic_m_dipole / d_orb**3  * theta_dipole_geom
+    B_phi_dipole   =  Magnetic_m_dipole / d_orb**3  * phi_dipole_geom
+    
+    B_r_parker =  B_star * (d_orb/R_star)**(-2)
+    B_theta_parker = 0.0
+    B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
+
+    # pffs_r_factor and pfss_theta_factor taken as in Jardine+2002 (MNRAS). See Eqs. 7 and 8 
+    pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
+    pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
+ 
+    # The planet cannot be in the same axis of the dipolar magnetic moment of the star  
+    # If that's the case, a Parker spiral geometry is enforced.
+    if (np.abs(AZIMUTH) < TOLERANCE and np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE) or (np.abs(AZIMUTH-np.pi) < TOLERANCE and np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE):
+        sigmoid = 1.0
+        print('NOTE: The combination of selected values for AZIMUTH, POLAR_ANGLE and DIPOLE TILT are such that \nthe planet is located along the axis of the dipolar magnetic moment of the star.')
+        print('Therefore, there are no closed (dipolar) lines, so the PFSS_Parker model will be equivalent to \nrunning a pure Parker spiral.')
+        #else:
+        #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
+    else:  
+        sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / Delta_R_norm))
+
+    if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
-        # B_r   - Stellar wind B-field at (R/R_star), Eqn 20 Turnpenney 2018
-        # B_phi - Azimuthal field (Eqn 21 Turnpenney 2018)
-        # B_sw - Total stellar wind B-field at planet orbital distance
-        B_r = B_star * (d_orb/R_star)**(-2)  
-        B_phi = B_r * v_corot/v_sw 
-        B_sw = np.sqrt(B_r**2 + B_phi**2) 
-    else:
+        # B_r   - Radial component of B_sw (e.g., Eqn 20 Turnpenney 2018).
+        # B_phi - Azimuthal component of B_sw
+        # B_theta - Polar component. Here we assume symmetry in the radial direction, so
+        # B_theta = 0
+        # B_sw - Total stellar wind B-field at the orbital distance of the planet
+        B_r     = B_r_parker  
+        B_theta = B_theta_parker 
+        B_phi   = B_phi_parker
+
+    elif Bfield_geom == 'closed_dipole':
         # Closed, dipolar configuration - It falls with distance as R^(-3)
         # B_star - magnetic field at the magnetic equator on the stellar surface
         # B_r - Radial component of the dipole magnetic field of the stellar wind as f(distance to star) 
-        #       Note that its value is 2*B_star, since B_star is the value at the
-        #       equator
-        # B_phi - Azimuthal component of the dipole magnetic field 
+        # B_theta_dipole - polar component of the dipole magnetic field 
+        # B_phi_dipole   - azimuthal component of the dipole magnetic field (0 for a
+        # dipole with spherical symmetry)
         # B_sw - Total stellar wind B-field at planet orbital distance
-        # MAGN_OBLIQ - Angle between the rotation axis and magnetic axis of the star
-        B_r   = -2 * B_star * (d_orb/R_star)**(-3) * np.cos(MAGN_OBLIQ * np.pi/180) 
-        B_phi = - B_star * (d_orb/R_star)**(-3) * np.sin(MAGN_OBLIQ * np.pi/180) 
-        B_sw  = np.sqrt(B_r**2 + B_phi**2) 
-        
+        B_r     = B_r_dipole
+        B_theta = B_theta_dipole
+        B_phi   = B_phi_dipole
+
+    elif Bfield_geom == 'hybrid':
+        B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
+        B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+
+    elif Bfield_geom == 'closed_pfss': 
+        # PFSS (Potential Field Source Surface)
+        #
+        # It uses Eqns 7 and 8 from Jardine et al. (MNRAS, 2002, 333)
+        # These expressions do not reproduce the expected behaviour of the magnetic
+        # field, beyond R_SS, so results are not reliable beyond that radius.
+        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
+        # and all predicted values are indistinguisable from model "closed_dipole" 
+        B_r     = B_r_dipole * pfss_r_factor 
+        B_theta = B_theta_dipole * pfss_theta_factor 
+        B_phi   = B_phi_dipole
+
+    elif Bfield_geom == 'pfss_parker': 
+        # PFSS with a transition to an open Parker spiral
+        #
+        # A modified version 
+        # field, beyond R_SS, so results are not reliable beyond that radius.
+        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
+        # and all predicted values are indistinguisable from model "closed_dipole" 
+        B_r     = B_r_dipole * pfss_r_factor * (1 - sigmoid) + B_r_parker * sigmoid
+        B_theta = B_theta_dipole *pfss_theta_factor *(1 - sigmoid) + B_theta_parker * sigmoid
+        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+
+    # Total stellar wind magnetic field
+    B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 
+
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
     angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
 
@@ -62,11 +145,14 @@ def get_bfield_comps(open_field, B_star, d_orb, R_star, v_corot, v_sw, angle_v_r
     theta = np.absolute(angle_B - angle_v_rel) 
 
     geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
-    if open_field:
+    if Bfield_geom == 'open_parker_spiral': 
         # theta is the angle between the B_sw (the insterstellar magnetic field), and the
         # incident stellar wind velocity.  See Fig. 1 in Turnpenney+2018
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
+        
+    if Bfield_geom == 'hybrid' or  Bfield_geom == 'pfss_parker': 
+        geom_f = (1 - sigmoid)+(np.sin(theta))**2 * sigmoid # Geometric factor in efficiency 
 
     return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
@@ -149,27 +235,6 @@ def bfield_sano(M_planet = 1.0, R_planet = 1.0, Omega_rot_planet = 1.0):
  
     return r_core, rho_core, magn_moment_planet, B_planet
 
-def R_planet_eff_func(Rp, THETA_M, B_planet, B_tot):
-    """ Computes the effective obstacle radius for the planet. 
-        If the planet is magnetized, it is normally larger than the planet radius
-        (R_planet).
-        If unmagnetized, then the effective radius is made equal to Rp.
-        OUTPUT: R_planet_eff - Effective planet radius, in cm 
-        INPUT : Rp - Planet radius (cm)
-                THETA_M - angle  (radians), of the intrinsic planetary magnetic field
-                (B_planet) 
-                          wrt the external magnetic field (B_tot).
-                B_planet -  planet magnetic field (G)
-                B_tot    - Magnetic field of the stellar wind at planet position (G)
-    """
-    if (B_planet > 0.0):
-        R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (Bp/B_tot)**(1./3.)
-        R_planet_eff[R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than R_planet
-    else:
-        R_planet_eff = Rp
-    
-    return R_planet_eff
-
 def Lrad_leto(B_star=1.0, R_star=1.0, P_rot=1.0):
     """ Returns the radio luminosity of an early-type magnetic star, 
         using the scaling law of Leto et al. (2021, MNRAS)
@@ -216,7 +281,104 @@ def v_stellar_wind(d_orb, M_star, T_corona, m_av):
         v_sw[i]  = np.sqrt(v_sw2[i].real)
 
     return v_sound, r_sonic, v_sw
+
+def get_v_sw_terminal(R_star, M_star, T_corona, m_av):
+    """ This function computes the terminal speed of an isothermal stellar wind
+        The stellar wind speed is computed as in Turnpenney+18, using the Lambert W
+        function,  with D_r obtained using Eq. 18. In turn, Eq. 18 is taken from Eq. 15 in Cranmer 2004. 
+
+       OUTPUT:  v_sw_terminal (cm/s) - Float: terminal speed of the isothermal stellar wind, in cm/s.
+       INPUT:   R_star (cm)          - Float Radius of the star
+                M_star (g)           - Float: Mass of star, in grams
+                T_corona (K)         - Float: Temperature at the base of the corona, in Kelvin
+                m_av     (g)         - Float: Average particle mass of the stellar wind, in grams
+    """
+    v_sound = np.sqrt(k_B * T_corona / m_av) 
+    r_sonic =  G * M_star / (2 * v_sound**2) # Radius of sonic point, in cgs units
+
+    # Terminal speed -- computed at 200 stellar radii 
+    r_terminal = 200 * R_star
+
+    D_r = (r_terminal / r_sonic)**(-4) * np.exp(4*(1 - r_sonic/r_terminal) - 1)
+    #v_sw2 = np.zeros(len(r_terminal), dtype=complex)
+    #v_sw  = np.zeros(len(r_terminal))
+
+    v_sw_terminal2 = -v_sound**2 * lambertw(-D_r, k=-1)
+    # The actual speeed is the real part 
+    v_sw_terminal  = np.sqrt(v_sw_terminal2.real)
+
+    return v_sw_terminal
+
+
+def get_eta_star(B_star, R_star, M_star_dot_arr, v_sw_terminal):
+    """
+    Compute the magnetic confinement parameter at the stellar equator.
+    OUTPUT: 
+        eta_star (array):  Magnetic confinement parameter at the equator of the stellar
+                           surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+                           It returns an array of the same length as M_star_dot_arr.
+
+    INPUT: 
+        B_star (float)          - stellar magnetic field in the equator (Gauss)
+        R_star (float)          - Stellar radius, in cm
+        M_star_dot_arr (array)  - Stellar mass loss rate,  in units of M_sun_dot
+        v_sw_terminal  (float)  - terminal wind speed, in cm/s
+    """
+
+    #Convert M_star_dot_arr to cgs units
+    M_star_dot_cgs = M_star_dot_arr * M_sun_dot * (M_sun / yr2sec) 
+
+    # magnetic confinement parameter
+    # B_star = B_0 / 2 (as defined in ud-Doula & Owocki 2002)
+    eta_star = B_star**2 * R_star**2 / (M_star_dot_cgs * v_sw_terminal)
+
+    return eta_star
+
+def get_R_alfven(eta_star, colatitude):
+    """
+    Computes the Alfvén radius for a given colatitude value 
+    (colatitude = 90 deg implies at the magnetic equator)
+    We follow the formalism in ud-Doula & Owocki (2002, ApJ)
+
+    OUTPUT: 
+        R_alfvén (array) - Alfvén radius at a certain value of the POLAR_ANGLE (theta ==
+                           colatitude). 
+                           It returns an array of the same length as M_star_dot_arr.
+                           In units of stellar radii
+    INPUT: 
+        eta_star (array):  Magnetic confinement parameter at the equator of the stellar
+                           surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+        colatitude (float)  - colatitude at which to determine R_alfven, in radians
+    """
+    factor = 4 - 3 * np.sin(colatitude)**2  ## factor in RHS of Eq. 8 
+
+    def equation(R_ratio, eta_star):
+        return (R_ratio**(2*Q_DIPOLE-2) - R_ratio**(2*Q_DIPOLE-3)) - eta_star * factor
+
+
+    R_alfven = fsolve(equation, R_ALFVEN_GUESS, args=(eta_star))[0]
+
+    return R_alfven
     
+
+def get_theta_A(R_alfven_pole):
+    """
+    OUTPUT: theta_A (array): colatitude at which the last closed magnetic line of the
+            dipole closes the stellar surface. 
+            See Eq. 9 in ud-Doula & Owocki (2002). Note that here R_alfven_pole is
+            already normalized to R_star.
+    INPUT: 
+        R_alfvén_pole (array):  Alfvén radius at the pole of the star (theta = 0)
+                                It returns an array.  In units of stellar radii
+    """
+
+    theta_A = np.arcsin(np.sqrt(1./R_alfven_pole))
+    theta_A_deg = np.degrees(theta_A)
+    latitude = np.abs(90. - theta_A_deg)
+    
+    return theta_A_deg, latitude
+
+
 def wind_composition(X_p = 0.5):
     """ Computes fraction of electrons, mean "molecular weight" and average particle
     mass of the stellar wind, given the fraction of protons.
@@ -240,7 +402,7 @@ def n_wind(M_star_dot=1.0, d=7e10, v_sw=25.6e5, m_av = 0.5 * m_p):
                 v_sw       - Speed of stellar wind at distance d, in cm/s
                 m_av       - average particle mass of the stellar wind (= mu * m_p) in grams
     """
-    M_sun_dot = 2e-14 # Sun mass-loss rate, in Msun/yr
+    
     ### WARNING: when using the " *= " format below, the original value of M_star_dot is
     # overwritten outside the function, even if not present in return!!
     #
@@ -286,20 +448,20 @@ def plasma_freq(n_e = 1.0):
     return nu_plasma
 
 def get_Rmp_Saur(Rp, THETA_M, B_planet_arr, B_sw):
-    """It computes the effective radius, R_planet_eff, of the Alfvén wing, in cm, using Eq. 57 in 
+    """It computes the effective radius, R_obs, of the Alfvén wing, in cm, using Eq. 57 in 
        Saur+2013, A&A).  It depends on the orientation, THETA_M, of the intrinsic planetary
        magnetic field (B_planet_arr) wrt the external magnetic field of the stellar wind (B_sw).
-    OUTPUT: R_planet_eff (cm) - Array: Effective planet radius, in cm
+    OUTPUT: R_obs (cm) - Array: Effective planet radius, in cm
     INPUT : Rp           (cm) - Float: Planet radius, in cm
             THETA_M      (rad)- Float: Angle of the planetary magnetic field wrt stellar
                                 wind magnetic field, in radians
             B_planet_arr (G)  - Array: Planetary magnetic field, in Gauss
             B_sw         (G)  - Array: Stellar wind magnetic field, in Gauss
     """
-    R_planet_eff = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
-    R_planet_eff[ R_planet_eff < Rp] = Rp # R_planet_eff cannot be smaller than Rplanet    
+    R_obs = Rp * np.sqrt(3*np.cos(THETA_M/2)) * (B_planet_arr/B_sw)**(1./3.) # in cm
+    R_obs[ R_obs < Rp] = Rp # R_obs cannot be smaller than Rplanet    
 
-    return R_planet_eff
+    return R_obs
 
 def get_P_sw(n_sw, v_rel, T_e, B_sw, mu):
     """
@@ -538,7 +700,7 @@ def beam_solid_angle(COMPUTE_BSA,beta_min, beta_max):
 
     return Omega_min, Omega_max
 
-def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
+def get_S_poynt(R_obs, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
     """
     # Returns Total Poynting flux 
     #
@@ -558,17 +720,17 @@ def get_S_poynt(R_planet_eff, B_sw, v_alf, v_rel, M_A, ALPHA_SPI, geom_f):
     # so there seems to be only a factor of two discrepancy, 
     #
     """
-    S_poynt_mks = 2 * np.pi * (R_planet_eff/1e2)**2 * (ALPHA_SPI*M_A)**2  \
+    S_poynt_mks = 2 * np.pi * (R_obs/1e2)**2 * (ALPHA_SPI*M_A)**2  \
                     * (v_alf/1e2) * (B_sw/1e4)**2 / mu_0_mks * geom_f
     S_poynt = S_poynt_mks * 1e7 # in cgs units (erg/s) 
     
     S_poynt_Z_mks = 1./ np.sqrt(1 + 1/M_A**2) *  (v_rel/1e2) \
-                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_planet_eff/1e2)**2 
+                    * (B_sw/1e4)**2 * geom_f / mu_0_mks * np.pi*(R_obs/1e2)**2 
     S_poynt_Z     = S_poynt_Z_mks * 1e7  # in cgs units
     
     return S_poynt, S_poynt_Z
 
-def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
+def get_S_reconnect(R_obs, B_sw, v_rel, gamma = 0.5):
         """
         OUTPUT: 
             S_reconnect - Poynting flux (array), in cgs
@@ -578,7 +740,7 @@ def get_S_reconnect(R_planet_eff, B_sw, v_rel, gamma = 0.5):
             P_d is computed using Eq. (8) in Lanza (2009; A&A 505, 339–350).
             
         """
-        P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_planet_eff/1e2)**2 * (v_rel/1e2)
+        P_d_mks = gamma * np.pi / mu_0_mks * (B_sw/1e4)**2 * (R_obs/1e2)**2 * (v_rel/1e2)
         P_d     = P_d_mks * 1e7 # in cgs units 
         S_reconnect = P_d / EPSILON
         
@@ -596,3 +758,14 @@ def get_Flux(Omega_min, Omega_max, Delta_nu_cycl, d, S_poynt):
     Flux_max *= 1e26 # Flux density, in mJy
     
     return Flux_min, Flux_max
+    
+    
+    
+def get_confinement(P_dyn_sw, P_B_sw): 
+    """
+     Computes the "Magnetic confinement parameter" as in ud-Doula & Owocki (2002)
+    """
+    P_kin_sw = P_dyn_sw/2
+    eta = P_B_sw / P_kin_sw
+    return eta
+    

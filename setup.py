@@ -1,6 +1,8 @@
 import numpy as np
 from SPIworkflow.constants import *
 
+#python spirou.py 2>&1 | tee logfile.txt
+
 #####################################################
 # ARRAY OF PLANETS TO COMPUTE RADIO EMISSION FROM SPI
 #####################################################
@@ -26,8 +28,8 @@ STUDY = "D_ORB"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
-#D_ORB_LIM = np.nan
-D_ORB_LIM = 3000
+D_ORB_LIM = np.nan
+#D_ORB_LIM = 3000
 
 #  STUDY = 'M_DOT' SETUP
 #
@@ -36,7 +38,7 @@ D_ORB_LIM = 3000
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+2
+M_DOT_MAX = 1e+0
 
 #  STUDY = 'B_PL' SETUP
 #
@@ -78,15 +80,45 @@ NSTEPS_FF = 10000
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-# The convention is that Bfield_geom_arr = 0 - closed dipolar geometry
-#                        Bfield_geom_arr = 1 => open Parker spiral geometry; 
-#Bfield_geom_arr = [0,1]
-Bfield_geom_arr = [0] 
+#Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker','closed_pfss','hybrid']
+Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
+#Bfield_geom_arr=['pfss_parker']
 
-# MAGN_OBLIQ - magnetic obliquity. Angle betw the magnetic and rotation axes of the star
-# (in degrees). Fixed to zero for simplicity. 
-MAGN_OBLIQ = 0.
- 
+# INDEX of the DIPOLE
+# Q_DIPOLE = 3.0 => DIPOLE
+Q_DIPOLE = 3.0
+
+# DIPOLE TILT - Tilt of the dipolar magnetic moment of the star wrt the rotation axis
+# (in radians).
+# POLAR_ANGLE - Angle measured between the orbital plane of the planet and the (star's)
+# polar axis, measured from the polar axis. In radians.
+# NOTE! Use always a positive value, never zero. For safety reasons, the code uses a
+# TOLERANCE parameter to prevent hravoc.
+# Set POLAR_ANGLE to np.pi/2 for a planet in the equatorial plane of the star.
+# 
+DIPOLE_TILT = 0.0
+POLAR_ANGLE = np.pi/2
+AZIMUTH     = 0.0
+
+TOLERANCE = 1e-2
+
+# R_T and DELTA_R are used for the hybrid model, i.e. the transition from a pure dipole
+# to an open Parker spiral.
+# DELTA_R - Width of the transition region, 
+# 
+#R_T = 10.0 # * np.sin(POLAR_ANGLE)**2 
+DELTA_R = 0.05 * R_sun
+
+# Potential source surface radius (PFSS), in units of R_star
+# R__SS is defined as below, due to the boundary conditions imposed on the components of
+# the closed magnetic field geometry (see, e.g., Eqns. 5 and 6 in Jardine+2002, MNRAS)
+#R_SS = R_T + DELTA_R / 2
+
+
+# R_ALFVEN_GUESS - Initial guess for the Alfvén radius (see get_R_alfven in SPIutils.py)
+#                  in units of R_star (stellar radii)
+R_ALFVEN_GUESS = 20.0
+
 #####################################
 # PLANET MAGNETIC FIELD SETUP
 #####################################
@@ -99,6 +131,7 @@ MAGN_OBLIQ = 0.
 magnetized_pl_arr = [True]
 
 # Default planetary magnetic field, in Tesla
+# bfield_earth is defined in constants.py
 B_PLANET_DEFAULT = bfield_earth
 
 # Setting the stellar magnetic field geometry and the value of the 
@@ -148,7 +181,7 @@ T_CORONA_DEF = 2.0e6
 #####################################
 
 # Is the stellar wind plasma assumed to be isothermal?
-isothermal = True 
+ISOTHERMAL = True 
 
 # Fully ionized, purely hydrogen stellar wind plasma (=> 50% protons, 50% electrons)
 X_p = 0.5 # fraction of protons
@@ -170,6 +203,7 @@ ALPHA_SPI = 1
 # (BETA_EFF_MAX)
 # 
 BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
+#BETA_EFF_MIN = 1e-2; BETA_EFF_MAX = 1.1e-2 
 
 # Fraction of Poynting flux going to dissipated power (Eq. 2 in Zarka 2024)
 # Zarka (2024) quotes a value of 0.2 +/- 0.1
@@ -193,13 +227,11 @@ COMPUTE_BSA = False
 ## The standard avlue for OMEGA_MIN for SPI is
 ## taken from the Io-Jupiter interaction.
 ## OMEGA_JUPITER_IO = 0.16 sterradians (DAM emission from a single flux tube)
-
 OMEGA_MIN = OMEGA_JUPITER_IO
+
 # OMEGA_MAX due to star-planet interaction is at most a few times OMEGA_MIN
 # Note: Many papers have wrongly assumed OMEGA_MAX = 1.6 (sterr), which is the 
 # beam solid angle of the whole Jupiter auroral oval. 
-
-# OMEGA_MAX = OMEGA_MIN
 OMEGA_MAX = 3*OMEGA_JUPITER_IO
 
 #####################################
@@ -256,20 +288,31 @@ elif STUDY == "B_PL":
     print('CARRYING OUT A STUDY OF RADIO EMISSION VS PLANETARY MAGNETIC FIELD: STUDY == B_PL\n')
 
 ###
-
-if len(Bfield_geom_arr)==2:
-    print('RUNNING FOR BOTH AN OPEN PARKER SPIRAL AND \n A (CLOSED) DIPOLAR MAGNETIC FIELD GEOMETRIES\n')
-else:
-    if Bfield_geom_arr[0] == 0:
-        print('RUNNING FOR A CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY\n')    
-    else:
-        print('RUNNING FOR AN OPEN PARKER SPIRAL MAGNETIC FIELD GEOMETRY\n')    
-        
+'''
+#['open_parker_spiral','closed_dipole','closed_pfss']
+if 'open_parker_spiral' in Bfield_geom_arr:
+    print('RUNNING FOR AN OPEN PARKER SPIRAL MAGNETIC FIELD GEOMETRY\n')    
+if 'closed_dipole' in Bfield_geom_arr:
+    print('RUNNING FOR A CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY\n')    
+if 'pfss' in Bfield_geom_arr:   
+    print('RUNNING FOR A CLOSED PFSS MAGNETIC FIELD GEOMETRY\n')   
+'''   
+ind=0
+printing_str='RUNNING FOR THE FOLLOWING GEOMETRIES:'
+while ind < len(Bfield_geom_arr):
+   if ind == len(Bfield_geom_arr)-1 and ind>0:
+       printing_str += ' AND'
+   elif ind>0:
+       printing_str += ','
+   printing_str += ' ' + Bfield_geom_arr[ind].replace('_', ' ').upper()
+   ind=ind+1
+print(printing_str+'\n') 
+    
 ###    
 if len(magnetized_pl_arr)==2:    
     print('RUNNING FOR BOTH A MAGNETIZED AND A NON-MAGNETIZED PLANET\n')
 else:
-    if magnetized_pl_arr[0] == FALSE:
+    if magnetized_pl_arr[0] == False:
         print('RUNNING FOR A NON-MAGNETIZED PLANET\n')    
     else:
         print('RUNNING FOR A MAGNETIZED PLANET\n')    

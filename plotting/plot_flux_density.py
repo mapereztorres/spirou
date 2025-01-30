@@ -94,14 +94,24 @@ else:
 if freefree==True:
     ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7, label="ff absorption")
     ax2.fill_between(x, y_min_reconnect, y_max_reconnect,color="blue", alpha=0.7, label="ff absorption")
-    ax2.plot(x,y_inter,color='black',lw=2)
+    ax2.plot(x,y_inter,color='black',lw=4)
+    ax2.plot(x,y_inter,color='orange',lw=3)
+    ax2.plot(x,y_inter_reconnect,color='black',lw=4)
+    ax2.plot(x,y_inter_reconnect,color='blue',lw=3)
     ax2.fill_between(x, Flux_r_S_min_no_abs, Flux_r_S_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="orange")
     ax2.fill_between(x, Flux_reconnect_min_no_abs, Flux_reconnect_max_no_abs,color="none", alpha=0.2, label="No ff absorption",hatch="X",edgecolor="blue")
+    ax2.plot(x,Flux_r_S_inter_no_abs,color='black',lw=4)
+    ax2.plot(x,Flux_r_S_inter_no_abs,color='orange',lw=3)
+    ax2.plot(x,Flux_reconnect_inter_no_abs,color='black',lw=4)
+    ax2.plot(x,Flux_reconnect_inter_no_abs,color='blue',lw=3)
 else:
     ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7)
     ax2.fill_between(x, y_min_reconnect, y_max_reconnect,color="blue", alpha=0.7)
-    ax2.plot(x,y_inter,color='black',lw=2)
-
+    ax2.plot(x,y_inter,color='black',lw=4)
+    ax2.plot(x,y_inter,color='orange',lw=3)
+    ax2.plot(x,y_inter_reconnect,color='black',lw=4)
+    ax2.plot(x,y_inter_reconnect,color='blue',lw=3)
+    
 if STUDY == 'D_ORB':
     ax2.set_yscale('log') 
     # Draw vertical line at nominal orbital separation of planet
@@ -288,24 +298,43 @@ if any(ind > 1 for ind in M_A):
     #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
 
-common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+str(BETA_EFF_MIN*100)+'-'+str(BETA_EFF_MAX*100)+'percent'+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
-if Bfield_geom_arr[ind]:
-    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-Bstar" + common_string 
-else:
-    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-Bstar" + common_string 
+common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
+#if Bfield_geom_arr[ind] == 'open_parker_spiral':
+#    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-spiral-Bstar" + common_string 
+#elif Bfield_geom_arr[ind]== 'closed_dipole':
+#    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Closed-dipole-Bstar" + common_string 
+#else:
+
+#outfile = FOLDER + '/' +'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string     
+outfile = 'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string   
 # Variable to send output to files (PLOTOUT= True), or show them in
 # the terminal (PLOTOUT = False) 
+
 if freefree == True:
     outfile = outfile + '_freefree'
 
 
 if PLOTOUT == True:
     plt.tight_layout()
-    outfilePDF = os.path.join(outfile + ".pdf")
+    outfilePDF = os.path.join(FOLDER + '/PDF/' +outfile+ ".pdf")
     plt.savefig(outfilePDF)
-    outfilePNG = os.path.join(outfile + ".png")
+    outfilePNG = os.path.join(FOLDER + '/PNG/' +outfile +".png")
     plt.savefig(outfilePNG)
     plt.close()
 else:
     plt.tight_layout()
     plt.show()
+    
+    
+
+df_alfven = pd.DataFrame({
+     STUDY: x,
+    'FLUX': y_inter
+})  
+df_alfven.to_csv(FOLDER + '/CSV/' +outfile+'_alfven_wing_model.csv')
+
+df_reconnect = pd.DataFrame({
+    STUDY: x,
+    'FLUX': y_inter_reconnect
+})  
+df_reconnect.to_csv(FOLDER + '/CSV/' +outfile+'_reconnection_model.csv')  

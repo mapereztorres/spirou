@@ -20,6 +20,7 @@ mJy     = 1.0e-26               # 1 mJy, in erg/s/cm2/Hz
 G     = 6.67408e-8              # Gravitational constant (cgs)
 M_sun = Msun = 1.9891e33        # Mass of Sun, in g
 R_sun = Rsun = 6.9599e10        # Radius of the Sun, in cm
+M_sun_dot = 2e-14               # Sun mass-loss rate, in Msun/yr
 M_earth = 5.9742e+27            # in g
 R_earth = 6.378136e+8           # in cm
 M_jup = M_jupiter  = 1.8987e+30 # in g
@@ -42,8 +43,7 @@ Gauss2Tesla = 1e-4 # 1 Gauss, in Teslas
 # Specific constants for SPI.py
 ###############################
 
-M_sun_dot = 2e-14                # Mass loss rate of Sun, in solar masses per year
-bfield_earth = 50e-6             # Earth surface magnetic field at the pole, in Teslas
+bfield_earth = 50e-6             # Earth surface magnetic field at the pole, in Tesla
 r_core_earth = 3.486e6           # Earth outer core radius, in [meters], from Sano 1993
 rho_core_earth = 1.0e4           # Outer core density of Earth, in kg * m^(-3)
 
