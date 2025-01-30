@@ -69,7 +69,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
 
     # pffs_r_factor and pfss_theta_factor taken as in Jardine+2002 (MNRAS). See Eqs. 7 and 8 
-    pfss_r_factor =  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
+    pfss_r_factor=  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
     pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
  
     # The planet cannot be in the same axis of the dipolar magnetic moment of the star  
@@ -82,7 +82,9 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
     else:  
         sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / Delta_R_norm))
-    heaviside = np.heaviside((d_orb/R_star)-R_T,0)
+        
+    heaviside = np.heaviside((d_orb/R_star)-R_T,0.5)
+    
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
         # B_r   - Radial component of B_sw (e.g., Eqn 20 Turnpenney 2018).
