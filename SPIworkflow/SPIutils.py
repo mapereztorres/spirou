@@ -82,7 +82,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         #    print('planet and magnetic dipole are both in the XZ plane, but neither alligned nor anti-alligned')
     else:  
         sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / Delta_R_norm))
-
+    heaviside = np.heaviside((d_orb/R_star)-R_T,0)
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
         # B_r   - Radial component of B_sw (e.g., Eqn 20 Turnpenney 2018).
@@ -123,7 +123,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_theta = B_theta_dipole * pfss_theta_factor 
         B_phi   = B_phi_dipole
 
-    elif Bfield_geom == 'pfss_parker': 
+    elif Bfield_geom == 'old_pfss_parker': 
         # PFSS with a transition to an open Parker spiral
         #
         # A modified version 
@@ -133,6 +133,16 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_r     = B_r_dipole * pfss_r_factor * (1 - sigmoid) + B_r_parker * sigmoid
         B_theta = B_theta_dipole *pfss_theta_factor *(1 - sigmoid) + B_theta_parker * sigmoid
         B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
+    elif Bfield_geom == 'pfss_parker': 
+        # PFSS with a transition to an open Parker spiral
+        #
+        # A modified version 
+        # field, beyond R_SS, so results are not reliable beyond that radius.
+        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
+        # and all predicted values are indistinguisable from model "closed_dipole" 
+        B_r     = B_r_dipole * pfss_r_factor * (1 - heaviside) + B_r_parker * heaviside
+        B_theta = B_theta_dipole *pfss_theta_factor *(1 - heaviside) + B_theta_parker * heaviside
+        B_phi = B_phi_dipole* (1 - heaviside) + B_phi_parker * heaviside
 
     # Total stellar wind magnetic field
     B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 
