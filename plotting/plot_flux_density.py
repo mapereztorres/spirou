@@ -107,10 +107,10 @@ if freefree==True:
 else:
     ax2.fill_between(x, y_min, y_max,color="orange", alpha=0.7)
     ax2.fill_between(x, y_min_reconnect, y_max_reconnect,color="blue", alpha=0.7)
-    ax2.plot(x,y_inter,color='black',lw=4)
-    ax2.plot(x,y_inter,color='orange',lw=3)
-    ax2.plot(x,y_inter_reconnect,color='black',lw=4)
-    ax2.plot(x,y_inter_reconnect,color='blue',lw=3)
+    ax2.plot(x,y_inter,color='black',lw=1.5)
+    #ax2.plot(x,y_inter,color='orange',lw=3)
+    ax2.plot(x,y_inter_reconnect,color='black',lw=1.5)
+    #ax2.plot(x,y_inter_reconnect,color='blue',lw=3)
     
 if STUDY == 'D_ORB':
     ax2.set_yscale('log') 
@@ -130,7 +130,7 @@ if STUDY == 'D_ORB':
     
     def tick_function(X):
         V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
-        return ["%.0f" % z for z in V]
+        return ["%.1f" % z for z in V]
     xtickslocs = ax2.get_xticks()    
     new_tick_locations=xtickslocs[1:-1]
     #print(new_tick_locations)

@@ -13,8 +13,8 @@ alfven_wing_dipole=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplane
 reconnection_dipole=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-closed-dipole-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
 #alfven_wing_hybrid=pd.read_csv(FOLDER+'/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
 #reconnection_hybrid=pd.read_csv(FOLDER+'/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
-alfven_wing_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-parker-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
-reconnection_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-parker-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
+alfven_wing_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
+reconnection_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
 plt.figure(figsize=(8, 7.5))
 lw=2
 ax2 = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
@@ -36,8 +36,8 @@ Line2D([0], [0], color='orange', linestyle='dotted', lw=lw, label='Alfvén wing 
 Line2D([0], [0], color='blue', linestyle='dotted', lw=lw, label='Reconnection (Dipole)'),
 #Line2D([0], [0], color='orange', linestyle='dashed', lw=2, label='Alfvén wing (Hybrid)'),
 #Line2D([0], [0], color='blue', linestyle='dashed', lw=2, label='Reconnection (Hybrid)'),
-Line2D([0], [0], color='orange', linestyle='dashed', lw=lw, label='Alfvén wing (PFSS-Parker)'),
-Line2D([0], [0], color='blue', linestyle='dashed', lw=lw, label='Reconnection (PFSS-Parker)'),
+Line2D([0], [0], color='orange', linestyle='dashed', lw=lw, label='Alfvén wing (PFSS)'),
+Line2D([0], [0], color='blue', linestyle='dashed', lw=lw, label='Reconnection (PFSS)'),
 ]
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"Flux density [mJy]")
@@ -57,7 +57,7 @@ bsw_dipole=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exopla
 
 #bsw_hybrid=pd.read_csv(FOLDER + '/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_B_sw.csv')
 
-bsw_pffs_parker=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-parker-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_B_sw.csv')
+bsw_pffs_parker=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_B_sw.csv')
 
 plt.figure(figsize=(8, 7.5))
 lw=2
@@ -73,7 +73,7 @@ legend_elements = [
 Line2D([0], [0], color='blue', linestyle='dashed', lw=lw, label='Open Parker Spiral'),
 Line2D([0], [0], color='orange', linestyle='dotted', lw=lw, label='Dipole'),
 #Line2D([0], [0], color='blue', linestyle='dashed', lw=2, label='Hybrid'),
-Line2D([0], [0], color='black', lw=lw, label='PFSS-Parker'),
+Line2D([0], [0], color='black', lw=lw, label='PFSS'),
 ]
 
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
@@ -92,7 +92,7 @@ bsw_dipole=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exopla
 
 #bsw_hybrid=pd.read_csv(FOLDER + '/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_M_A.csv')
 
-bsw_pffs_parker=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-parker-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_M_A.csv')
+bsw_pffs_parker=pd.read_csv(FOLDER + '/CSV/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_M_A.csv')
 
 
 plt.figure(figsize=(8, 7.5))
@@ -109,7 +109,7 @@ legend_elements = [
 Line2D([0], [0], color='blue', lw=lw, label='Open Parker Spiral'),
 Line2D([0], [0], color='orange', linestyle='dotted', lw=lw, label='Dipole'),
 #Line2D([0], [0], color='black', linestyle='dashed', lw=2, label='Hybrid'),
-Line2D([0], [0], color='black', linestyle='dashed', lw=lw, label='PFSS-Parker'),
+Line2D([0], [0], color='black', linestyle='dashed', lw=lw, label='PFSS'),
 ]
 
 ax2.legend(handles=legend_elements, loc='upper left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
@@ -123,7 +123,7 @@ plt.savefig(FOLDER + '/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet
 
 
 
-#print(FOLDER + '/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-parker-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_B_sw.csv')
+#print(FOLDER + '/' +'diagnostic-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_B_sw.csv')
 '''
 
 '''

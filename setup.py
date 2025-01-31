@@ -80,9 +80,8 @@ NSTEPS_FF = 10000
 # intensity of the planetary magnetic field
 # 
 # Stellar magnetic field geometry
-#Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker','closed_pfss','hybrid']
-Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss_parker']
-#Bfield_geom_arr=['pfss_parker']
+Bfield_geom_arr=['open_parker_spiral','closed_dipole','pfss']
+#Bfield_geom_arr=['pfss']
 
 # INDEX of the DIPOLE
 # Q_DIPOLE = 3.0 => DIPOLE
@@ -127,8 +126,8 @@ R_ALFVEN_GUESS = 20.0
 # False: Unmagnetized planet 
 # True : Magnetized planet
 # 
-#magnetized_pl_arr = [False, True]
-magnetized_pl_arr = [True]
+magnetized_pl_arr = [False, True]
+#magnetized_pl_arr = [True]
 
 # Default planetary magnetic field, in Tesla
 # bfield_earth is defined in constants.py
@@ -202,8 +201,8 @@ ALPHA_SPI = 1
 # Zarka (2024) shows that beta_eff is in the range from 1e-4 (BETA_EFF_MIN) to 1e-2
 # (BETA_EFF_MAX)
 # 
-BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
-#BETA_EFF_MIN = 1e-2; BETA_EFF_MAX = 1.1e-2 
+#BETA_EFF_MIN = 1e-4; BETA_EFF_MAX = 1e-2 
+BETA_EFF_MIN = 1e-3; BETA_EFF_MAX = 1e-3 
 
 # Fraction of Poynting flux going to dissipated power (Eq. 2 in Zarka 2024)
 # Zarka (2024) quotes a value of 0.2 +/- 0.1
@@ -245,7 +244,7 @@ LW = 3
 # PLOTOUT = False => plot in terminal
 PLOTOUT = True 
 # DRAW_RMS?
-DRAW_RMS = True
+DRAW_RMS = False
 # DRAW Little Earth?
 DRAW_EARTH = True
 LIMS_MA = True

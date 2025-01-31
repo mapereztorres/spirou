@@ -16,5 +16,7 @@ ax.axvline(x = xnom, ls='--', color='k', lw=2)
 black_patch = mpatches.Patch(color='black', label='$R_{mp}$')
 red_patch = mpatches.Patch(color='red', label='$R_{eff}$')
 ax.legend(handles=[black_patch,red_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
+ax.set_xlim(right=x[-1]) #the limit on the right is the last element of the x array
+secax = ax.secondary_yaxis('right', functions=(spi.identity,spi.identity))     
 plt.savefig(FOLDER + '/' + str(Exoplanet.replace(" ", "_"))
         +'-effective_radius_variation-'+STUDY+geometry+ "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')

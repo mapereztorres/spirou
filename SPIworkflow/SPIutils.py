@@ -97,11 +97,12 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     #We set these two factors to 1 since we consider a classical dipole up to the PFSS.    
     pfss_r_factor = pfss_theta_factor = 1
  
-    #The heaviside function is 0 if d_orb/R_star < R_T, 1 if d_orb/R_star > R_T and 0.5 if d_orb/R_star = R_T
-    heaviside = np.heaviside((d_orb/R_star)- R_T, 0.5)
+    #The heaviside function is 0 if d_orb/R_star <= R_T, 1 if d_orb/R_star > R_T 
+    heaviside = np.heaviside((d_orb/R_star)- R_T, 0)
     
     # The planet cannot be in the same axis of the dipolar magnetic moment of the star  
     # If that's the case, a Parker spiral geometry is enforced.
+    #Currently not used, replaced by the heaviside function
     if (np.abs(AZIMUTH) < TOLERANCE and np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE) or (np.abs(AZIMUTH-np.pi) < TOLERANCE and np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE):
         sigmoid = 1.0
         print('NOTE: The combination of selected values for AZIMUTH, POLAR_ANGLE and DIPOLE TILT are such that \nthe planet is located along the axis of the dipolar magnetic moment of the star.')
@@ -137,13 +138,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_theta = B_theta_dipole
         B_phi   = B_phi_dipole
 
-    elif Bfield_geom == 'hybrid':
-        # Classical dipole with a transition to an open Parker spiral
-        B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
-        B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
-        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
-
-    elif Bfield_geom == 'pfss_parker': 
+    elif Bfield_geom == 'pfss': 
         # PFSS with a transition to an open Parker spiral
         #
         # It is a classical dipole up to the PFSS and a modified Parker spiral beyond
@@ -169,7 +164,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         #
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
         
-    if Bfield_geom == 'hybrid' or  Bfield_geom == 'pfss_parker': 
+    if Bfield_geom == 'pfss': 
         geom_f = (1 - sigmoid)+(np.sin(theta))**2 * sigmoid # Geometric factor in efficiency 
 
     return B_r, B_phi, B_sw, angle_B, theta, geom_f
@@ -786,4 +781,6 @@ def get_confinement(P_dyn_sw, P_B_sw):
     P_kin_sw = P_dyn_sw/2
     eta = P_B_sw / P_kin_sw
     return eta
-    
+
+def identity(x):
+    return x    

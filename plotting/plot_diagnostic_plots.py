@@ -43,7 +43,7 @@ ax3.plot(x, M_A*np.ones(len(x)), color='k', lw=lw)
 ax3.set_yscale('log')
 #ax3.plot(x, eta*np.ones(len(x)), color='k', lw=lw)
 #ax3.axyline(y = xnom, ls='--', color='k', lw=2)
-ax3.axvline(x = R_alfven)
+#ax3.axvline(x = R_alfven)
 
 ax4.plot(x, P_B_sw*np.ones(len(x)), color='b', linestyle='dashdot')
 ax4.plot(x, P_dyn_sw*np.ones(len(x)), color='r', linestyle='solid')
@@ -75,6 +75,11 @@ ax1.axvline(x = xnom, ls='--', color='k', lw=2)
 ax2.axvline(x = xnom, ls='--', color='k', lw=2)
 ax3.axvline(x = xnom, ls='--', color='k', lw=2)
 ax4.axvline(x = xnom, ls='--', color='k', lw=2)
+      
+secax = ax1.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+secax = ax3.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+secax = ax4.secondary_yaxis('right', functions=(spi.identity,spi.identity))      
         
 if (M_A > 1).any():
     ax3.axhline(y = 1, ls='-.', color='grey', lw=2)   

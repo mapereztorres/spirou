@@ -251,11 +251,7 @@ for indi in planet_array:
                 selected_geometry="OPEN PARKER MAGNETIC FIELD GEOMETRY"
             elif Bfield_geom_arr[ind] == 'closed_dipole':
                 selected_geometry="CLOSED DIPOLAR MAGNETIC FIELD GEOMETRY"
-            elif Bfield_geom_arr[ind] == 'closed_pfss':    
-                selected_geometry="CLOSED PFSS MAGNETIC FIELD GEOMETRY"
-            elif Bfield_geom_arr[ind] == 'hybrid':   
-                selected_geometry="HYBRID DIPOLE-PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
-            elif Bfield_geom_arr[ind] == 'pfss_parker':   
+            elif Bfield_geom_arr[ind] == 'pfss':   
                 selected_geometry="HYBRID PFSS - PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
             B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven)
@@ -485,9 +481,10 @@ for indi in planet_array:
             print(f'\nSAVING USEFUL VALUES TO {outfileTXT}')
             
     ################################        
-    filename = 'plotting/plot_model_comparison.py'
-    with open(filename) as file:
-        exec(file.read())          
+    if Bfield_geom_arr == ['open_parker_spiral','closed_dipole','pfss']:
+        filename = 'plotting/plot_model_comparison.py'
+        with open(filename) as file:
+            exec(file.read())          
 
     print(f'\nDONE WITH PLANET {Exoplanet}!!\n')
     print('###########################################################\n')
