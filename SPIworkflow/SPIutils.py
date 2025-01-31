@@ -61,18 +61,45 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     # Magnetic moment of the star
     Magnetic_m_dipole =  R_star**3 * B_star
     
+    # Pure dipole equations
     B_r_dipole     =  Magnetic_m_dipole / d_orb**3  * 2 * r_dipole_geom
     B_theta_dipole =  Magnetic_m_dipole / d_orb**3  * theta_dipole_geom
     B_phi_dipole   =  Magnetic_m_dipole / d_orb**3  * phi_dipole_geom
     
+    
+    ### Pure Parker spiral
     B_r_parker =  B_star * (d_orb/R_star)**(-2)
     B_theta_parker = 0.0
     B_phi_parker = B_r_parker * v_corot/v_sw * np.sin(POLAR_ANGLE)
+    
+    
+    # PFSS model
+    # Dipole magnetic field at the PFSS
+    B_r_dipole_pfss     =  Magnetic_m_dipole / (R_SS*R_star)**3  * 2 * r_dipole_geom
+    B_theta_dipole_pfss =  Magnetic_m_dipole / (R_SS*R_star)**3  * theta_dipole_geom
+    B_phi_dipole_pfss   =  Magnetic_m_dipole / (R_SS*R_star)**3  * phi_dipole_geom
+    B_sw_pfss  = np.sqrt(B_r_dipole_pfss**2 + B_theta_dipole_pfss**2 + B_phi_dipole_pfss**2)
+        
+    #Parker spiral equations imposing continuity of B_sw at the PFSS    
+    B_continuity = B_sw_pfss * R_SS**2
+    B_r_parker_pfss =  B_continuity * (d_orb/R_star)**(-2)
+    B_theta_parker_pfss = 0.0
+    B_phi_parker_pfss = B_r_parker_pfss * v_corot/v_sw * np.sin(POLAR_ANGLE)
+    #print('B_r_parker_pfss)
 
     # pffs_r_factor and pfss_theta_factor taken as in Jardine+2002 (MNRAS). See Eqs. 7 and 8 
-    pfss_r_factor=  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
-    pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
+    #pfss_r_factor=  ((d_orb/R_star)**3 + 2*R_SS**3) / (1 + 2*R_SS**3) 
+    #pfss_theta_factor =  (-2*(d_orb/R_star)**3 + 2*R_SS**3)/(1+2*R_SS**3) 
+    #pfss_theta_factor tends to zero at the PFSS. 
+    #on other hand the radial field tends to zero at the equator
+    #so that the stellar wind magnetic field at the PFSS is not null
+    
+    #We set these two factors to 1 since we consider a classical dipole up to the PFSS.    
+    pfss_r_factor = pfss_theta_factor = 1
  
+    #The heaviside function is 0 if d_orb/R_star < R_T, 1 if d_orb/R_star > R_T and 0.5 if d_orb/R_star = R_T
+    heaviside = np.heaviside((d_orb/R_star)- R_T, 0.5)
+    
     # The planet cannot be in the same axis of the dipolar magnetic moment of the star  
     # If that's the case, a Parker spiral geometry is enforced.
     if (np.abs(AZIMUTH) < TOLERANCE and np.abs(POLAR_ANGLE - DIPOLE_TILT) < TOLERANCE) or (np.abs(AZIMUTH-np.pi) < TOLERANCE and np.abs(POLAR_ANGLE - (np.pi - DIPOLE_TILT)) < TOLERANCE):
@@ -84,7 +111,8 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     else:  
         sigmoid = 1 / (1 + np.exp(- ((d_orb/R_star) - R_T) / Delta_R_norm))
         
-    heaviside = np.heaviside((d_orb/R_star)-R_T,0.5)
+        
+
     
     if Bfield_geom == 'open_parker_spiral': 
         # Open Parker Spiral - Falls down with distances as R^(-2) rather than R^(-3) as in the dipole case
@@ -110,42 +138,19 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         B_phi   = B_phi_dipole
 
     elif Bfield_geom == 'hybrid':
+        # Classical dipole with a transition to an open Parker spiral
         B_r =  B_r_dipole * (1 - sigmoid) + B_r_parker * sigmoid
         B_theta = B_theta_dipole * (1 - sigmoid) + B_theta_parker * sigmoid
         B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
 
-    elif Bfield_geom == 'closed_pfss': 
-        # PFSS (Potential Field Source Surface)
-        #
-        # It uses Eqns 7 and 8 from Jardine et al. (MNRAS, 2002, 333)
-        # These expressions do not reproduce the expected behaviour of the magnetic
-        # field, beyond R_SS, so results are not reliable beyond that radius.
-        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
-        # and all predicted values are indistinguisable from model "closed_dipole" 
-        B_r     = B_r_dipole * pfss_r_factor 
-        B_theta = B_theta_dipole * pfss_theta_factor 
-        B_phi   = B_phi_dipole
-
-    elif Bfield_geom == 'old_pfss_parker': 
-        # PFSS with a transition to an open Parker spiral
-        #
-        # A modified version 
-        # field, beyond R_SS, so results are not reliable beyond that radius.
-        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
-        # and all predicted values are indistinguisable from model "closed_dipole" 
-        B_r     = B_r_dipole * pfss_r_factor * (1 - sigmoid) + B_r_parker * sigmoid
-        B_theta = B_theta_dipole *pfss_theta_factor *(1 - sigmoid) + B_theta_parker * sigmoid
-        B_phi = B_phi_dipole* (1 - sigmoid) + B_phi_parker * sigmoid
     elif Bfield_geom == 'pfss_parker': 
         # PFSS with a transition to an open Parker spiral
         #
-        # A modified version 
-        # field, beyond R_SS, so results are not reliable beyond that radius.
-        # If R_SS >> R_star, then the behaviour is that of a pure dipole all the way,
-        # and all predicted values are indistinguisable from model "closed_dipole" 
-        B_r     = B_r_dipole * pfss_r_factor * (1 - heaviside) + B_r_parker * heaviside
-        B_theta = B_theta_dipole *pfss_theta_factor *(1 - heaviside) + B_theta_parker * heaviside
-        B_phi = B_phi_dipole* (1 - heaviside) + B_phi_parker * heaviside
+        # It is a classical dipole up to the PFSS and a modified Parker spiral beyond
+        
+        B_r     = B_r_dipole * pfss_r_factor * (1 - heaviside) + B_r_parker_pfss * heaviside 
+        B_theta = B_theta_dipole *pfss_theta_factor *(1 - heaviside) + B_theta_parker_pfss * heaviside
+        B_phi   = B_phi_dipole* (1 - heaviside) + B_phi_parker_pfss * heaviside
 
     # Total stellar wind magnetic field
     B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 
