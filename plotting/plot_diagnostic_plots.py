@@ -67,9 +67,9 @@ ax4.legend(handles=[blue_patch,red_patch,green_patch],loc='upper right',fontsize
 #ax4.set_ylim([1e-2,1e14])
 
 ax1.set_ylabel(r"v $[\rm km$ $s^{-1}] $")
-ax2.set_ylabel(r"$B_{\rm sw}$ $[nT]$")
+ax2.set_ylabel(r"$B_{\rm sw}$ $[G]$")
 ax3.set_ylabel(r"$M_A$")
-ax4.set_ylabel(r"P $[nPa] $")
+ax4.set_ylabel(r"P $[erg/s] $")
         
 ax1.set_facecolor("white")
 ax2.set_facecolor("white")
