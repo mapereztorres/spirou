@@ -21,7 +21,7 @@ blue_patch = mpatches.Patch(color='blue', label=r'v_${\rm sw}$')
 orange_patch = mpatches.Patch(color='orange', label=r'v_${\rm sound}$')
 #ax1.set_xscale('log')
 ax1.set_yscale('log')          
-ax1.set_ylim([3e2,7e4])
+ax1.set_ylim([3e2,7e3])
 ax1.legend(handles=[blue_patch,red_patch,black_patch,orange_patch,green_patch],loc='upper left',fontsize=20,facecolor='white',edgecolor='white', framealpha=0)
 ax1.axhline(y = v_sw_terminal/1e5)
 
