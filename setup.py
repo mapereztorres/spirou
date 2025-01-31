@@ -28,8 +28,8 @@ STUDY = "D_ORB"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
-D_ORB_LIM = np.nan
-#D_ORB_LIM = 3000
+#D_ORB_LIM = np.nan
+D_ORB_LIM = 3000
 
 #  STUDY = 'M_DOT' SETUP
 #
