@@ -1,2 +1,3 @@
 ,star_name,star_sp_type,d_star(pc),radius_star(r_sun),mass_star(m_sun),p_rot(days),bfield_star(gauss),planet_name,mass_planet(m_earth),radius_planet(r_earth),p_orb(days),a(au),T_corona(MK),mdot(mdot_sun),eccentricity
-1,YZCet,M4.5,3.7,0.163,0.137,68.5,220.0,YZCet b,0.7,0.89,2.02,0.01638019027,1.5,0.25,0.0
+1,YZCet,M4.5,3.7,0.163,0.137,68.5,220.0,YZCet b Model B,0.7,0.89,2.02,0.01638019027,1.5,0.25,0.0
+2,YZCet,M4.5,3.7,0.163,0.137,68.5,220.0,YZCet b Model A,0.7,0.89,2.02,0.01638019027,1.5,5.0,0.0
