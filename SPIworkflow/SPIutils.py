@@ -165,7 +165,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         geom_f = (np.sin(theta))**2 # Geometric factor in efficiency 
         
     if Bfield_geom == 'pfss': 
-        geom_f = (1 - sigmoid)+(np.sin(theta))**2 * sigmoid # Geometric factor in efficiency 
+        geom_f = (1 - heaviside)+(np.sin(theta))**2 * heaviside # Geometric factor in efficiency 
 
     return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
