@@ -101,7 +101,7 @@ diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_ar
 #    geometry = "-Closed-dipole-Bstar"
 #else:
 #    geometry = "-Closed-PFSS-Bstar"
-out_diagnos =  FOLDER + '/'+ STUDY +"-diagnostic-"  + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
+out_diagnos =  FOLDER + '/'+'/DIAG_PDF'+ '/'+ STUDY +"-diagnostic-"  + "_" + str(Exoplanet.replace(" ", "_")) +  geometry + diagnostic_string +'.pdf' 
 plt.savefig(out_diagnos,bbox_inches='tight')
 
 df_B_tot= pd.DataFrame({

@@ -7,14 +7,14 @@ from matplotlib.lines import Line2D
 plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
 ##comparison plots for the fluxes
-alfven_wing_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
-reconnection_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
-alfven_wing_dipole=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-closed-dipole-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
-reconnection_dipole=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-closed-dipole-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
+alfven_wing_parker=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
+reconnection_parker=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-open-parker-spiral-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
+alfven_wing_dipole=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-closed-dipole-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
+reconnection_dipole=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-closed-dipole-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
 #alfven_wing_hybrid=pd.read_csv(FOLDER+'/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
 #reconnection_hybrid=pd.read_csv(FOLDER+'/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
-alfven_wing_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
-reconnection_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+'Flux_'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
+alfven_wing_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_alfven_wing_model.csv')
+reconnection_pfss_parker=pd.read_csv(FOLDER+'/CSV/'+STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-pfss-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'_reconnection_model.csv')
 plt.figure(figsize=(8, 7.5))
 lw=2
 ax2 = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
@@ -44,7 +44,7 @@ ax2.set_ylabel(r"Flux density [mJy]")
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
 ax2.set_xlim(left=2)     
 
-plt.savefig(FOLDER+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+plt.savefig(FOLDER+'/'+'COMPARISON_PDF'+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
 
 
 ##comparison plots for the stellar wind magnetic field
@@ -80,7 +80,7 @@ ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='wh
 ax2.set_xlim(left=2)     
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$B_{\rm sw}$ $[G]$")
-plt.savefig(FOLDER + '/' +'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+plt.savefig(FOLDER + '/' +'COMPARISON_PDF'+'/'+'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
 
 
 
@@ -116,7 +116,7 @@ ax2.legend(handles=legend_elements, loc='upper left', fontsize=12, facecolor='wh
 ax2.set_xlim(left=2)     
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$M_A$")
-plt.savefig(FOLDER + '/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+plt.savefig(FOLDER + '/'+'COMPARISON_PDF'+'/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
 
 
 

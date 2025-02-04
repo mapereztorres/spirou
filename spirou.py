@@ -405,14 +405,20 @@ for indi in planet_array:
             FOLDER = 'OUTPUT/' + str(Exoplanet.replace(" ", "_"))
             if not(os.path.isdir(FOLDER)):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_")))
-            if not(os.path.isdir(FOLDER+'/PDF')):
-                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/PDF')
-            if not(os.path.isdir(FOLDER+'/PNG')):
-                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/PNG')
+            if not(os.path.isdir(FOLDER+'/FLUX_PDF')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/FLUX_PDF')
+            if not(os.path.isdir(FOLDER+'/FLUX_PNG')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/FLUX_PNG')
             if not(os.path.isdir(FOLDER+'/CSV')):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/CSV')
             if not(os.path.isdir(FOLDER+'/TXT')):
                 os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/TXT')
+            if not(os.path.isdir(FOLDER+'/DIAG_PDF')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/DIAG_PDF')
+            if not(os.path.isdir(FOLDER+'/R_EFF_PDF')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/R_EFF_PDF')      
+            if not(os.path.isdir(FOLDER+'/COMPARISON_PDF')):
+                os.system('mkdir OUTPUT/' + str(Exoplanet.replace(" ", "_"))+'/COMPARISON_PDF')    
             # generate output files for the different magnetic field geometries
             geometry = "-" + Bfield_geom_arr[ind].replace('_','-') + '-Bstar'
 

@@ -306,7 +306,7 @@ common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[lo
 #else:
 
 #outfile = FOLDER + '/' +'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string     
-outfile = 'Flux_'+ STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string   
+outfile =  STUDY +  "_" + str(Exoplanet.replace(" ", "_")) + geometry + common_string   
 # Variable to send output to files (PLOTOUT= True), or show them in
 # the terminal (PLOTOUT = False) 
 
@@ -316,9 +316,9 @@ if freefree == True:
 
 if PLOTOUT == True:
     plt.tight_layout()
-    outfilePDF = os.path.join(FOLDER + '/PDF/' +outfile+ ".pdf")
+    outfilePDF = os.path.join(FOLDER + '/FLUX_PDF/' +'Flux_'+outfile+ ".pdf")
     plt.savefig(outfilePDF)
-    outfilePNG = os.path.join(FOLDER + '/PNG/' +outfile +".png")
+    outfilePNG = os.path.join(FOLDER + '/FLUX_PNG/' +'Flux_'+outfile +".png")
     plt.savefig(outfilePNG)
     plt.close()
 else:
