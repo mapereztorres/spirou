@@ -121,13 +121,14 @@ if STUDY == 'D_ORB':
         ax1.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
-    ax2.set_xlim(0,d_orb_max)
-
+    ax2.set_xlim(1,d_orb_max)
     ax1 = ax2.twiny()
-   
-    
     ax1.set_xlabel(r"Orbital period (days)")
     
+    if Bfield_geom_arr[ind] == 'pfss': 
+        # ax2.axvline(x = R_SS, ls='--', color='k', lw=2)
+        #ax2.axvspan(x[0], R_SS, facecolor='grey', alpha=0.5,hatch='x')
+        ax2.axvspan(x[0], R_SS, facecolor='gray', alpha=0.7)
     def tick_function(X):
         V = spi.Kepler_P(M_star/M_sun,X*R_star/au)
         return ["%.1f" % z for z in V]
@@ -212,13 +213,25 @@ orange_patch = mpatches.Patch(color='orange', label='Alfvén wing')
 blue_patch = mpatches.Patch(facecolor='blue',label='Reconnection')
 
 if STUDY == "D_ORB":
-        ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-        label_location='lower left'               
+    #ax2.text(d_orb_max*0.7, 10**((np.log10(YLIMHIGH)-1)*1.02), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+'MK', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+    #ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.07), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    label_location='upper right'       
+    #ax2.text(d_orb_max*0.7, 10**((np.log10(YLIMHIGH)-1)*0.82), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))     
+             
+    ax2.text(d_orb_max*0.7, 10**((np.log10(YLIMHIGH)-1)*0.8), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK'+'\n'+'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+    '''
+    if magnetized_pl_arr[ind1]:
+        ax2.text(d_orb_max*0.7, 10**((np.log10(YLIMHIGH)-1)*0.85), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+        #ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    else:
+        #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
+        ax2.text(d_orb_max*0.7, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    '''   
 
 elif STUDY == "M_DOT":
         if magnetized_pl_arr[ind1]:
-            #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-            ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            #ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         else:
             #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
             ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
@@ -229,8 +242,7 @@ elif STUDY == "B_PL":
     ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
     ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
     label_location='upper left'   
-       
-ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=0)            
+ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=1)            
 #plt.rcParams['mathtext.fontset'] = 'custom'
 #plt.rcParams['mathtext.bf'] = 'cm:bold'
 
@@ -293,8 +305,9 @@ if any(ind > 1 for ind in M_A):
         ax1.axvline(x = x_superalfv, color='grey',lw=2)
         ax1.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
     if x_superalfv!=x[0]: 
-        ax2.axvline(x = x_superalfv, color='grey',lw=2)
-    ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
+        ax2.axvline(x = x_superalfv, color='black',lw=2)
+    #ax2.axvspan(x_superalfv, x[-1], facecolor='grey', alpha=0.5)
+    ax2.axvspan(x_superalfv, x[-1], facecolor='black', alpha=0.6,hatch='x')
     #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
 
