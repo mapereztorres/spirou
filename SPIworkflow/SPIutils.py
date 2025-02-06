@@ -26,7 +26,7 @@ def get_velocity_comps(M_star, d_orb, P_rot_star):
 
     return v_orb, v_corot, Omega_star
  
-def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven):
+def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_rel):
     """
     Computes the radial and azimuthal components of the stellar wind magnetic field for
     three different geometries: 
@@ -373,7 +373,32 @@ def get_R_alfven(eta_star, colatitude):
 
     return R_alfven
     
+def get_R_alfven_alt(eta_star, colatitude):
+    """
+    Computes the Alfvén radius for a given colatitude value 
+    (colatitude = 90 deg implies at the magnetic equator)
+    We follow the formalism in ud-Doula & Owocki (2002, ApJ)
 
+    OUTPUT: 
+        R_alfvén (array) - Alfvén radius at a certain value of the POLAR_ANGLE (theta ==
+                           colatitude). 
+                           It returns an array of the same length as M_star_dot_arr.
+                           In units of stellar radii
+    INPUT: 
+        eta_star (array):  Magnetic confinement parameter at the equator of the stellar
+                           surface. Adimensional. As defined in ud-Doula & Owocki (2002, ApJ).
+        colatitude (float)  - colatitude at which to determine R_alfven, in radians
+    """
+    factor = 4 - 3 * np.sin(colatitude)**2  ## factor in RHS of Eq. 8 
+
+    def equation(R_ratio, eta_star):
+        return (R_ratio**(2*Q_DIPOLE-2) - R_ratio**(2*Q_DIPOLE-3)) - eta_star * factor
+    R_alfven=[]
+    for ind in range(len(eta_star)):
+        R_alfven.append(fsolve(equation, R_ALFVEN_GUESS, args=(eta_star[ind]))[0])
+
+    return R_alfven
+    
 def get_theta_A(R_alfven_pole):
     """
     OUTPUT: theta_A (array): colatitude at which the last closed magnetic line of the

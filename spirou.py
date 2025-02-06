@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.special import lambertw
 import matplotlib.patches as mpatches
-
+from matplotlib.lines import Line2D
 #matplotlib.rc_file_defaults()
 plt.style.use(['bmh','SPIworkflow/spi.mplstyle'])
 
@@ -203,10 +203,20 @@ for indi in planet_array:
     eta_star = spi.get_eta_star(B_star, R_star, M_star_dot_arr, v_sw_terminal)
 
     #Alfven radius at the specified POLAR_ANGLE, in stellar radii
-    R_alfven = spi.get_R_alfven(eta_star, colatitude=POLAR_ANGLE)
-
+    if STUDY == "D_ORB" or STUDY == "B_PL":
+        R_alfven = spi.get_R_alfven(eta_star, colatitude=POLAR_ANGLE)
+        R_alfven =np.array(R_alfven)
+        R_alfven_pole = spi.get_R_alfven(eta_star, colatitude = 0)
+        R_alfven_pole = np.array(R_alfven_pole)
+    if STUDY == "M_DOT":
+        R_alfven = spi.get_R_alfven_alt(eta_star, colatitude=POLAR_ANGLE)
+        R_alfven =np.array(R_alfven)
+        R_alfven_pole = spi.get_R_alfven_alt(eta_star, colatitude = 0)
+        R_alfven_pole = np.array(R_alfven_pole)
+    print('R_alfven :', R_alfven, type(R_alfven))
+    print('R_alfven_pole: ', R_alfven_pole,type(R_alfven_pole))
     #Alfven radius at the pole, in stellar radii
-    R_alfven_pole = spi.get_R_alfven(eta_star, colatitude = 0)
+    #R_alfven_pole = spi.get_R_alfven(eta_star, colatitude = 0)
 
     # Latitude above which all magnetic field lines are open
     theta_A_deg, latitude = spi.get_theta_A(R_alfven_pole)
@@ -254,7 +264,7 @@ for indi in planet_array:
             elif Bfield_geom_arr[ind] == 'pfss':   
                 selected_geometry="HYBRID PFSS - PARKER SPIRAL MAGNETIC FIELD GEOMETRY"
             # get magnetic field components
-            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel, R_alfven)
+            B_r, B_phi, B_sw, angle_B, theta, geom_f = spi.get_bfield_comps(Bfield_geom_arr[ind], B_spi, d_orb, R_star, v_corot, v_sw, angle_v_rel)
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)

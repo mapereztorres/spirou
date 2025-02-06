@@ -42,7 +42,8 @@ Line2D([0], [0], color='blue', linestyle='dashed', lw=lw, label='Reconnection (P
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"Flux density [mJy]")
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
-ax2.set_xlim(left=2)     
+if STUDY == "D_ORB":
+    ax2.set_xlim(left=2)       
 
 plt.savefig(FOLDER+'/'+'COMPARISON_PDF'+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
 
@@ -77,7 +78,8 @@ Line2D([0], [0], color='black', lw=lw, label='PFSS'),
 ]
 
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
-ax2.set_xlim(left=2)     
+if STUDY == "D_ORB":
+    ax2.set_xlim(left=2)      
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$B_{\rm sw}$ $[G]$")
 plt.savefig(FOLDER + '/' +'COMPARISON_PDF'+'/'+'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
@@ -113,7 +115,10 @@ Line2D([0], [0], color='black', linestyle='dashed', lw=lw, label='PFSS'),
 ]
 
 ax2.legend(handles=legend_elements, loc='upper left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
-ax2.set_xlim(left=2)     
+
+if STUDY == "D_ORB":
+    ax2.set_xlim(left=2)     
+
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$M_A$")
 plt.savefig(FOLDER + '/'+'COMPARISON_PDF'+'/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
