@@ -107,8 +107,10 @@ ax4.axvline(x = xnom, ls='--', color='k', lw=2)
 secax = ax1.secondary_yaxis('right', functions=(spi.identity,spi.identity))
 secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
 secax = ax3.secondary_yaxis('right', functions=(spi.identity,spi.identity))
-secax = ax4.secondary_yaxis('right', functions=(spi.identity,spi.identity))      
-print('geometry', geometry)
+secax = ax4.secondary_yaxis('right', functions=(spi.identity,spi.identity))  
+
+
+#print('geometry', geometry)
 if STUDY == "D_ORB" and Bfield_geom_arr[ind] == 'pfss':
     ax1.axvspan(x[0], R_SS, facecolor='grey', alpha=0.6)
     ax2.axvspan(x[0], R_SS, facecolor='grey', alpha=0.6)
@@ -131,7 +133,7 @@ ax3.set_yscale('log')
 ax4.set_yscale('log')  
 
 ax2.set_ylim([1e-5,1e5])
-
+    
 #diagnostic_string = "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf' 
 diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'
 

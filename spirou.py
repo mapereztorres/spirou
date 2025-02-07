@@ -156,9 +156,15 @@ for indi in planet_array:
     # Electron gyrofrequency and ECM bandwidth 
     #gyrofreq = e*B_spi/(2*np.pi * m_e * c) # in cgs units
     #Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
-
+    if Exoplanet=='Trappist-1 b':
+        print('d_orb limit like in Turnpenny')
+        d_orb_max = 3e3
+    elif Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+        print('d_orb limit like in Pineda')
+        d_orb_max = 60  
     # Max. orbital distance, in units of R_star
-    d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
+    else:
+        d_orb_max = max(2*r_orb/R_star, D_ORB_LIM) 
 
     # The type of STUDY (D_ORB, M_DOT or B_PL) is set up in setup.py 
     # and tells us whether the computaion is done 
@@ -242,13 +248,18 @@ for indi in planet_array:
     if ISOTHERMAL:
         #n_sw_planet = n_sw_base / (d_orb/R_star)**2 / (v_sw/v_sw_base) # Plasma density at distance (R/R_star)
         n_sw_planet = spi.n_wind(M_star_dot_arr, d_orb, v_sw, m_av) # Plasma number density at distance (R/R_star)
+        if Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+            #print(M_star_dot_arr, d_orb, v_sw, m_av)
+            print(M_star_dot_arr)
+            
+            print(f'n_sw_planet for planet {Exoplanet}: {n_sw_planet}')
     else:
         # WARNING: This (arbitrary) value of 1e4 for n_sw_planet to be set up in setup.py
         #n_sw_planet = np.ones(len(d_orb)) * 1e4  
         n_sw_planet = np.ones(Nsteps) * 1e4  
 
     rho_sw_planet = m_av * n_sw_planet #wind density at the distance to the planet, in g * cm^(-3)
-
+    #print('rho_sw_planet :', rho_sw_planet)
     for ind in range(len(Bfield_geom_arr)):
         for ind1 in range(len(magnetized_pl_arr)):
             # Bfield_geom_arr defines the geometry of the magnetic field (closed / open)
@@ -268,7 +279,8 @@ for indi in planet_array:
             
             # Compute Alfvén parameters in the stellar wind at a distance d_orb 
             v_alf, M_A, v_alf_r, M_A_radial = spi.get_alfven(rho_sw_planet, B_sw, B_r, v_rel, v_sw)
-
+            if Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+                print('v_alf [-1]: ',v_alf[-1])
             # defines whether planet is unmagnetized (magnetized_pl_arr[ind1] = 0), or magnetized (magnetized_pl_arr[ind1] = 1)
             if magnetized_pl_arr[ind1]: # magnetized planet
                 planet_magnetized='MAGNETIZED PLANET'
@@ -478,8 +490,12 @@ for indi in planet_array:
             # DIAGNOSTIC PLOTS
             ################################
 
-
-            filename = 'plotting/plot_diagnostic_plots.py'
+            if Exoplanet=='Trappist-1 b':
+                filename = 'plotting/plot_diagnostic_plots_turnpenny.py'
+            elif Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+                filename = 'plotting/plot_diagnostic_plots_pineda.py'
+            else:
+                filename = 'plotting/plot_diagnostic_plots.py'
             with open(filename) as file:
                 exec(file.read())
     
@@ -498,6 +514,16 @@ for indi in planet_array:
             
     ################################        
     if Bfield_geom_arr == ['open_parker_spiral','closed_dipole','pfss']:
+        if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_A/CSV/D_ORB_YZCet_b_Model_A-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv'):
+            print('Model A done')
+        if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_B/CSV/D_ORB_YZCet_b_Model_B-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv'):
+            print('Model B done')
+    
+        if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_A/CSV/D_ORB_YZCet_b_Model_A-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv') and os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_B/CSV/D_ORB_YZCet_b_Model_B-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv'):
+            filename = 'plotting/plot_model_comparison_pineda.py'
+            with open(filename) as file:
+                exec(file.read())   
+
         filename = 'plotting/plot_model_comparison.py'
         with open(filename) as file:
             exec(file.read())          

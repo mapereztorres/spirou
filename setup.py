@@ -23,8 +23,8 @@ INPUT_TABLE = True
 #######################################################################
 
 # Uncomment the line that applies
-#STUDY = "D_ORB"
-STUDY = "M_DOT"
+STUDY = "D_ORB"
+#STUDY = "M_DOT"
 #STUDY = "B_PL"
 
 # STUDY = "D_ORB" SETUP
