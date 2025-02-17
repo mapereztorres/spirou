@@ -38,7 +38,7 @@ D_ORB_LIM = np.nan
 # M_DOT_STRETCH: Number of points per dex in the STUDY of M_DOT
 M_DOT_STRETCH = 50
 M_DOT_MIN = 1e-1
-M_DOT_MAX = 1e+0
+M_DOT_MAX = 1e+2
 
 #  STUDY = 'B_PL' SETUP
 #

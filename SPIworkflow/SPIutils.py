@@ -7,7 +7,7 @@ from setup import *
 from SPIworkflow.constants import *
 from scipy.special import lambertw
 from scipy.optimize import fsolve
-
+import math as math
 
 # FUNCTION DEFINITIONS 
 
@@ -151,12 +151,13 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
     B_sw  = np.sqrt(B_r**2 + B_theta**2 + B_phi**2) 
 
     # Eq. 23 of Turnpenney 2018 -  First term of RHS
-    angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
-
+    #angle_B = np.arctan(B_phi/B_r) # Angle the B-field makes with the radial direction
+    print(type(B_r),type(B_phi))
+    angle_B = np.arctan2(B_phi, B_r) # Angle the B-field makes with the radial direction
     # Angle between the stellar wind magnetic field and the impinging plasma velocity
     # Eqn 23 in Turnpenney 2018. It's also Eq. 13 in Zarka 2007
     theta = np.absolute(angle_B - angle_v_rel) 
-
+    #theta = angle_B - angle_v_rel
     geom_f = 1.0 # Geometric factor. 1 for closed dipole configuration, different for the open field configuration
     if Bfield_geom == 'open_parker_spiral': 
         # theta is the angle between the B_sw (the insterstellar magnetic field), and the
@@ -166,7 +167,7 @@ def get_bfield_comps(Bfield_geom, B_star, d_orb, R_star, v_corot, v_sw, angle_v_
         
     if Bfield_geom == 'pfss': 
         geom_f = (1 - heaviside)+(np.sin(theta))**2 * heaviside # Geometric factor in efficiency 
-
+    #geom_f = 1.0
     return B_r, B_phi, B_sw, angle_B, theta, geom_f
 
 def getImage(path):

@@ -156,7 +156,7 @@ for indi in planet_array:
     # Electron gyrofrequency and ECM bandwidth 
     #gyrofreq = e*B_spi/(2*np.pi * m_e * c) # in cgs units
     #Delta_nu_cycl = gyrofreq # Hz - width of ECMI emission  assumed to be  (0.5 * gyrofreq), 
-    if Exoplanet=='Trappist-1 b':
+    if Exoplanet=='Trappist-1 b' or Exoplanet=='Proxima b Turnpenney':
         print('d_orb limit like in Turnpenny')
         d_orb_max = 3e3
     elif Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
@@ -239,8 +239,8 @@ for indi in planet_array:
     # From Eq. 23 of Turnpenney+18 - Second term of RHS 
     # The vector v_rel = v_sw - v_orb (Eq. 5 in Saur+13, and see also Fig. 1 in Turnpenney+18)
     v_rel = np.sqrt(v_orb**2 + v_sw**2)  # in cm/s
-    angle_v_rel = np.arctan(v_orb/v_sw)  # in radians
-    
+    #angle_v_rel = np.arctan(v_orb/v_sw)  # in radians
+    angle_v_rel = np.arctan2(v_orb,v_sw)  # in radians
     # Compute n_sw_planet, the number density of the wind at the orbital distance to the planet. 
     # If the stellar plasma is assumed to be isothermal, then 
     # the density falls down as ~ R^(-2) * v_sw^(-1).
@@ -489,13 +489,13 @@ for indi in planet_array:
             ################################
             # DIAGNOSTIC PLOTS
             ################################
-
-            if Exoplanet=='Trappist-1 b':
-                filename = 'plotting/plot_diagnostic_plots_turnpenny.py'
-            elif Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
-                filename = 'plotting/plot_diagnostic_plots_pineda.py'
-            else:
-                filename = 'plotting/plot_diagnostic_plots.py'
+            filename = 'plotting/plot_diagnostic_plots.py'
+            if STUDY == 'D_ORB':	
+                if Exoplanet=='Trappist-1 b' or Exoplanet=='Proxima b Turnpenney':
+                    filename = 'plotting/plot_diagnostic_plots_turnpenny.py'           
+                elif Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+                    filename = 'plotting/plot_diagnostic_plots_pineda.py'
+                    
             with open(filename) as file:
                 exec(file.read())
     
@@ -519,7 +519,7 @@ for indi in planet_array:
         if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_B/CSV/D_ORB_YZCet_b_Model_B-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv'):
             print('Model B done')
     
-        if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_A/CSV/D_ORB_YZCet_b_Model_A-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv') and os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_B/CSV/D_ORB_YZCet_b_Model_B-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv'):
+        if os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_A/CSV/D_ORB_YZCet_b_Model_A-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv') and os.path.isfile('/home/luis/github/spirou/OUTPUT/YZCet_b_Model_B/CSV/D_ORB_YZCet_b_Model_B-open-parker-spiral-Bstar220.0G-Bplanet[0.5]G-1.0e-03-1.0e-03-T_corona1.5MKSPI_at_1.0R_star_reconnection_model.csv') and STUDY == 'D_ORB' :
             filename = 'plotting/plot_model_comparison_pineda.py'
             with open(filename) as file:
                 exec(file.read())   

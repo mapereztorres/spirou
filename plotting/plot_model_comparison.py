@@ -43,9 +43,11 @@ ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"Flux density [mJy]")
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
 if STUDY == "D_ORB":
-    ax2.set_xlim(left=2)       
-
-plt.savefig(FOLDER+'/'+'COMPARISON_PDF'+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+    ax2.set_xlim(left=2)
+    ax2.set_xlim(right=d_orb_max)       
+ax2.margins(x=0)    
+secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+plt.savefig(FOLDER+'/'+'COMPARISON_PDF'+'/'+'Flux'+'_model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-Bstar'+"{:.1f}".format(B_star)+'G-Bplanet' + str(B_planet_arr[loc_pl]) + 'G' + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf', bbox_inches='tight')
 
 
 ##comparison plots for the stellar wind magnetic field
@@ -64,7 +66,9 @@ plt.figure(figsize=(8, 7.5))
 lw=2
 ax2 = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
 ax2.set_facecolor("white")  
-ax2.set_xscale('log')
+
+
+    
 ax2.set_yscale('log')
 ax2.plot(bsw_parker[STUDY], bsw_parker['Bsw'], color='blue', linestyle='dashed')
 ax2.plot(bsw_dipole[STUDY], bsw_dipole['Bsw'], color='orange', linestyle='dotted')
@@ -79,10 +83,15 @@ Line2D([0], [0], color='black', lw=lw, label='PFSS'),
 
 ax2.legend(handles=legend_elements, loc='lower left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
 if STUDY == "D_ORB":
-    ax2.set_xlim(left=2)      
+    ax2.set_xlim(left=2)   
+    ax2.set_xlim(right=d_orb_max)      
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$B_{\rm sw}$ $[G]$")
-plt.savefig(FOLDER + '/' +'COMPARISON_PDF'+'/'+'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+ax2.margins(x=0)
+if STUDY == 'MDOT':
+    ax2.set_xscale('log')
+plt.savefig(FOLDER + '/' +'COMPARISON_PDF'+'/'+'B_sw_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf', bbox_inches='tight')
 
 
 
@@ -101,7 +110,8 @@ plt.figure(figsize=(8, 7.5))
 lw=2
 ax2 = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
 ax2.set_facecolor("white")  
-ax2.set_xscale('log')
+if STUDY == 'MDOT':
+    ax2.set_xscale('log')
 ax2.set_yscale('log')
 ax2.plot(bsw_parker[STUDY], bsw_parker['M_A'], color='blue')
 ax2.plot(bsw_dipole[STUDY], bsw_dipole['M_A'], color='orange', linestyle='dotted')
@@ -118,10 +128,17 @@ ax2.legend(handles=legend_elements, loc='upper left', fontsize=12, facecolor='wh
 
 if STUDY == "D_ORB":
     ax2.set_xlim(left=2)     
-
+    ax2.set_xlim(right=d_orb_max)     
 ax2.set_xlabel(xlabel,fontsize=20)
 ax2.set_ylabel(r"$M_A$")
-plt.savefig(FOLDER + '/'+'COMPARISON_PDF'+'/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf')
+secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+
+if Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+    ax2.set_ylim([1e-3, 1e2]) 
+       
+ax2.margins(x=0)
+#fig.tight_layout()
+plt.savefig(FOLDER + '/'+'COMPARISON_PDF'+'/'+'M_A_'+'model_comparison-'+ STUDY + "_" + str(Exoplanet.replace(" ", "_")) + '-hybrid-Bstar'+"{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf', bbox_inches='tight')
 
 
 

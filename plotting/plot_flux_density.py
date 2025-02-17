@@ -116,7 +116,8 @@ if STUDY == 'D_ORB':
     ax2.set_yscale('log') 
     # Draw vertical line at nominal orbital separation of planet
     xnom = r_orb/R_star
-    xlabel=r"Distance / Stellar radius"
+    #xlabel=r"Distance / Stellar radius"
+    xlabel=r"Orbital separation / Stellar radius"
     if PLOT_M_A == True:
         ax1.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
@@ -150,6 +151,8 @@ elif STUDY == 'M_DOT':
     # Draw vertical line at nominal mass loss rate of the star
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
+    ax2.set_xlim([x[0],x[-1]])
+    
 elif STUDY == 'B_PL':
     ax2.set_yscale('log'); 
     xnom = B_planet_Sano
@@ -157,6 +160,8 @@ elif STUDY == 'B_PL':
     # Draw vertical line at the reference planetary magnetic field
     ax2.axvline(x = xnom, ls='--', color='k', lw=2)
     ax2.set_xlabel(xlabel,fontsize=20)
+    ax2.set_xlim([x[0],x[-1]])
+    
 if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
     if PLOT_M_A == True:
         ax1.set_yscale('log')                
@@ -166,7 +171,11 @@ if (STUDY == 'D_ORB') or (STUDY == 'M_DOT'):
             ax1.set_xscale('log')
             if LIMS_MA == True:
                 ax1.set_ylim((LIM_MA_LOW, LIM_MA_HIGH))
-    
+                
+
+
+
+   
 ax2.set_ylabel(r"Flux density [mJy]")
 ax3 = ax2.twinx()
 ax3.tick_params(left=False, labelleft=False, top=False, labeltop=False,
@@ -230,16 +239,17 @@ if STUDY == "D_ORB":
 
 elif STUDY == "M_DOT":
         if magnetized_pl_arr[ind1]:
-            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*1.1), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
             #ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+"{:.2f}".format(B_planet_arr[0])+' G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         else:
             #ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=1,edgecolor='white'))
-            ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
-        ax2.text(1e-1, 10**((np.log10(YLIMLOW)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+            ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*1.1), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+        
+        ax2.text(1e-1, 10**((np.log10(YLIMHIGH)-1)*0.9), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
         label_location='upper left'   
         
 elif STUDY == "B_PL":  
-    ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
+    #ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.3), r'B$_{pl} = $'+'0 G', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
     ax2.text(B_PL_MAX*0.7, 10**((np.log10(YLIMLOW)+1)*1.2), r'T$_{c} = $'+"{:.1f}".format(T_corona/1e6)+' MK', fontsize = 16,bbox=dict(facecolor='white', alpha=0,edgecolor='white'))
     label_location='upper left'   
 ax2.legend(handles=[blue_patch,orange_patch],loc=label_location,fontsize=16,facecolor='white',edgecolor='white', framealpha=1)            
@@ -311,6 +321,19 @@ if any(ind > 1 for ind in M_A):
     #print(f'For the study {STUDY}, planet enters a superalfvénic regime at value {STUDY}',x_superalfv)
 
 
+
+if (STUDY == 'M_DOT') :
+    if Exoplanet=='YZCet b Model A' or Exoplanet=='YZCet b Model B':
+        ax2.axvline(x = 0.25, ls='--', color='k', lw=2)
+        ax2.axvline(x = 5, ls='--', color='k', lw=2)
+        ax2.text(0.25, 1e2, 'A')
+        ax2.text(5, 1e2, 'B')
+
+
+
+secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
+
+
 common_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'             
 #if Bfield_geom_arr[ind] == 'open_parker_spiral':
 #    outfile = FOLDER + '/' + STUDY + "_" + str(Exoplanet.replace(" ", "_")) + "-Open-spiral-Bstar" + common_string 
@@ -338,7 +361,7 @@ else:
     plt.tight_layout()
     plt.show()
     
-    
+   
 
 df_alfven = pd.DataFrame({
      STUDY: x,

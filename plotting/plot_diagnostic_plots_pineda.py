@@ -33,6 +33,10 @@ Line2D([0], [0], color='orange', linestyle=(0,(1,3.5)), label=r'v$_{\rm sound}$'
 ]
 ax1.legend(handles=legend_elements, loc='upper left', fontsize=12, facecolor='white', edgecolor='white', framealpha=0)
 
+idx = (np.abs(x - R_SS)).argmin()
+print('value of v_alf at R_SS')
+print(x[idx])
+print(v_alf[idx]/1e5)
 
 
 ax2.plot(x, np.abs(B_r)*np.ones(len(x)), color='r', linestyle='dotted')
@@ -104,6 +108,10 @@ ax2.axvline(x = xnom, ls='--', color='k', lw=2)
 ax3.axvline(x = xnom, ls='--', color='k', lw=2)
 ax4.axvline(x = xnom, ls='--', color='k', lw=2)
       
+
+      
+      
+      
 secax = ax1.secondary_yaxis('right', functions=(spi.identity,spi.identity))
 secax = ax2.secondary_yaxis('right', functions=(spi.identity,spi.identity))
 secax = ax3.secondary_yaxis('right', functions=(spi.identity,spi.identity))
@@ -127,22 +135,18 @@ if STUDY == "D_ORB":
 fig.set_figwidth(8)
 fig.set_figheight(20)
 #ax1.set_xscale('log')
-
-
-ax3.set_ylim([1e-3,1e1])
-
-
 ax1.set_yscale('log')  
 ax2.set_yscale('log')  
 ax3.set_yscale('log')  
 ax4.set_yscale('log')  
 
-ax2.set_ylim([1e-5,1e5])
-
-ax1.margins(x=0)  
-ax2.margins(x=0)      
-ax3.margins(x=0)
-ax4.margins(x=0)    
+ax1.set_ylim([3e2,8e3])
+#ax1.set_ylim([3e2,8e4])
+ax2.set_ylim([1e-2,5e2])
+#ax3.set_ylim([1e-5,1e5])
+ax3.set_ylim([1e-3,1e1])
+#ax4.set_ylim([1e-5,1e5])
+    
 #diagnostic_string = "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" +'-'+'T_corona'+str(T_corona/1e6)+'MK'+'-'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'+'.pdf' 
 diagnostic_string = "{:.1f}".format(B_star) + "G" + "-Bplanet" + str(B_planet_arr[loc_pl]) + "G" + '-'+"{:.1e}".format(BETA_EFF_MIN)+'-'+"{:.1e}".format(BETA_EFF_MAX)+'-'+'T_corona'+str(T_corona/1e6)+'MK'+'SPI_at_'+str(R_ff_in/R_star)+'R_star'
 
